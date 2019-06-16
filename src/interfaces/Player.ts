@@ -1,17 +1,22 @@
-export interface FieldPlayer extends Player {
+export interface IFieldPlayer extends IPlayer {
   Points: number;
   Starting: boolean;
   Substitute: boolean;
-  BlockPosition: string | null;
-  WithBall: boolean;
+  BlockPosition: any | null;
+  StartingPosition: any | null;
+  BallPosition: any;
+  move(pos:any): void;
+  pass(pos:any): void;
+  shoot(): void;
+  updateBallPosition(pos:any): void;
 }
 
-export interface Player {
-  _id: string;
+export interface IPlayer {
+  _id?: string;
   FirstName: string;
   LastName: string;
   Age: string;
-  Player_ID: string;
+  PlayerID: string;
   Rating: number;
   GoalsScored: number;
   ShirtNumber: string;
