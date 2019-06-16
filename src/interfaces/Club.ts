@@ -1,10 +1,10 @@
-import { Player } from './Player';
+import { IPlayer } from './Player';
 
 export interface Club {
   Name: string;
   AttackingClass: number;
   DefensiveClass: number;
-  Players: [];
+  Players: IPlayer[];
   Manager: string;
   Stadium: string;
   LeagueCode: string;
