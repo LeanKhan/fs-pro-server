@@ -1,11 +1,15 @@
 import { IFieldPlayer } from '../interfaces/Player';
+import { ballMove } from '../utils/events';
+import { XYToIndex } from '../utils/coordinates';
+// import { EventEmitter } from 'events';
 
 export default class Ball {
   public Color: string;
-  public Position: ICoordinate;
-  private Observers: IFieldPlayer[] = [];
+  public Position: IBlock;
+  // private Observers: IFieldPlayer[] = [];
+  private ballMove = ballMove;
 
-  constructor(color: string, pos: ICoordinate) {
+  constructor(color: string, pos: IBlock) {
     this.Color = color;
     this.Position = pos;
   }
@@ -13,25 +17,27 @@ export default class Ball {
   public move(pos: ICoordinate) {
     this.Position.x += pos.x;
     this.Position.y += pos.y;
-    this.notifyObservers();
+    this.Position.key = 'P' + XYToIndex(this.Position.x, this.Position.y, 12);
+    // this.notifyObservers();
+    this.ballMove.emit('ball-moved', this.Position);
   }
 
-  private attachObserver(obs: IFieldPlayer) {
-    this.Observers.push(obs);
-  }
+  // public attachObserver(obs: IFieldPlayer) {
+  //   this.Observers.push(obs);
+  // }
 
-  private detachObserver(obs: IFieldPlayer) {
-    const pId = this.Observers.findIndex((v: any) => {
-      return v.Player_ID === obs.PlayerID;
-    });
-    this.Observers.splice(pId);
-  }
+  // public detachObserver(obs: IFieldPlayer) {
+  //   const pId = this.Observers.findIndex((v: any) => {
+  //     return v.Player_ID === obs.PlayerID;
+  //   });
+  //   this.Observers.splice(pId);
+  // }
 
-  private notifyObservers() {
-    this.Observers.forEach(plyr => {
-      plyr.updateBallPosition(this.Position);
-    });
-  }
+  // public notifyObservers() {
+  //   this.Observers.forEach(plyr => {
+  //     plyr.updateBallPosition(this.Position);
+  //   });
+  // }
 }
 
 export interface ICoordinate {

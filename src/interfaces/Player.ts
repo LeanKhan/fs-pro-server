@@ -5,10 +5,11 @@ export interface IFieldPlayer extends IPlayer {
   BlockPosition: any | null;
   StartingPosition: any | null;
   BallPosition: any;
-  move(pos:any): void;
-  pass(pos:any): void;
+  WithBall: boolean;
+  move(pos: any): void;
+  pass(pos: any): void;
   shoot(): void;
-  updateBallPosition(pos:any): void;
+  updateBallPosition(pos: any): void;
 }
 
 export interface IPlayer {
