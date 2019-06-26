@@ -1,5 +1,6 @@
 import { Team } from './Team';
 import { MatchSide } from './MatchSide';
+import {moveEvents} from '../utils/events';
 
 export interface MatchDetails {
   Title: string;
@@ -41,6 +42,18 @@ export class Match implements MatchInterface {
     this.Home = new MatchSide(home);
     this.Away = new MatchSide(away);
     this.Details = {} as MatchDetails;
+
+    moveEvents.on('yellow card', (player)=>{
+      console.log('Yellow card for ' + player.FirstName);
+    });
+
+    moveEvents.on('red card', (player)=>{
+      console.log('Red card for ' + player.FirstName);
+    });
+
+    moveEvents.on('foul', (player)=>{
+      console.log('Foul commited by ' + player.FirstName);
+    });
   }
 
   /** Create match report */

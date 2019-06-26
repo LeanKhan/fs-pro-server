@@ -2,6 +2,9 @@ import { EventEmitter } from 'events';
 
 const ballMove = new EventEmitter();
 
-ballMove.setMaxListeners(24);
+const moveEvents = new EventEmitter();
 
-export { ballMove };
+ballMove.setMaxListeners(24);
+moveEvents.setMaxListeners(24);
+
+export { ballMove, moveEvents };

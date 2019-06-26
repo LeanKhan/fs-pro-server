@@ -67,12 +67,12 @@ export class MatchSide extends Team implements Club {
           );
   }
 
-  public setFormation(formation: string, ball:Ball, fieldPlay:any) {
+  public setFormation(formation: string, ball: Ball, fieldPlay: any) {
     this.Formation = formations[formation];
 
     this.StartingSquad = this.Players.map((p: any, i) => {
       const pb = fieldPlay[this.Formation[i]];
-      const sp = new FieldPlayer(p,true,pb,ball)
+      const sp = new FieldPlayer(p, true, pb, ball);
       return sp;
     });
   }
@@ -85,7 +85,7 @@ export class MatchSide extends Team implements Club {
     this.Substitutes = subs;
   }
 
-  public matchSquad(){
-   return null;
+  public matchSquad() {
+    return null;
   }
 }

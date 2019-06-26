@@ -2,8 +2,14 @@ import { Match } from '../classes/Match';
 import ClubModel, { Club } from '../models/club.model';
 import Ball, { ICoordinate } from '../classes/Ball';
 import { PlayingField } from '../GameState/ImmutableState/FieldGrid';
-import { findClosestPlayer, findPath } from '../utils/coordinates';
+import {
+  findClosestPlayer,
+  findPath,
+  calculateDifference,
+} from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
+import { MatchSide } from '../classes/MatchSide';
+import Referee, {IReferee} from '../classes/Referee';
 
 let Clubs: Club[] = [];
 
@@ -13,13 +19,12 @@ const centerBlock = PlayingField[42];
 
 const gameLoop = 90;
 
-let AS: any;
+let AS: MatchSide;
 
-let DS: any;
+let DS: MatchSide;
 
-const MatchBall: Ball = new Ball('#ffffff', centerBlock);
-
-console.log('Stating match...');
+let activePlayerAS: IFieldPlayer;
+let activePlayerDS: IFieldPlayer;
 
 ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
   if (!err) {
@@ -34,6 +39,10 @@ ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
   }
 });
 
+const MatchBall: Ball = new Ball('#ffffff', centerBlock);
+
+const MathReferee: IReferee = new Referee('Anjus', 'Banjus', 'normal');
+
 function startMatch() {
   // match.Home.StartingSquad[4].move({ x: 0, y: 1 });
   // console.log(
@@ -42,7 +51,8 @@ function startMatch() {
   //     findClosestPlayer(MatchBall.Position, match.Away.StartingSquad).LastName
   //   }`
   // );
-  for (let i = 0; i < 6; i++) {
+
+  for (let i = 0; i < 8; i++) {
     console.log(`------------Loop Position ${i + 1}---------`);
     loop();
   }
@@ -69,8 +79,6 @@ function startMatch() {
 
 function loop() {
   setPlayingSides();
-  let activePlayerAS: IFieldPlayer;
-  let activePlayerDS: IFieldPlayer;
 
   if (AS === undefined || DS === undefined) {
     // findClosestPlayer(MatchBall.Position, match.Home.StartingSquad);
@@ -84,12 +92,12 @@ function loop() {
       findPath(MatchBall.Position, activePlayerAS.BlockPosition)
     );
 
-    console.log(
-      `Ball is at ${JSON.stringify(MatchBall.Position)}`,
-      `Closest player in ${match.Away.Name} is ${JSON.stringify(
-        activePlayerAS.BlockPosition
-      )}`
-    );
+    // console.log(
+    //   `Ball is at ${JSON.stringify(MatchBall.Position)}`,
+    //   `Closest player in ${match.Away.Name} is ${JSON.stringify(
+    //     activePlayerAS.BlockPosition
+    //   )}`
+    // );
 
     activePlayerDS = findClosestPlayer(
       MatchBall.Position,
@@ -100,12 +108,50 @@ function loop() {
       findPath(MatchBall.Position, activePlayerDS.BlockPosition)
     );
 
-    console.log(
-      `Ball is at ${JSON.stringify(MatchBall.Position)}`,
-      `Closest player in ${match.Home.Name} is at ${JSON.stringify(
-        activePlayerDS.BlockPosition
-      )}`
-    );
+    // console.log(
+    //   `Ball is at ${JSON.stringify(MatchBall.Position)}`,
+    //   `Closest player in ${match.Home.Name} is at ${JSON.stringify(
+    //     activePlayerDS.BlockPosition
+    //   )}`
+    // );
+    console.log(`Ball is at ${JSON.stringify({
+      x: MatchBall.Position.x,
+      y: MatchBall.Position.y,
+      occupant: MatchBall.Position.occupant
+    })}
+    ActivePlayerAS is ${activePlayerAS.FirstName} ${
+      activePlayerAS.LastName
+    } at ${JSON.stringify({
+      x: activePlayerAS.BlockPosition.x,
+      y: activePlayerAS.BlockPosition.y,
+    })}
+    ActivePlayerDS is ${activePlayerDS.FirstName} ${
+      activePlayerDS.LastName
+    } at ${JSON.stringify({
+      x: activePlayerDS.BlockPosition.x,
+      y: activePlayerDS.BlockPosition.y,
+    })}
+    `);
+  } else {
+    attackingAction(activePlayerAS);
+    defendingAction(activePlayerDS);
+    console.log(`Ball is at ${JSON.stringify({
+      x: MatchBall.Position.x,
+      y: MatchBall.Position.y,
+    })}
+    ActivePlayerAS is ${activePlayerAS.FirstName} ${
+      activePlayerAS.LastName
+    } at ${JSON.stringify({
+      x: activePlayerAS.BlockPosition.x,
+      y: activePlayerAS.BlockPosition.y,
+    })}
+    ActivePlayerDS is ${activePlayerDS.FirstName} ${
+      activePlayerDS.LastName
+    } at ${JSON.stringify({
+      x: activePlayerDS.BlockPosition.x,
+      y: activePlayerDS.BlockPosition.y,
+    })}
+    `);
   }
 }
 
@@ -115,15 +161,85 @@ function setPlayingSides() {
       return p.WithBall;
     })
   ) {
-    AS = match.Home;
-    DS = match.Away;
+    AS = match.Home as MatchSide;
+
+    // Set the activePlayer in the attacking team to be the player with
+    // the ball
+    activePlayerAS = match.Home.StartingSquad.find(p => {
+      return p.WithBall;
+    }) as IFieldPlayer;
+
+    DS = match.Away as MatchSide;
+
+    // Set the activePlayer in the defending team to be the player closest to
+    // the ball
+    activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
   } else if (
     match.Away.StartingSquad.find(p => {
       return p.WithBall;
     })
   ) {
-    AS = match.Away;
-    DS = match.Home;
+    AS = match.Away as MatchSide;
+
+    // Set the activePlayer in the attacking team to be the player with
+    // the ball
+    activePlayerAS = match.Away.StartingSquad.find(p => {
+      return p.WithBall;
+    }) as IFieldPlayer;
+
+    DS = match.Home as MatchSide;
+
+    // Set the activePlayer in the defending team to be the player closest to
+    // the ball
+    activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
+  }
+}
+
+function attackingAction(activePlayer: IFieldPlayer) {
+  const chance = Math.round(Math.random() * 100);
+
+  if (chance > 50) {
+    console.log(
+      'Top the player',
+      activePlayer.checkNextBlocks().top
+    );
+    console.log(
+      'Left the player',
+      activePlayer.checkNextBlocks().left
+    );
+    console.log(
+      'Right the player',
+      activePlayer.checkNextBlocks().right
+    );
+    console.log(
+      'Bottom the player',
+      activePlayer.checkNextBlocks().bottom
+    );
+
+    activePlayer.move({ x: 2, y: 0 });
+  } else if (chance <= 50) {
+    const teammate = findClosestPlayer(
+      activePlayer.BlockPosition,
+      AS.StartingSquad
+    );
+
+    activePlayer.pass(
+      calculateDifference(teammate.BlockPosition, activePlayer.BlockPosition)
+    );
+  }
+}
+
+function defendingAction(activePlayer: IFieldPlayer) {
+  const chance = Math.round(Math.random() * 100);
+
+  if (chance > 50) {
+    activePlayer.move({ x: 0, y: 0 });
+  } else if (chance <= 50) {
+    activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
+
+    activePlayerDS.move(
+      findPath(MatchBall.Position, activePlayerDS.BlockPosition)
+    );
   }
 }
 
