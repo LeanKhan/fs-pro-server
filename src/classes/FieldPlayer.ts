@@ -93,19 +93,19 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
       right: undefined,
       bottom: undefined,
     };
-    around.top = coordinateToBlock({
+    around.top = this.BlockPosition.y - 1 < 0 ? undefined : coordinateToBlock({
       x: this.BlockPosition.x,
       y: this.BlockPosition.y - 1,
     });
-    around.left = coordinateToBlock({
+    around.left = this.BlockPosition.x - 1 < 0 ? undefined : coordinateToBlock({
       x: this.BlockPosition.x - 1,
       y: this.BlockPosition.y,
     });
-    around.right = coordinateToBlock({
+    around.right = this.BlockPosition.x + 1 > 11 ? undefined : coordinateToBlock({
       x: this.BlockPosition.x + 1,
       y: this.BlockPosition.y,
     });
-    around.bottom = coordinateToBlock({
+    around.bottom = this.BlockPosition.y + 1 > 6 ? undefined : coordinateToBlock({
       x: this.BlockPosition.x,
       y: this.BlockPosition.y + 1,
     });

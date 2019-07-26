@@ -39,12 +39,12 @@ export class Actions {
         const response = this.move(
           attackingPlayer,
           'forward',
-          getSide(defendingSide.Formation[0])
+          attackingSide.ScoringSide
         );
 
-        matchEvents.emit('set-playing-sides');
-
         console.log(response);
+
+        matchEvents.emit('set-playing-sides');
 
         // this.pass(attackingPlayer, attackingSide, defendingSide);
 
@@ -166,6 +166,9 @@ export class Actions {
             player,
             around
           ) as IFieldPlayer;
+
+          console.log('Around the player => ', around);
+
           // r being where you want to move the player to
           const r = ref as IBlock;
 
@@ -184,7 +187,8 @@ export class Actions {
             } else {
               situation = { status: false, reason: 'no where to move' };
             }
-          } else {
+            // If the player is with the ball and there is bad guy around
+          } else if (player.WithBall && opponentBlock !== undefined) {
             if (
               prob.compareValues(
                 player.AttackingClass,
@@ -205,6 +209,19 @@ export class Actions {
                   reason: 'move towards not successful, because of tackle',
                 };
               }
+            }
+            // If the player is not with the ball even though bad guy around, still move.
+          } else {
+            if (this.makeMove(player, p, around)) {
+              situation = {
+                status: true,
+                reason: 'move forward successful, tho bad guy',
+              };
+            } else {
+              situation = {
+                status: false,
+                reason: 'no where to move, tho bad guy',
+              };
             }
           }
           break;
@@ -241,17 +258,6 @@ export class Actions {
       this.kick(player, direction);
     }
   }
-
-  /**
-   * Returns true if the first player's stats are closer to a randomly chosen
-   * number.
-   * If the function returns true it means weight A wins
-   * if false it means weight B wins
-   * See 'Weight based' probability I think :p
-   *
-   * @param a Weight of player A
-   * @param b Weight of player B
-   */
 
   /**
    * Find the first block around the player that is free
@@ -441,9 +447,9 @@ export class Actions {
   }
 }
 
-function getSide(index: number) {
-  return co.indexToBlock(index);
-}
+// function getSide(index: number) {
+//   return co.indexToBlock(index);
+// }
 
 interface ISituation {
   status?: boolean;

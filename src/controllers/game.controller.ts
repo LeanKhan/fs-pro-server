@@ -6,7 +6,7 @@ import {
   findClosestPlayer,
   findPath,
   calculateDifference,
-  coordinateToBlock
+  coordinateToBlock,
 } from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
 import { MatchSide } from '../classes/MatchSide';
@@ -34,8 +34,8 @@ let activePlayerDS: IFieldPlayer;
 
 // Sides
 
-const homePost: IBlock = coordinateToBlock({x: 0, y: 3});
-const awayPost: IBlock = coordinateToBlock({x: 11, y: 3});
+const homePost: IBlock = coordinateToBlock({ x: 11, y: 3 });
+const awayPost: IBlock = coordinateToBlock({ x: 0, y: 3 });
 
 ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
   if (!err) {
@@ -181,8 +181,8 @@ function moveTowardsBall() {
 }
 
 function listenForMatchEvents() {
-  matchEvents.on('set-playing-sides', ()=>{
-    console.log('*---- setting playing sides ----*')
+  matchEvents.on('set-playing-sides', () => {
+    console.log('*---- setting playing sides ----*');
     setPlayingSides();
   });
 }
