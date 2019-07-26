@@ -4,13 +4,13 @@ export interface IFieldPlayer extends IPlayer {
   Points: number;
   Starting: boolean;
   Substitute: boolean;
-  BlockPosition: any | null;
+  BlockPosition: IBlock;
   StartingPosition: any | null;
   WithBall: boolean;
   Ball: IBall;
   move(pos: any): void;
   pass(pos: any): void;
-  shoot(): void;
+  shoot(pos: any): void;
   updateBallPosition(pos: any): void;
   checkNextBlocks(): IPositions;
 }
@@ -27,15 +27,16 @@ export interface IPlayer {
   AttackingClass: number;
   DefensiveClass: number;
   GoalkeepingClass: number;
+  Position: string;
   Attributes: {};
   Value: number;
   ClubCode: string;
 }
 
 export interface IPositions {
-  top: IBlock | null,
-  left: IBlock | null,
-  right: IBlock | null,
-  bottom: IBlock | null,
-  [key: string]: IBlock | null;
+  top?: IBlock,
+  left?: IBlock,
+  right?: IBlock,
+  bottom?: IBlock,
+  [key: string]: IBlock | undefined;
 }

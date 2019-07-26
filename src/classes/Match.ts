@@ -1,6 +1,7 @@
 import { Team } from './Team';
 import { MatchSide } from './MatchSide';
-import {moveEvents} from '../utils/events';
+import { matchEvents } from '../utils/events';
+import { IBlock } from './Ball';
 
 export interface MatchDetails {
   Title: string;
@@ -38,21 +39,60 @@ export class Match implements MatchInterface {
 
   public Time: number = 90;
 
-  constructor(home: Team, away: Team) {
-    this.Home = new MatchSide(home);
-    this.Away = new MatchSide(away);
+  /**
+   * Create a new match bro
+   * 
+   *  
+   * @param {Team} home The Home Team
+   * @param {Team} away The Away Team
+   * @param {IBlock} awayPost The Post of the Away team (where Home will score)
+   * @param {IBlock} homePost The Post of the Home team (where Away will score)
+   */
+  constructor(home: Team, away: Team, awayPost:IBlock, homePost:IBlock) {
+    this.Home = new MatchSide(home, awayPost);
+    this.Away = new MatchSide(away, homePost);
     this.Details = {} as MatchDetails;
 
-    moveEvents.on('yellow card', (player)=>{
-      console.log('Yellow card for ' + player.FirstName);
+    matchEvents.on('game halt', data => {
+      console.log(
+        `${data.reason} offence by ${data.subject.LastName} on ${
+          data.object.LastName
+        }`
+      );
     });
 
-    moveEvents.on('red card', (player)=>{
-      console.log('Red card for ' + player.FirstName);
+    matchEvents.on('pass made', data => {
+      console.log(`Pass from ${data.passer} to ${data.teammate}`);
     });
 
-    moveEvents.on('foul', (player)=>{
-      console.log('Foul commited by ' + player.FirstName);
+    matchEvents.on('pass intercepted', data => {
+      console.log(
+        `Attempted Pass from ${data.passer} intercepted by ${data.interceptor}`
+      );
+    });
+
+    matchEvents.on('dribble', data => {
+      console.log(`${data.dribbler} dribbled ${data.dribbled} successfully`);
+    });
+
+    matchEvents.on('bad-tackle', data => {
+      console.log(
+        `${data.tackler} at ${JSON.stringify(
+          data.tacklerPosition
+        )} made a bad tackle on ${data.tackled} who was at ${JSON.stringify(
+          data.tackledPlayerPosition
+        )}`
+      );
+    });
+
+    matchEvents.on('successful-tackle', data => {
+      console.log(
+        `${data.tackler} at ${JSON.stringify(
+          data.tacklerPosition
+        )} tackled the ball from ${data.tackled} who was at ${JSON.stringify(
+          data.tackledPlayerPosition
+        )}`
+      );
     });
   }
 
@@ -101,6 +141,7 @@ export class Match implements MatchInterface {
   //   for(let i:number = 0; i <= this.Time; i++){
   //   }
   // }
+
 
   /** Start match */
   public start = () => {

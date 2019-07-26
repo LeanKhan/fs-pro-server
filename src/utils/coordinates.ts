@@ -1,6 +1,6 @@
 import { ICoordinate, IBlock } from '../classes/Ball';
 import { IFieldPlayer } from '../interfaces/Player';
-import {PlayingField} from '../GameState/ImmutableState/FieldGrid';
+import { PlayingField } from '../GameState/ImmutableState/FieldGrid';
 
 /**
  * Returns the tile index of the given coordinates
@@ -32,12 +32,22 @@ function indexToXY(index: number, mapWidth: number): ICoordinate {
 /**
  * Coordinate to Block
  *  Returns the Field Block of the given coordinates
- * 
- * @param pos 
+ *
+ * @param pos
  * @returns {IBlock} Field Block
  */
-function coordinateToBlock(pos: ICoordinate): IBlock{
+function coordinateToBlock(pos: ICoordinate): IBlock {
   return PlayingField[XYToIndex(pos.x, pos.y, 12)];
+}
+
+/**
+ * Index to Block
+ *
+ * Returns the given PlayingField block by index
+ * @param index
+ */
+function indexToBlock(index: number): IBlock {
+  return PlayingField[index];
 }
 
 /**
@@ -45,8 +55,22 @@ function coordinateToBlock(pos: ICoordinate): IBlock{
  * @param ref
  * @param players
  */
-function findClosestPlayer(ref: ICoordinate, players: IFieldPlayer[]) {
+function findClosestPlayer(
+  ref: ICoordinate,
+  players: IFieldPlayer[],
+  distance: string
+) {
   const plyrs = players;
+  let index = 0;
+
+  switch (distance) {
+    case 'closest':
+      index = 0;
+      break;
+    case 'random':
+      index = Math.round(Math.random() * (players.length - 6));
+      break;
+  }
 
   plyrs.sort((a, b) => {
     return calculateDistance(ref, a.BlockPosition) <
@@ -55,10 +79,10 @@ function findClosestPlayer(ref: ICoordinate, players: IFieldPlayer[]) {
       : 1;
   });
 
-  if (calculateDistance(ref, plyrs[0].BlockPosition) === 0) {
-    return plyrs[1];
+  if (calculateDistance(ref, plyrs[index].BlockPosition) === 0) {
+    return plyrs[index + 1];
   } else {
-    return plyrs[0];
+    return plyrs[index];
   }
 }
 /**
@@ -69,21 +93,21 @@ function findClosestPlayer(ref: ICoordinate, players: IFieldPlayer[]) {
  * @param {ICoordinate} pos - Coordinate you are comparing with reference
  */
 
- /**
-  * Calculate absolute distance between two coordinates
-  * 
-  * @param ref 
-  * @param pos 
-  */
+/**
+ * Calculate absolute distance between two coordinates
+ *
+ * @param ref
+ * @param pos
+ */
 function calculateDistance(ref: ICoordinate, pos: ICoordinate): number {
   return Math.abs(pos.x - ref.x) + Math.abs(pos.y - ref.y);
 }
 
 /**
  * Find the coordinate you want to move to
- * 
- * @param ref 
- * @param pos 
+ *
+ * @param ref
+ * @param pos
  */
 function findPath(ref: ICoordinate, pos: ICoordinate): ICoordinate {
   const path: ICoordinate = { x: 0, y: 0 };
@@ -101,9 +125,9 @@ function findPath(ref: ICoordinate, pos: ICoordinate): ICoordinate {
 
 /**
  * Calcualte the difference between two coordinates
- * 
- * @param ref 
- * @param pos 
+ *
+ * @param ref
+ * @param pos
  */
 function calculateDifference(ref: ICoordinate, pos: ICoordinate) {
   const path: ICoordinate = { x: 0, y: 0 };
@@ -127,5 +151,6 @@ export {
   findClosestPlayer,
   findPath,
   calculateDifference,
-  coordinateToBlock
+  coordinateToBlock,
+  indexToBlock,
 };

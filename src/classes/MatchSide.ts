@@ -2,7 +2,7 @@ import { Team } from './Team';
 import { Club } from '../interfaces/Club';
 import { IFieldPlayer } from '../interfaces/Player';
 import FieldPlayer from './FieldPlayer';
-import Ball from './Ball';
+import Ball, { IBlock } from './Ball';
 // import {formations} from '../GameState/PersistentState/Formations';
 // tslint:disable-next-line: no-var-requires
 // const formations = require('../GameState/PersistentState/Formations');
@@ -28,6 +28,17 @@ export class MatchSide extends Team implements Club {
   public Substitutes: IFieldPlayer[] = [];
   public MatchSquad: IFieldPlayer[] = [];
   public Formation: any[] = [];
+  /**
+   * ScoringSide is where this team will be scoring
+   * that is, it is the opponents post :p
+   */
+  public ScoringSide: IBlock;
+
+  constructor(club: Club, scoringSide: IBlock){
+    super(club);
+    this.ScoringSide = scoringSide;
+
+  }
 
   // Class methods
 
@@ -77,6 +88,10 @@ export class MatchSide extends Team implements Club {
     });
   }
 
+  // TODO:
+  // Add a public function to change ScoringSide
+  // after a half has passed.
+
   public setStartingSquad(starting: IFieldPlayer[]) {
     this.StartingSquad = starting;
   }
@@ -88,4 +103,6 @@ export class MatchSide extends Team implements Club {
   public matchSquad() {
     return null;
   }
+
+  
 }

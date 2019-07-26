@@ -1,4 +1,4 @@
-import { IPlayer} from '../interfaces/Player';
+import { IPlayer } from '../interfaces/Player';
 
 export default class Player implements IPlayer {
   public FirstName: string;
@@ -11,6 +11,7 @@ export default class Player implements IPlayer {
   public AttackingClass: number;
   public DefensiveClass: number;
   public GoalkeepingClass: number;
+  public Position: string;
   public Attributes: {};
   public Value: number;
   public ClubCode: string;
@@ -26,6 +27,7 @@ export default class Player implements IPlayer {
     this.AttackingClass = player.AttackingClass;
     this.DefensiveClass = player.DefensiveClass;
     this.GoalkeepingClass = player.GoalkeepingClass;
+    this.Position = player.Position;
     this.Attributes = player.Attributes;
     this.Value = player.Value;
     this.ClubCode = player.ClubCode;

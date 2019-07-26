@@ -40,8 +40,10 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     console.log(`${this.LastName} passed the ball to ${JSON.stringify(pos)}`);
   }
 
-  public shoot() {
+  public shoot(pos: ICoordinate) {
+    this.Ball.move(pos);
     this.WithBall = false;
+    console.log(`${this.LastName} shot the ball to ${JSON.stringify(pos)}`); 
   }
 
   public updateBallPosition(pos: IBlock) {
@@ -50,12 +52,14 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
   }
 
   public move(pos: ICoordinate): void {
-    
     // First set occupant of current Block to null
     this.setBlockOccupant(null, this.BlockPosition);
     // Then set this players BlockPosition to his current Block coordinates
 
-    const newPos = {x: this.BlockPosition.x += pos.x, y: this.BlockPosition.y += pos.y};
+    const newPos = {
+      x: this.BlockPosition.x + pos.x,
+      y: this.BlockPosition.y + pos.y,
+    };
 
     this.BlockPosition = coordinateToBlock(newPos);
 
@@ -64,6 +68,13 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     if (this.WithBall) {
       this.Ball.move(pos);
     }
+    console.log(
+      `${this.FirstName} ${this.LastName} [${this.ClubCode}] moved  ${JSON.stringify(
+        pos
+      )} steps.
+      And is at {x: ${this.BlockPosition.x}, y: ${this.BlockPosition.y}}
+      `
+    );
     this.checkWithBall();
   }
 
@@ -77,15 +88,27 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
 
   public checkNextBlocks() {
     const around: IPositions = {
-      top: null,
-      left: null,
-      right: null,
-      bottom: null,
+      top: undefined,
+      left: undefined,
+      right: undefined,
+      bottom: undefined,
     };
-    around.top = coordinateToBlock({x: this.BlockPosition.x, y: this.BlockPosition.y - 1});
-    around.left = coordinateToBlock({x: this.BlockPosition.x - 1, y: this.BlockPosition.y});
-    around.right =coordinateToBlock({x: this.BlockPosition.x + 1, y: this.BlockPosition.y});
-    around.bottom =coordinateToBlock({x: this.BlockPosition.x, y: this.BlockPosition.y + 1});
+    around.top = coordinateToBlock({
+      x: this.BlockPosition.x,
+      y: this.BlockPosition.y - 1,
+    });
+    around.left = coordinateToBlock({
+      x: this.BlockPosition.x - 1,
+      y: this.BlockPosition.y,
+    });
+    around.right = coordinateToBlock({
+      x: this.BlockPosition.x + 1,
+      y: this.BlockPosition.y,
+    });
+    around.bottom = coordinateToBlock({
+      x: this.BlockPosition.x,
+      y: this.BlockPosition.y + 1,
+    });
 
     // console.log(`Players around: `, JSON.stringify(around));
     return around;
@@ -93,15 +116,13 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
 
   private checkWithBall() {
     this.WithBall =
-      this.BlockPosition.key === this.Ball.Position.key
-        ? true
-        : false;
+      this.BlockPosition.key === this.Ball.Position.key ? true : false;
 
-    if (this.WithBall) {
-      console.log(`${this.LastName} is now with the ball :)`);
-    }
+    // if (this.WithBall) {
+    //   console.log(`${this.LastName} is now with the ball :)`);
+    // }
   }
-  private setBlockOccupant(who: any, pos:ICoordinate) :void{
+  private setBlockOccupant(who: any, pos: ICoordinate): void {
     coordinateToBlock(pos).occupant = who;
   }
 }

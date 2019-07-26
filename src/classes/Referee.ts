@@ -1,5 +1,5 @@
 import { IFieldPlayer } from '../interfaces/Player';
-import {moveEvents} from '../utils/events';
+import {matchEvents} from '../utils/events';
 
 export default class Referee {
     public FirstName: string;
@@ -13,7 +13,7 @@ export default class Referee {
         this.Difficulty = diff;
     }
 
-    public foul(tackler: IFieldPlayer){
+    public foul(subject: IFieldPlayer, object: IFieldPlayer){
         const chance = Math.round(Math.random() * 12);
         let level = 0;
         switch (this.Difficulty) {
@@ -29,11 +29,11 @@ export default class Referee {
                 break;
         }
           if(chance >= level){
-            moveEvents.emit('yellow card', tackler);
+            matchEvents.emit('game halt', {reason: 'yellow card', subject, object, interruption: true });
           } else if(chance < level) {
-            moveEvents.emit('red card', tackler);
+            matchEvents.emit('game halt', {reason: 'red card', subject, object, interruption: true });
           } else {
-            moveEvents.emit('foul', tackler);
+            matchEvents.emit('game halt', {reason: 'foul', subject, object, interruption: true });
           }
       
       }
@@ -43,5 +43,5 @@ export interface IReferee {
     FirstName: string,
     LastName: string,
     Difficulty: string,
-    foul(tackler: IFieldPlayer): void
+    foul(subject: IFieldPlayer, object: IFieldPlayer): void
 }
