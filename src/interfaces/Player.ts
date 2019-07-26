@@ -1,4 +1,5 @@
 import { IBlock, IBall } from '../classes/Ball';
+import { MatchSide } from '../classes/MatchSide';
 
 export interface IFieldPlayer extends IPlayer {
   Points: number;
@@ -8,10 +9,12 @@ export interface IFieldPlayer extends IPlayer {
   StartingPosition: any | null;
   WithBall: boolean;
   Ball: IBall;
+  Team: MatchSide;
   move(pos: any): void;
   pass(pos: any): void;
   shoot(pos: any): void;
   updateBallPosition(pos: any): void;
+  getBlocksAround(radius: number): any[];
   checkNextBlocks(): IPositions;
 }
 

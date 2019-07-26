@@ -83,7 +83,7 @@ export class MatchSide extends Team implements Club {
 
     this.StartingSquad = this.Players.map((p: any, i) => {
       const pb = fieldPlay[this.Formation[i]];
-      const sp = new FieldPlayer(p, true, pb, ball);
+      const sp = new FieldPlayer(p, true, pb, ball, this);
       return sp;
     });
   }

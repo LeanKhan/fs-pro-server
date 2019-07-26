@@ -5,16 +5,23 @@ import * as playerFunc from '../../../utils/players';
 import { MatchSide } from '../../../classes/MatchSide';
 import { IBlock, ICoordinate, IBall } from '../../../classes/Ball';
 import { matchEvents } from '../../../utils/events';
-import { IReferee } from '../../../classes/Referee';
+import { IReferee, IFoul } from '../../../classes/Referee';
 import {Decider, IStrategy} from './Decider';
 
 export class Actions {
   public referee: IReferee;
   public decider: Decider;
+  public interruption: boolean;
 
   constructor(ref: IReferee) {
     this.referee = ref;
     this.decider = new Decider();
+    this.interruption = false;
+
+    matchEvents.on('game halt', (data)=>{
+      this.interruption = true;
+      this.referee.handleFoul(data, this);
+    });
   }
 
   public takeAction(
@@ -29,6 +36,8 @@ export class Actions {
     // const option = getOption();
 
     const strategy: IStrategy = this.decider.decide(attackingPlayer, 'attack', attackingSide, defendingSide);
+
+    this.interruption = false;
 
     console.log('Strategy is => ', strategy.detail, ' ', strategy.type)
 
@@ -70,9 +79,11 @@ export class Actions {
           attackingSide.ScoringSide
         );
 
+        // if(!response.status) {this.interruption = true} else {this.interruption = false}
+
         console.log(response);
 
-        matchEvents.emit('set-playing-sides');
+       
 
         // this.pass(attackingPlayer, attackingSide, defendingSide);
 
@@ -81,14 +92,20 @@ export class Actions {
 
     // Move attackers and midfielders forward
 
-    this.pushForward(attackingSide);
+    if(this.interruption){
+      // handle interruption
+      console.log('handling interruption...')
+    } else {
+      matchEvents.emit('set-playing-sides');
+      this.pushForward(attackingSide);
     
-    // After every action by the attacking team, the defensive player must move towards the ball
-    // and the attacking team must move forward towards opposition lines
-    this.move(defendingPlayer, 'towards ball', defendingPlayer.Ball.Position);
-
-        // Another function that makes midfielders and attackers move towards the ball
-    this.pressureBall(defendingSide);
+      // After every action by the attacking team, the defensive player must move towards the ball
+      // and the attacking team must move forward towards opposition lines
+      this.move(defendingPlayer, 'towards ball', defendingPlayer.Ball.Position);
+  
+          // Another function that makes midfielders and attackers move towards the ball
+      this.pressureBall(defendingSide);
+    }
 
   }
 
@@ -105,6 +122,11 @@ export class Actions {
 
     // I am only doing this because of an error :!!!!:
     let teammate: IFieldPlayer;
+
+    let situation: ISituation;
+
+    // situation = { status: false, reason: 'no where to move' };
+
 
     switch (type) {
       case 'short':
@@ -184,6 +206,7 @@ export class Actions {
         passer: player.LastName,
         reciever: teammate.LastName,
       });
+      situation = { status: true, reason: 'Player pass successful' };
     } else {
       player.pass(
         co.calculateDifference(interceptor.BlockPosition, player.BlockPosition)
@@ -192,6 +215,8 @@ export class Actions {
         passer: player.LastName,
         interceptor: interceptor.LastName,
       });
+
+      situation = { status: true, reason: 'pass intercepted' };
     }
     }
 
@@ -219,7 +244,7 @@ export class Actions {
     };
 
     // Check if there's a free block around the player -- if not do something else
-    if (this.findFreeBlock(around) !== undefined) {
+    if (playerFunc.findFreeBlock(around) !== undefined) {
       switch (type) {
         case 'towards ball':
           const ball = ref as IBlock;
@@ -236,7 +261,7 @@ export class Actions {
             };
           } else {
             // means no where to move
-            situation = { status: false, reason: 'no where to move' };
+            situation = { status: true, reason: 'no where to move, no interruption' };
           }
           break;
 
@@ -264,7 +289,7 @@ export class Actions {
             if (this.makeMove(player, p, around)) {
               situation = { status: true, reason: 'move forward successful' };
             } else {
-              situation = { status: false, reason: 'no where to move' };
+              situation = { status: true, reason: 'no where to move, no interruption' };
             }
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
@@ -339,24 +364,6 @@ export class Actions {
   }
 
   /**
-   * Find the first block around the player that is free
-   */
-  private findFreeBlock(around: IPositions) {
-    for (const key in around) {
-      if (around.hasOwnProperty(key) && around[key] !== undefined) {
-        const block = around[key] as IBlock;
-        if (block.x >= 0 || block.y >= 0 || block.x <= 11 || block.y <= 6) {
-          if (block.occupant == null) {
-            return block;
-          }
-        } else {
-          return undefined;
-        }
-      }
-    }
-  }
-
-  /**
    * Find an opponent block around the player
    * @param player
    * @param around
@@ -392,7 +399,7 @@ export class Actions {
           player.move(path);
           return true;
         } else {
-          const b = this.findFreeBlock(around) as IBlock;
+          const b = playerFunc.findFreeBlock(around) as IBlock;
           if (b === undefined) {
             return false;
           } else {
@@ -408,7 +415,7 @@ export class Actions {
           player.move(path);
           return true;
         } else {
-          const b = this.findFreeBlock(around) as IBlock;
+          const b = playerFunc.findFreeBlock(around) as IBlock;
           if (b === undefined) {
             return false;
           } else {
@@ -426,7 +433,7 @@ export class Actions {
           player.move(path);
           return true;
         } else {
-          const b = this.findFreeBlock(around) as IBlock;
+          const b = playerFunc.findFreeBlock(around) as IBlock;
           if (b === undefined) {
             return false;
           } else {
@@ -442,7 +449,7 @@ export class Actions {
           player.move(path);
           return true;
         } else {
-          const b = this.findFreeBlock(around) as IBlock;
+          const b = playerFunc.findFreeBlock(around) as IBlock;
           if (b === undefined) {
             return false;
           } else {
@@ -488,6 +495,7 @@ export class Actions {
           y: player.BlockPosition.y,
         },
       });
+      return true;
     } else {
       matchEvents.emit('bad-tackle', {
         tackler: tackler.LastName,
@@ -502,8 +510,8 @@ export class Actions {
         },
       });
       this.referee.foul(tackler, player);
+      return false
     }
-    return true;
   }
 
   private markBall(player: IFieldPlayer){

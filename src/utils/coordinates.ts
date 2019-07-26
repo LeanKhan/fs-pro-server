@@ -125,7 +125,7 @@ function findRandomPlayer(
 
   ps.splice(psI, 1);
 
-  const index = Math.round(Math.random() * (players.length - 2));
+  const index = Math.round(Math.random() * (players.length - 1));
 
   return ps[index];
 }
@@ -136,13 +136,6 @@ function findRandomPlayer(
  *
  * @param {ICoordinate} ref  - Coordinate you are comparing with
  * @param {ICoordinate} pos - Coordinate you are comparing with reference
- */
-
-/**
- * Calculate absolute distance between two coordinates
- *
- * @param ref
- * @param pos
  */
 function calculateDistance(ref: ICoordinate, pos: ICoordinate): number {
   return Math.abs(pos.x - ref.x) + Math.abs(pos.y - ref.y);
