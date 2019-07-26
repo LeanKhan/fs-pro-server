@@ -11,7 +11,7 @@ import {
 import { IFieldPlayer } from '../interfaces/Player';
 import { MatchSide } from '../classes/MatchSide';
 import Referee, { IReferee } from '../classes/Referee';
-import { Actions } from '../GameState/ImmutableState/Actions';
+import { Actions } from '../GameState/ImmutableState/Actions/Actions';
 import { matchEvents } from '../utils/events';
 import { EventEmitter } from 'events';
 
@@ -69,7 +69,7 @@ async function gamePlay() {
   //   }`
   // );
 
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < 20; i++) {
     /*
  * The game loop works in a way whereby each loop presents an opportunity
  for either side to make an action. Each action has a reaction.
@@ -93,12 +93,11 @@ async function gamePlay() {
     setPlayingSides();
 
     if (AS === undefined || DS === undefined) {
+      console.log('Moving towards ball...');
       moveTowardsBall();
     } else {
       MatchActions.takeAction(activePlayerAS, AS, DS, activePlayerDS);
-
-      setPlayingSides();
-
+      // setPlayingSides();
       // console.log(interruption);
     }
 
@@ -126,11 +125,7 @@ function setPlayingSides() {
 
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
-    activePlayerDS = findClosestPlayer(
-      MatchBall.Position,
-      DS.StartingSquad,
-      'closest'
-    );
+    activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
   } else if (
     match.Away.StartingSquad.find(p => {
       return p.WithBall;
@@ -148,11 +143,7 @@ function setPlayingSides() {
 
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
-    activePlayerDS = findClosestPlayer(
-      MatchBall.Position,
-      DS.StartingSquad,
-      'closest'
-    );
+    activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
   }
   // MatchActions.setSides(activePlayerAS, AS, activePlayerDS, DS);
 }
@@ -163,16 +154,16 @@ function setPlayingSides() {
 function moveTowardsBall() {
   activePlayerAS = findClosestPlayer(
     MatchBall.Position,
-    match.Home.StartingSquad,
-    'closest'
+    match.Home.StartingSquad
   );
+
+  console.log('Active Attacker => ', activePlayerAS.LastName);
 
   MatchActions.move(activePlayerAS, 'towards ball', MatchBall.Position);
 
   activePlayerDS = findClosestPlayer(
     MatchBall.Position,
-    match.Away.StartingSquad,
-    'closest'
+    match.Away.StartingSquad
   );
 
   MatchActions.move(activePlayerDS, 'towards ball', MatchBall.Position);

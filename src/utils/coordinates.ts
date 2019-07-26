@@ -55,22 +55,13 @@ function indexToBlock(index: number): IBlock {
  * @param ref
  * @param players
  */
-function findClosestPlayer(
-  ref: ICoordinate,
-  players: IFieldPlayer[],
-  distance: string
-) {
+function findClosestPlayer(ref: ICoordinate, players: IFieldPlayer[]) {
   const plyrs = players;
-  let index = 0;
+  const index = 0;
 
-  switch (distance) {
-    case 'closest':
-      index = 0;
-      break;
-    case 'random':
-      index = Math.round(Math.random() * (players.length - 6));
-      break;
-  }
+  // plyrs = players.filter(p => {
+  //   return !(ref.x === p.BlockPosition.x && ref.y === p.BlockPosition.y);
+  // });
 
   plyrs.sort((a, b) => {
     return calculateDistance(ref, a.BlockPosition) <
@@ -84,7 +75,10 @@ function findClosestPlayer(
   } else {
     return plyrs[index];
   }
+
+  // return plyrs[1];
 }
+
 /**
  * Find the absolute distance between two coordinates
  * less is better :)

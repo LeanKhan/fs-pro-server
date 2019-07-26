@@ -62,7 +62,7 @@ export class Match implements MatchInterface {
     });
 
     matchEvents.on('pass made', data => {
-      console.log(`Pass from ${data.passer} to ${data.teammate}`);
+      console.log(`Pass from ${data.passer} to ${data.reciever}`);
     });
 
     matchEvents.on('pass intercepted', data => {
