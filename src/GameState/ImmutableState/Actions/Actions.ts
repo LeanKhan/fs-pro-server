@@ -30,7 +30,7 @@ export class Actions {
 
     const strategy: IStrategy = this.decider.decide(attackingPlayer, 'attack', attackingSide, defendingSide);
 
-    console.log('Strategy is => ', strategy.type)
+    console.log('Strategy is => ', strategy.detail, ' ', strategy.type)
 
     switch (strategy.type) {
       case 'pass':
@@ -104,7 +104,7 @@ export class Actions {
   ) {
 
     // I am only doing this because of an error :!!!!:
-    let teammate: IFieldPlayer = player;
+    let teammate: IFieldPlayer;
 
     switch (type) {
       case 'short':
@@ -126,6 +126,9 @@ export class Actions {
             squad.ScoringSide,
             squad.StartingSquad,
           );
+        break;
+      default:
+        teammate = player;
         break;
     }
 
@@ -204,8 +207,6 @@ export class Actions {
    * @param ref where you want to move the player to
    */
   public move(player: IFieldPlayer, type: string, ref: IBlock): ISituation {
-
-    console.log('Moving... Player form Actions')
 
     const around = player.checkNextBlocks();
 
@@ -380,8 +381,6 @@ export class Actions {
     path: ICoordinate,
     around: IPositions
   ) {
-
-    console.log('Inside Make move')
 
     switch (path.x) {
       case -1:

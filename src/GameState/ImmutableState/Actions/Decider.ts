@@ -39,7 +39,7 @@ export class Decider {
             ) <= 4
           ) {
             strategy = { type: 'shoot', detail: 'long' };
-        } else if (
+          } else if (
             co.calculateDistance(
               player.BlockPosition,
               attackingSide.ScoringSide
@@ -49,7 +49,17 @@ export class Decider {
               attackingSide.ScoringSide
             ) <= 7
           ) {
-            strategy = { type: 'pass', detail: 'pass to post' };
+            // If player is the closest player to the post, make een dey move
+            if (
+              co.findClosestPlayer(
+                attackingSide.ScoringSide,
+                attackingSide.StartingSquad
+              ) === player
+            ) {
+              strategy = { type: 'move', detail: 'normal' };
+            } else {
+              strategy = { type: 'pass', detail: 'pass to post' };
+            }
           } else {
             const chance = Math.round(Math.random() * 100);
 
@@ -77,6 +87,8 @@ export class Decider {
                 break;
             }
           }
+        } else {
+          strategy = { type: 'move', detail: 'normal' };
         }
         break;
     }

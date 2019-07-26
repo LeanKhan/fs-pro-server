@@ -70,13 +70,13 @@ function findClosestPlayer(ref: ICoordinate, players: IFieldPlayer[]) {
       : 1;
   });
 
+  // console.log('sorted players => ', plyrs);
+
   if (calculateDistance(ref, plyrs[index].BlockPosition) === 0) {
     return plyrs[index + 1];
   } else {
     return plyrs[index];
   }
-
-  // return plyrs[1];
 }
 
 /**
