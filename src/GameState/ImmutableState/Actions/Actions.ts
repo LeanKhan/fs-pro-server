@@ -111,13 +111,15 @@ export class Actions {
           teammate = co.findClosestPlayer(
             player.BlockPosition,
             squad.StartingSquad,
+            player
           );
         break;
       
       case 'long':
-          teammate = co.findClosestPlayer(
+          teammate = co.findRandomPlayer(
             player.BlockPosition,
             squad.StartingSquad,
+            player
           );
         break;
     
@@ -125,6 +127,7 @@ export class Actions {
           teammate = co.findClosestPlayer(
             squad.ScoringSide,
             squad.StartingSquad,
+            player
           );
         break;
       default:

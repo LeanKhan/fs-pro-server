@@ -51,11 +51,17 @@ function indexToBlock(index: number): IBlock {
 }
 
 /**
- * Find closest player
- * @param ref
- * @param players
+ * Find closest player from a given coordinate
+ *
+ * @param originPlayer Player that is looking for someone to pass the ball to
+ * @param ref Reference position
+ * @param players Players to sort through
  */
-function findClosestPlayer(ref: ICoordinate, players: IFieldPlayer[]) {
+function findClosestPlayer(
+  ref: ICoordinate,
+  players: IFieldPlayer[],
+  originPlayer?: IFieldPlayer
+) {
   const plyrs = players;
   const index = 0;
 
@@ -70,13 +76,58 @@ function findClosestPlayer(ref: ICoordinate, players: IFieldPlayer[]) {
       : 1;
   });
 
-  // console.log('sorted players => ', plyrs);
+  /**
+   * The index of the origin player so we can remove it :)
+   */
+  if (originPlayer) {
+    const psI = plyrs.findIndex(p => {
+      return p === originPlayer;
+    });
 
-  if (calculateDistance(ref, plyrs[index].BlockPosition) === 0) {
-    return plyrs[index + 1];
-  } else {
-    return plyrs[index];
+    plyrs.splice(psI, 1);
   }
+
+  // if (calculateDistance(ref, plyrs[index].BlockPosition) === 0) {
+  //   return plyrs[index + 1];
+  // } else {
+  //   return plyrs[index];
+  // }
+
+  return plyrs[0];
+}
+
+/**
+ *
+ * @param ref The reference coordinate
+ * @param players Array of players to sort through
+ * @param originPlayer Player making the query :p
+ */
+function findRandomPlayer(
+  ref: ICoordinate,
+  players: IFieldPlayer[],
+  originPlayer?: IFieldPlayer
+) {
+  const ps = players;
+
+  ps.sort((a, b) => {
+    return calculateDistance(ref, a.BlockPosition) <
+      calculateDistance(ref, b.BlockPosition)
+      ? -1
+      : 1;
+  });
+
+  /**
+   * The index of the origin player so we can remove it :)
+   */
+  const psI = ps.findIndex(p => {
+    return p === originPlayer;
+  });
+
+  ps.splice(psI, 1);
+
+  const index = Math.round(Math.random() * (players.length - 2));
+
+  return ps[index];
 }
 
 /**
@@ -143,6 +194,7 @@ export {
   indexToXY,
   calculateDistance,
   findClosestPlayer,
+  findRandomPlayer,
   findPath,
   calculateDifference,
   coordinateToBlock,
