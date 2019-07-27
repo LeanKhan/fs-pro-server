@@ -133,6 +133,8 @@ function findRandomPlayer(
 /**
  * Find the absolute distance between two coordinates
  * less is better :)
+ * 
+ * 
  *
  * @param {ICoordinate} ref  - Coordinate you are comparing with
  * @param {ICoordinate} pos - Coordinate you are comparing with reference
@@ -163,7 +165,7 @@ function findPath(ref: ICoordinate, pos: ICoordinate): ICoordinate {
 
 /**
  * Calcualte the difference between two coordinates
- *
+ * i.e from 'pos' to 'ref'
  * @param ref
  * @param pos
  */

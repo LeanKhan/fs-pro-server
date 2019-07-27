@@ -2,6 +2,7 @@ import { Team } from './Team';
 import { MatchSide } from './MatchSide';
 import { matchEvents } from '../utils/events';
 import { IBlock } from './Ball';
+import { IFieldPlayer } from '../interfaces/Player';
 
 export interface MatchDetails {
   Title: string;
@@ -59,6 +60,10 @@ export class Match implements MatchInterface {
           data.object.LastName
         }`
       );
+    });
+
+    matchEvents.on('goal', data => {
+      console.log('GOAAAALLL!!!');
     });
 
     matchEvents.on('pass made', data => {
@@ -137,11 +142,6 @@ export class Match implements MatchInterface {
     };
   };
 
-  // public startMatch(){
-  //   for(let i:number = 0; i <= this.Time; i++){
-  //   }
-  // }
-
 
   /** Start match */
   public start = () => {
@@ -160,4 +160,11 @@ export class Match implements MatchInterface {
     this.report();
     // console.log(this.Home)
   };
+}
+
+export interface IMatchData {
+  attackingSide?: MatchSide;
+  activePlayerAS?: IFieldPlayer;
+  defendingSide?: MatchSide;
+  activePlayerDS?: IFieldPlayer;
 }

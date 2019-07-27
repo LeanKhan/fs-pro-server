@@ -9,7 +9,6 @@ import { IPositions, IFieldPlayer } from '../interfaces/Player';
  * @param team
  */
 function getATTMID(team: MatchSide) {
-
   return team.StartingSquad.filter(player => {
     if (
       (player.Position === 'ATT' && !player.WithBall) ||
@@ -24,15 +23,11 @@ function getATTMID(team: MatchSide) {
 
 /**
  * Get Attackers and Midfielders even if they are with the ball
- * @param team 
+ * @param team
  */
 function getATTMIDNoFilter(team: MatchSide) {
-
   return team.StartingSquad.filter(player => {
-    if (
-      (player.Position === 'ATT') ||
-      (player.Position === 'MID')
-    ) {
+    if (player.Position === 'ATT' || player.Position === 'MID') {
       return true;
     } else {
       return false;
@@ -42,15 +37,15 @@ function getATTMIDNoFilter(team: MatchSide) {
 
 /**
  * Find a random free block
- * @param player 
+ * @param player
  */
-function findRandomFreeBlock(player: IFieldPlayer): IBlock{
+function findRandomFreeBlock(player: IFieldPlayer): IBlock {
   // Get blocks around player
   let circumference = player.getBlocksAround(3);
 
   // Filter the undefined or occupied ones
-  circumference = circumference.filter((block: IBlock)=>{
-    if(block === undefined || block.occupant !== null){
+  circumference = circumference.filter((block: IBlock) => {
+    if (block === undefined || block.occupant !== null) {
       return false;
     } else {
       return true;
@@ -66,32 +61,37 @@ function findRandomFreeBlock(player: IFieldPlayer): IBlock{
 
 /**
  * Get a random Attacker or Midfielder - No filter
- * 
+ *
  */
-function getRandomATTMID(team: MatchSide):IFieldPlayer{
+function getRandomATTMID(team: MatchSide): IFieldPlayer {
   const list = getATTMIDNoFilter(team);
 
-  const randomIndex = Math.round(Math.random() * list.length - 1);
+  // console.log('ATTMIDs => ', list);
+
+  const randomIndex = Math.round(Math.random() * (list.length - 1));
+
+  console.log('List Length = ', list.length);
+  console.log('randomIndex = ', randomIndex);
 
   return list[randomIndex];
-};
+}
 
-function getGK(team: MatchSide) {
-  return team.StartingSquad.find(player => {
+function getGK(squad: IFieldPlayer[]) {
+  return squad.find(player => {
     return player.Position === 'GK';
   });
-};
+}
 
 function getRandomDEF(team: MatchSide) {
   return team.StartingSquad.find(player => {
     return player.Position === 'ATT' || player.Position === 'MID';
   });
-};
+}
 
 /**
- * 
+ *
  * Find a free block around
- * @param around 
+ * @param around
  */
 function findFreeBlock(around: IPositions) {
   for (const key in around) {
@@ -125,4 +125,10 @@ function findFreeBlock(around: IPositions) {
 //       });
 // }
 
-export { getATTMID, findFreeBlock, findRandomFreeBlock, getRandomATTMID };
+export {
+  getATTMID,
+  findFreeBlock,
+  findRandomFreeBlock,
+  getRandomATTMID,
+  getGK,
+};

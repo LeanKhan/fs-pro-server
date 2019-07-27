@@ -5,23 +5,47 @@ import * as playerFunc from '../../../utils/players';
 import { MatchSide } from '../../../classes/MatchSide';
 import { IBlock, ICoordinate, IBall } from '../../../classes/Ball';
 import { matchEvents } from '../../../utils/events';
-import { IReferee, IFoul } from '../../../classes/Referee';
+import { IReferee, IFoul, IShot } from '../../../classes/Referee';
 import {Decider, IStrategy} from './Decider';
+import { IMatchData } from '../../../classes/Match';
 
 export class Actions {
   public referee: IReferee;
   public decider: Decider;
   public interruption: boolean;
+  public activePlayerAS: IFieldPlayer | undefined;
+  public activePlayerDS: IFieldPlayer | undefined;
+  public attackingSide: MatchSide | undefined;
+  public defendingSide: MatchSide | undefined;
 
-  constructor(ref: IReferee) {
+  constructor(ref: IReferee, as?: MatchSide, ds?: MatchSide, activePlayerAS?: IFieldPlayer, activePlayerDS?: IFieldPlayer) {
     this.referee = ref;
     this.decider = new Decider();
     this.interruption = false;
+    this.activePlayerAS = activePlayerAS;
+    this.activePlayerDS = activePlayerDS;
+    this.attackingSide = as;
+    this.defendingSide = ds;
+
 
     matchEvents.on('game halt', (data)=>{
       this.interruption = true;
       this.referee.handleFoul(data, this);
     });
+
+    matchEvents.on('shot', (data: IShot)=>{
+      this.interruption = data.interruption;
+      this.referee.handleShot(data, this);
+    });
+
+    matchEvents.on('setting-playing-sides', (data: IMatchData)=>{
+      this.setSides(data);
+    });
+  }
+
+  get getPlayingSides(): IMatchData {
+    const data = {activePlayerAS: this.activePlayerAS , attackingSide: this.attackingSide, activePlayerDS: this.activePlayerDS, defendingSide: this.defendingSide} as IMatchData
+    return data as IMatchData;
   }
 
   public takeAction(
@@ -35,6 +59,8 @@ export class Actions {
 
     // const option = getOption();
 
+    this.setSides({activePlayerAS: attackingPlayer, attackingSide, activePlayerDS: defendingPlayer,  defendingSide} as IMatchData)
+
     const strategy: IStrategy = this.decider.decide(attackingPlayer, 'attack', attackingSide, defendingSide);
 
     this.interruption = false;
@@ -46,8 +72,6 @@ export class Actions {
         switch (strategy.detail) {
           
           case 'short':
-              console.log('Pass attempt');
-
               this.pass(attackingPlayer, 'short', attackingSide, defendingSide);
             break;
           
@@ -67,7 +91,8 @@ export class Actions {
         matchEvents.emit('set-playing-sides');
         break;
       case 'shoot':
-        console.log('SHOOOOOOT!!!!!')
+        console.log('SHOOOOOOT!!!!!');
+        this.shoot(attackingPlayer, attackingSide.ScoringSide, 'shot');
       break;
 
       case 'move':
@@ -83,8 +108,6 @@ export class Actions {
 
         console.log(response);
 
-       
-
         // this.pass(attackingPlayer, attackingSide, defendingSide);
 
         break;
@@ -94,24 +117,14 @@ export class Actions {
 
     if(this.interruption){
       // handle interruption
-      console.log('handling interruption...')
+      console.log('handling interruption...');
     } else {
       matchEvents.emit('set-playing-sides');
-      this.pushForward(attackingSide);
-    
-      // After every action by the attacking team, the defensive player must move towards the ball
-      // and the attacking team must move forward towards opposition lines
-      this.move(defendingPlayer, 'towards ball', defendingPlayer.Ball.Position);
-  
-          // Another function that makes midfielders and attackers move towards the ball
-      this.pressureBall(defendingSide);
+    //  Continue gameplay
+    this.continueGamePlay(attackingPlayer,attackingSide,defendingPlayer, defendingSide);
     }
 
   }
-
-  // public flipCoin() {
-  //   return Math.ceil(Math.random() * 2);
-  // }
 
   public pass(
     player: IFieldPlayer,
@@ -340,14 +353,49 @@ export class Actions {
     this.move(player, 'forward', team.ScoringSide);
   }
 
+  /**
+   * Continue gameplay...
+   * * Push attacking side forward 
+   * * Move Defending player towards the ball
+   * * Defending side pressures the ball
+   * @param attackingPlayer 
+   * @param attackingSide 
+   * @param defendingPlayer 
+   * @param defendingSide 
+   */
+  public continueGamePlay(attackingPlayer: IFieldPlayer, attackingSide: MatchSide, defendingPlayer: IFieldPlayer, defendingSide: MatchSide){
+    this.pushForward(attackingSide);
+    
+      // After every action by the attacking team, the defensive player must move towards the ball
+      // and the attacking team must move forward towards opposition lines
+      this.move(defendingPlayer, 'towards ball', defendingPlayer.Ball.Position);
+  
+          // Another function that makes midfielders and attackers move towards the ball
+      this.pressureBall(defendingSide);
+  }
+
   public kick(player: IFieldPlayer, direction: IBlock) {
     player.shoot(co.calculateDifference(direction, player.BlockPosition));
     matchEvents.emit('kick', { subject: player });
   }
 
-  public shoot(player: IFieldPlayer, direction: IBlock) {
+  public shoot(player: IFieldPlayer, direction: IBlock, reason: string) {
+    // matchEvents.emit('shot', { subject: player });
     player.shoot(co.calculateDifference(direction, player.BlockPosition));
-    matchEvents.emit('shot', { subject: player });
+    const chance = Math.round(Math.random() * 12);
+
+    const keeper = player.Team.ScoringSide.occupant;
+
+    if(chance > 7 || keeper === null){
+      // Shot is a goal
+      matchEvents.emit('shot', { shooter: player, keeper, where: player.BlockPosition, interruption: true, result: 'goal', reason } as IShot);
+    } else if (chance < 7 && chance > 4) {
+      // Shot is a miss
+      matchEvents.emit('shot', { shooter: player, keeper, where: player.BlockPosition, interruption: true, result: 'miss', reason } as IShot);
+    } else {
+      // Shot is saved by the keeper
+      matchEvents.emit('shot', { shooter: player, keeper, where: player.BlockPosition, interruption: true, result: 'save', reason } as IShot);
+    }
   }
   
   public freekick(player: IFieldPlayer, ball: IBall, direction: IBlock) {
@@ -357,10 +405,24 @@ export class Actions {
     const where = co.calculateDistance(player.BlockPosition, direction);
 
     if (where <= 3) {
-      this.shoot(player, direction);
+      this.shoot(player, direction, 'freekick');
     } else {
       this.kick(player, direction);
     }
+  }
+
+  /**
+   * Set Match data
+   * 
+   */
+
+  private setSides(data: IMatchData){
+    const {activePlayerAS, attackingSide, activePlayerDS, defendingSide} = data;
+
+    this.activePlayerAS = activePlayerAS;
+    this.attackingSide = attackingSide;
+    this.activePlayerDS = activePlayerDS;
+    this.defendingSide = defendingSide;
   }
 
   /**
@@ -541,27 +603,8 @@ export class Actions {
   }
 }
 
-// function getSide(index: number) {
-//   return co.indexToBlock(index);
-// }
-
 interface ISituation {
   status?: boolean;
   reason: string;
 }
 
-// const Actions = {
-//   general: {
-//     pass: {
-//       short: 1,
-//       medium: 2,
-//       long: 3,
-//     },
-//     shoot: {
-//       curved: {
-//         diagonal: true,
-//       },
-//     },
-//     move: {},
-//   },
-// };

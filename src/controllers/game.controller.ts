@@ -46,8 +46,11 @@ ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
 
     match.Away.setFormation('AWAY-433', MatchBall, PlayingField);
 
+    MatchReferee.assignMatch(match);
+
     // console.log('Home Starting Squad', match.Home.StartingSquad);
   }
+  
 });
 
 const MatchBall: Ball = new Ball('#ffffff', centerBlock);
@@ -125,6 +128,8 @@ function setPlayingSides() {
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
     activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
+    // return {activePlayerAS, AS, activePlayerDS, DS};
+
   } else if (
     match.Away.StartingSquad.find(p => {
       return p.WithBall;
@@ -143,8 +148,10 @@ function setPlayingSides() {
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
     activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
+    // return {activePlayerAS, AS, activePlayerDS, DS};
   }
   // MatchActions.setSides(activePlayerAS, AS, activePlayerDS, DS);
+  return {activePlayerAS, AS, activePlayerDS, DS};
 }
 
 /**
@@ -171,7 +178,10 @@ function moveTowardsBall() {
 function listenForMatchEvents() {
   matchEvents.on('set-playing-sides', () => {
     console.log('*---- setting playing sides ----*');
-    setPlayingSides();
+
+    const playingSides = setPlayingSides();
+   
+    matchEvents.emit('setting-playing-sides', playingSides);
   });
 }
 

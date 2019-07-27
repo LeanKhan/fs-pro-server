@@ -37,7 +37,7 @@ export default class Ball implements IBall {
         y: this.Position.y,
         key: this.Position.key,
       })}`
-    );
+    ); 
 
     // this.notifyObservers();
     this.ballMove.emit('ball-moved', this.Position);

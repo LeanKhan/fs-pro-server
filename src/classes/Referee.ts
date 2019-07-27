@@ -4,17 +4,25 @@ import { Actions } from '../GameState/ImmutableState/Actions/Actions';
 import { IBlock } from './Ball';
 import * as playerFunc from '../utils/players';
 import * as co from '../utils/coordinates';
+import { Match, IMatchData } from './Match';
+import { MatchSide } from './MatchSide';
 
 export default class Referee {
   public FirstName: string;
   public LastName: string;
   // public RefID: string;
   public Difficulty: string;
+  public Match?: Match;
 
-  constructor(fname: string, lname: string, diff: string) {
+  constructor(fname: string, lname: string, diff: string, m?: Match) {
     this.FirstName = fname;
     this.LastName = lname;
     this.Difficulty = diff;
+    this.Match = m;
+  }
+
+  public assignMatch(match: Match) {
+    this.Match = match;
   }
 
   /**
@@ -125,6 +133,18 @@ export default class Referee {
 
       taker.move(takerPath);
 
+      // Move ball to freekick taker's position
+
+      taker.Ball.move(
+        co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
+      );
+
+      console.log(
+        `${taker.FirstName} ${taker.LastName} [${
+          taker.Position
+        }] is taking the freekick`
+      );
+
       // Move involved players away
       // Move tackled
       const b1 = playerFunc.findRandomFreeBlock(foulData.object);
@@ -136,7 +156,7 @@ export default class Referee {
       const b2 = playerFunc.findRandomFreeBlock(foulData.subject);
 
       const p2 = co.findPath(b2, foulData.subject.BlockPosition);
-      foulData.object.move(p2);
+      foulData.subject.move(p2);
     } else {
       console.log('<== Pass Free Kick ==>');
 
@@ -150,6 +170,18 @@ export default class Referee {
       );
 
       taker.move(takerPath);
+
+      // Move ball to freekick taker's position
+
+      taker.Ball.move(
+        co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
+      );
+
+      console.log(
+        `${taker.FirstName} ${taker.LastName} [${
+          taker.Position
+        }] is taking the freekick`
+      );
 
       // Move involved players away
       // Move tackled
@@ -165,14 +197,51 @@ export default class Referee {
       foulData.subject.move(p2);
     }
   }
+
+  public handleShot(data: IShot, matchActions: Actions) {
+    switch (data.result) {
+      case 'goal':
+        // Emit goal event
+        matchEvents.emit('goal!', data);
+        // Keeper to his StartingPosition
+        const defendingSide = matchActions.getPlayingSides
+          .defendingSide as MatchSide;
+        console.log('Defending Side => ', defendingSide.Name);
+        const keeper = playerFunc.getGK(
+          defendingSide.StartingSquad
+        ) as IFieldPlayer;
+        console.log('Keeper => ', keeper);
+        keeper.move(
+          co.calculateDifference(keeper.StartingPosition, keeper.BlockPosition)
+        );
+        // Move ball to keeper position
+        keeper.Ball.move(
+          co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
+        );
+        // console.log('resume gameplay :)')
+        // Move players to starting position
+        matchEvents.emit('set-playing-sides');
+        break;
+      case 'miss':
+        console.log('missed shot');
+        break;
+      case 'save':
+        console.log('shot saved');
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 export interface IReferee {
   FirstName: string;
   LastName: string;
   Difficulty: string;
+  assignMatch(match: Match): void;
   foul(subject: IFieldPlayer, object: IFieldPlayer): void;
   handleFoul(data: IFoul, matchActions: Actions): void;
+  handleShot(data: IShot, matchActions: Actions): void;
 }
 
 /**
@@ -182,6 +251,15 @@ export interface IFoul {
   reason: string;
   subject: IFieldPlayer;
   object: IFieldPlayer;
+  where: IBlock;
+  interruption: boolean;
+}
+
+export interface IShot {
+  reason: string;
+  result: string;
+  shooter: IFieldPlayer;
+  keeper: IFieldPlayer;
   where: IBlock;
   interruption: boolean;
 }
