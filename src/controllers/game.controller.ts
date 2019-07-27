@@ -86,9 +86,13 @@ async function gamePlay() {
   - DS reaction: move defender 2 blocks right or something :3
 
  */
+    // Set Match time in Match
+
 
     console.log(`------------Loop Position ${i + 1}---------`);
     setPlayingSides();
+
+    match.setCurrentTime(i);
 
     if (AS === undefined || DS === undefined) {
       moveTowardsBall();

@@ -26,6 +26,8 @@ export interface MatchInterface {
   Away: MatchSide;
   Details: MatchDetails;
   Events: {};
+  getCurrentTime: number;
+  setCurrentTime(time: number): any;
   report(): void;
   start(): void;
 }
@@ -33,23 +35,20 @@ export interface MatchInterface {
 export class Match implements MatchInterface {
   public Home: MatchSide;
   public Away: MatchSide;
-
   public Details!: MatchDetails;
-
   public Events!: {};
-
-  public Time: number = 90;
+  private CurrentTime: number = 0;
 
   /**
    * Create a new match bro
-   * 
-   *  
+   *
+   *
    * @param {Team} home The Home Team
    * @param {Team} away The Away Team
    * @param {IBlock} awayPost The Post of the Away team (where Home will score)
    * @param {IBlock} homePost The Post of the Home team (where Away will score)
    */
-  constructor(home: Team, away: Team, awayPost:IBlock, homePost:IBlock) {
+  constructor(home: Team, away: Team, awayPost: IBlock, homePost: IBlock) {
     this.Home = new MatchSide(home, awayPost);
     this.Away = new MatchSide(away, homePost);
     this.Details = {} as MatchDetails;
@@ -62,7 +61,7 @@ export class Match implements MatchInterface {
       );
     });
 
-    matchEvents.on('goal', data => {
+    matchEvents.on('goal', () => {
       console.log('GOAAAALLL!!!');
     });
 
@@ -96,7 +95,7 @@ export class Match implements MatchInterface {
           data.tacklerPosition
         )} tackled the ball from ${data.tackled} who was at ${JSON.stringify(
           data.tackledPlayerPosition
-        )}`
+        )} at ${this.getCurrentTime} mins`
       );
     });
   }
@@ -142,6 +141,13 @@ export class Match implements MatchInterface {
     };
   };
 
+  public setCurrentTime(time: number) {
+    this.CurrentTime = time;
+  }
+
+  public get getCurrentTime(): number {
+    return this.CurrentTime;
+  }
 
   /** Start match */
   public start = () => {
