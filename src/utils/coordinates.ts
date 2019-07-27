@@ -97,6 +97,50 @@ function findClosestPlayer(
 }
 
 /**
+ * Find the closest player that is not a keeper :)
+ * @param ref
+ * @param players
+ * @param originPlayer
+ */
+function findClosestFieldPlayer(
+  ref: ICoordinate,
+  players: IFieldPlayer[],
+  originPlayer?: IFieldPlayer
+) {
+  // const plyrs = players;
+
+  const plyrs = players.filter(p => {
+    return p.Position !== 'GK';
+  });
+
+  plyrs.sort((a, b) => {
+    return calculateDistance(ref, a.BlockPosition) <
+      calculateDistance(ref, b.BlockPosition)
+      ? -1
+      : 1;
+  });
+
+  /**
+   * The index of the origin player so we can remove it :)
+   */
+  if (originPlayer) {
+    const psI = plyrs.findIndex(p => {
+      return p === originPlayer;
+    });
+
+    plyrs.splice(psI, 1);
+  }
+
+  // if (calculateDistance(ref, plyrs[index].BlockPosition) === 0) {
+  //   return plyrs[index + 1];
+  // } else {
+  //   return plyrs[index];
+  // }
+
+  return plyrs[0];
+}
+
+/**
  *
  * @param ref The reference coordinate
  * @param players Array of players to sort through
@@ -133,8 +177,8 @@ function findRandomPlayer(
 /**
  * Find the absolute distance between two coordinates
  * less is better :)
- * 
- * 
+ *
+ *
  *
  * @param {ICoordinate} ref  - Coordinate you are comparing with
  * @param {ICoordinate} pos - Coordinate you are comparing with reference
@@ -189,6 +233,7 @@ export {
   indexToXY,
   calculateDistance,
   findClosestPlayer,
+  findClosestFieldPlayer,
   findRandomPlayer,
   findPath,
   calculateDifference,

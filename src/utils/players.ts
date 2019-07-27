@@ -78,7 +78,8 @@ function getRandomATTMID(team: MatchSide): IFieldPlayer {
 
 function getGK(squad: IFieldPlayer[]) {
   return squad.find(player => {
-    return player.Position === 'GK';
+    // tslint:disable-next-line: triple-equals
+    return player.Position == 'GK';
   });
 }
 

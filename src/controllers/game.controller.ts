@@ -2,12 +2,7 @@ import { Match } from '../classes/Match';
 import ClubModel, { Club } from '../models/club.model';
 import Ball, { ICoordinate, IBlock } from '../classes/Ball';
 import { PlayingField } from '../GameState/ImmutableState/FieldGrid';
-import {
-  findClosestPlayer,
-  findPath,
-  calculateDifference,
-  coordinateToBlock,
-} from '../utils/coordinates';
+import * as co from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
 import { MatchSide } from '../classes/MatchSide';
 import Referee, { IReferee } from '../classes/Referee';
@@ -34,8 +29,8 @@ let activePlayerDS: IFieldPlayer;
 
 // Sides
 
-const homePost: IBlock = coordinateToBlock({ x: 11, y: 3 });
-const awayPost: IBlock = coordinateToBlock({ x: 0, y: 3 });
+const homePost: IBlock = co.coordinateToBlock({ x: 11, y: 3 });
+const awayPost: IBlock = co.coordinateToBlock({ x: 0, y: 3 });
 
 ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
   if (!err) {
@@ -127,7 +122,7 @@ function setPlayingSides() {
 
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
-    activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
+    activePlayerDS = co.findClosestFieldPlayer(MatchBall.Position, DS.StartingSquad);
     // return {activePlayerAS, AS, activePlayerDS, DS};
 
   } else if (
@@ -147,7 +142,7 @@ function setPlayingSides() {
 
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
-    activePlayerDS = findClosestPlayer(MatchBall.Position, DS.StartingSquad);
+    activePlayerDS = co.findClosestFieldPlayer(MatchBall.Position, DS.StartingSquad);
     // return {activePlayerAS, AS, activePlayerDS, DS};
   }
   // MatchActions.setSides(activePlayerAS, AS, activePlayerDS, DS);
@@ -158,14 +153,14 @@ function setPlayingSides() {
  * Here, everyone moves towards the ball
  */
 function moveTowardsBall() {
-  activePlayerAS = findClosestPlayer(
+  activePlayerAS = co.findClosestFieldPlayer(
     MatchBall.Position,
     match.Home.StartingSquad
   );
 
   MatchActions.move(activePlayerAS, 'towards ball', MatchBall.Position);
 
-  activePlayerDS = findClosestPlayer(
+  activePlayerDS = co.findClosestFieldPlayer(
     MatchBall.Position,
     match.Away.StartingSquad
   );
