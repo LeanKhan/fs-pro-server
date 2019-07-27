@@ -36,7 +36,7 @@ function getATTMIDNoFilter(team: MatchSide) {
 }
 
 /**
- * Find a random free block
+ * Find a random free block in a 3 block radius
  * @param player
  */
 function findRandomFreeBlock(player: IFieldPlayer): IBlock {
@@ -66,20 +66,18 @@ function findRandomFreeBlock(player: IFieldPlayer): IBlock {
 function getRandomATTMID(team: MatchSide): IFieldPlayer {
   const list = getATTMIDNoFilter(team);
 
-  // console.log('ATTMIDs => ', list);
-
   const randomIndex = Math.round(Math.random() * (list.length - 1));
-
-  console.log('List Length = ', list.length);
-  console.log('randomIndex = ', randomIndex);
 
   return list[randomIndex];
 }
 
+/**
+ * Get the goalkeeper from the given list of players
+ */
 function getGK(squad: IFieldPlayer[]) {
   return squad.find(player => {
     // tslint:disable-next-line: triple-equals
-    return player.Position == 'GK';
+    return player.Position === 'GK';
   });
 }
 

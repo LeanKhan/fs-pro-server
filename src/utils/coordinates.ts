@@ -63,7 +63,6 @@ function findClosestPlayer(
   originPlayer?: IFieldPlayer
 ) {
   const plyrs = players;
-  const index = 0;
 
   // plyrs = players.filter(p => {
   //   return !(ref.x === p.BlockPosition.x && ref.y === p.BlockPosition.y);
@@ -84,14 +83,8 @@ function findClosestPlayer(
       return p === originPlayer;
     });
 
-    plyrs.splice(psI, 1);
+    plyrs.slice(psI, 1);
   }
-
-  // if (calculateDistance(ref, plyrs[index].BlockPosition) === 0) {
-  //   return plyrs[index + 1];
-  // } else {
-  //   return plyrs[index];
-  // }
 
   return plyrs[0];
 }
@@ -128,14 +121,8 @@ function findClosestFieldPlayer(
       return p === originPlayer;
     });
 
-    plyrs.splice(psI, 1);
+    plyrs.slice(psI, 1);
   }
-
-  // if (calculateDistance(ref, plyrs[index].BlockPosition) === 0) {
-  //   return plyrs[index + 1];
-  // } else {
-  //   return plyrs[index];
-  // }
 
   return plyrs[0];
 }
@@ -167,7 +154,7 @@ function findRandomPlayer(
     return p === originPlayer;
   });
 
-  ps.splice(psI, 1);
+  ps.slice(psI, 1);
 
   const index = Math.round(Math.random() * (players.length - 1));
 
