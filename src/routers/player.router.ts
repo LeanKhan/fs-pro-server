@@ -11,5 +11,6 @@ playerRouter.post('/new', (req,res)=>{
 });
 
 
+export default playerRouter;
 
 

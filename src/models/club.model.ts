@@ -24,18 +24,18 @@ const ClubSchema: Schema = new Schema(
     },
     AttackingClass: {
       type: Number,
-      required: true,
     },
     DefensiveClass: {
       type: Number,
-      required: true,
+    },
+    PlayingStyle: {
+      type: String,
+      required: true
     },
     Manager: String,
     Stadium: String,
     LeagueCode: String,
-    Players: {
-      type: Array,
-    },
+    Players: [{type: mongoose.Schema.Types.ObjectId, ref: 'Player'}]
   },
   { timestamps: true }
 );

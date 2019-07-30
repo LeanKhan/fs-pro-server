@@ -4,6 +4,7 @@ export interface Club {
   Name: string;
   AttackingClass: number;
   DefensiveClass: number;
+  PlayingStyle: string;
   Players: IPlayer[];
   Manager: string;
   Stadium: string;

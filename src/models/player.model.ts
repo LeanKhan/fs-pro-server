@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import {IPlayerAttributes} from '@/interfaces/Player';
 // import Player from '../types/Player';
 
 export interface Player extends Document {
@@ -12,9 +13,9 @@ export interface Player extends Document {
   AttackingClass: number;
   DefensiveClass: number;
   GoalkeepingClass: number;
-  Attributes: {};
+  Attributes: IPlayerAttributes;
   Value: number;
-  ClubCode: string;
+  ClubCode?: string;
 }
 
 const Player: Schema = new Schema(

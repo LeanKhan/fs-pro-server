@@ -31,7 +31,7 @@ export interface IPlayer {
   DefensiveClass: number;
   GoalkeepingClass: number;
   Position: string;
-  Attributes: {};
+  Attributes: IPlayerAttributes;
   Value: number;
   ClubCode: string;
 }
@@ -42,4 +42,20 @@ export interface IPositions {
   right?: IBlock,
   bottom?: IBlock,
   [key: string]: IBlock | undefined;
+}
+
+export interface IPlayerAttributes {
+    Speed: number,
+    Shooting: number,
+    LongPass: number,
+    ShortPass: number,
+    MediumPass: number,
+    Tactics: number,
+    Tackling: number,
+    Strength: number,
+    Stamina: number,
+    PreferredFoot: string,
+    AttackingMindset: boolean,
+    DefensiveMindset: boolean,
+    [key: string]: any;
 }

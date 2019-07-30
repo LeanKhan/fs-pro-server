@@ -1,4 +1,4 @@
-import { IPlayer } from '../interfaces/Player';
+import { IPlayer, IPlayerAttributes } from '../interfaces/Player';
 
 export default class Player implements IPlayer {
   public FirstName: string;
@@ -12,7 +12,7 @@ export default class Player implements IPlayer {
   public DefensiveClass: number;
   public GoalkeepingClass: number;
   public Position: string;
-  public Attributes: {};
+  public Attributes: IPlayerAttributes;
   public Value: number;
   public ClubCode: string;
 

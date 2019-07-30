@@ -3,7 +3,7 @@ import clubModel, { Club } from '../models/club.model';
 
 const clubRouter = express.Router();
 
-clubRouter.get('all', (req, res) => {
+clubRouter.get('/all', (req, res) => {
   clubModel.find({}, (err, doc) => {
     if (!err) {
       res
@@ -20,3 +20,5 @@ clubRouter.get('all', (req, res) => {
     }
   });
 });
+
+export default clubRouter;
