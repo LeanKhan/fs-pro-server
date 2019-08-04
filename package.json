@@ -1,6 +1,6 @@
 {
   "name": "fs-pro-server",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Game Server for FS PRO",
   "main": "server.js",
   "scripts": {
