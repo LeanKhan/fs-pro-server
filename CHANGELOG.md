@@ -1,11 +1,22 @@
-## - CHANGELOG -
+# CHANGELOG
 
-### Here I write about changes and different versions of the project.
+## Here I write about changes and different versions of the project.
 
-## Version 0.0.1 (Major Beta Release)
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
-As at writing today 25th July, 2019 I am still working on the gameplay, I encountered an issue with how to
-implement gamestops (yellow / red cards): when there's a foul. So for now, I will leave that and continue development reason being I
-_need_ to finish this by this weekend :)
+This project partially adheres to [Semantic Versioning]() :)
 
-Thank you Jesus!
+Oya na
+
+### Legend/Key:
+
+- `Added` for new features.
+- `Changed` for changes in existing functionality.
+- `Deprecated` for soon-to-be removed features.
+- `Removed` for now removed features.
+- `Fixed` for any bug fixes.
+- `Security` in case of vulnerabilities.
+
+> from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
+
+## [Unreleased]
