@@ -1,15 +1,15 @@
-import { Club } from '../interfaces/Club';
+import { IClub } from '../interfaces/Club';
 import {IPlayer} from '../interfaces/Player';
-export class Team implements Club {
+export class Club implements IClub {
   public Name: string;
   public AttackingClass: number;
   public DefensiveClass: number;
-  public PlayingStyle: string;
+  public PlayingStyle: 'attacking' | 'defensive' | 'balanced';
   public Manager: string;
   public Stadium: string;
   public LeagueCode: string;
   public Players: IPlayer[];
-  constructor(club: Club) {
+  constructor(club: IClub) {
     this.Name = club.Name;
     this.AttackingClass = club.AttackingClass;
     this.DefensiveClass = club.DefensiveClass;

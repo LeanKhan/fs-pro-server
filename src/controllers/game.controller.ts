@@ -1,6 +1,6 @@
 import { Match } from '../classes/Match';
-import ClubModel, { Club } from '../models/club.model';
-import Ball, { ICoordinate, IBlock } from '../classes/Ball';
+import ClubModel, { IClubModel } from '../models/club.model';
+import Ball, { IBlock } from '../classes/Ball';
 import { PlayingField } from '../GameState/ImmutableState/FieldGrid';
 import * as co from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
@@ -8,15 +8,15 @@ import { MatchSide } from '../classes/MatchSide';
 import Referee, { IReferee } from '../classes/Referee';
 import { Actions } from '../GameState/ImmutableState/Actions/Actions';
 import { matchEvents } from '../utils/events';
-import { EventEmitter } from 'events';
+// import { EventEmitter } from 'events';
 
-let Clubs: Club[] = [];
+let Clubs: IClubModel[] = [];
 
 let match: Match;
 
 const centerBlock = PlayingField[42];
 
-const gameLoop = 90;
+// const gameLoop = 90;
 
 let AS: MatchSide;
 

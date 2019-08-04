@@ -1,20 +1,12 @@
 import { IPlayer } from './Player';
 
-export interface Club {
+export interface IClub {
   Name: string;
   AttackingClass: number;
   DefensiveClass: number;
-  PlayingStyle: string;
+  PlayingStyle: 'attacking' | 'defensive' | 'balanced';
   Players: IPlayer[];
   Manager: string;
   Stadium: string;
   LeagueCode: string;
 }
-
-/*
-    NOTE!
-
-    Change the type of Squad property back to 'Player[]'
-    I only changed it here for testing purposes - LeanKhan
-
-*/

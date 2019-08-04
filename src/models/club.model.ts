@@ -1,15 +1,21 @@
 import mongoose, { Schema, Document } from 'mongoose';
-// import {Team} from '../classes/Team';
 // import { Player } from '../models/player.model'; // Uncomment this after testing!
 
-export interface Club extends Document {
+export interface IClubModel extends Document {
   Name: string;
   AttackingClass: number;
   DefensiveClass: number;
   Players: [];
+  PlayingStyle: 'attacking' | 'defensive' | 'balanced';
+  assets: {
+      Kit: string,
+      Logo: string,
+      Stadium: string
+    };
   Manager: string;
   Stadium: string;
   LeagueCode: string;
+  League: string;
 }
 
 const ClubSchema: Schema = new Schema(
@@ -17,10 +23,12 @@ const ClubSchema: Schema = new Schema(
     Name: {
       type: String,
       required: true,
+      unique: true
     },
     ClubCode: {
       type: String,
       required: true,
+      unique: true
     },
     AttackingClass: {
       type: Number,
@@ -32,17 +40,31 @@ const ClubSchema: Schema = new Schema(
       type: String,
       required: true
     },
-    Manager: String,
-    Stadium: String,
+    Manager: {
+      type: String,
+      unique: true
+    },
+    assets: {
+      type: Object,
+      Kit: String,
+      Logo: String,
+      Stadium: String
+    },
+    Stadium: {
+      type: String,
+      unique: true
+    },
     LeagueCode: String,
+    League: {type: mongoose.Schema.Types.ObjectId, ref: 'League'},
     Players: [{type: mongoose.Schema.Types.ObjectId, ref: 'Player'}]
   },
   { timestamps: true }
 );
 
-export default mongoose.model<Club>('Club', ClubSchema, 'Clubs');
 
 /*
- * Change the type od 'Players' to ObjectID of Players collection
+ * ClubModel in Database o!
  *
  */
+export default mongoose.model<IClubModel>('Club', ClubSchema, 'Clubs');
+
