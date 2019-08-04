@@ -147,8 +147,7 @@ export interface IMatchSideDetails {
  *  @todo Flesh this guy out!
  */
 
-// TODO:
-// Flesh this guy out! - LeanKhan
+// TODO: Flesh this guy out! - LeanKhan
 export interface IMatchEvent {
   Type: string;
 }

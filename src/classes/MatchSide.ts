@@ -34,10 +34,9 @@ export class MatchSide extends Club implements IClub {
    */
   public ScoringSide: IBlock;
 
-  constructor(club: Club, scoringSide: IBlock){
+  constructor(club: Club, scoringSide: IBlock) {
     super(club);
     this.ScoringSide = scoringSide;
-
   }
 
   // Class methods
@@ -88,8 +87,7 @@ export class MatchSide extends Club implements IClub {
     });
   }
 
-  // TODO:
-  // Add a public function to change ScoringSide
+  // TODO: Add a public function to change ScoringSide
   // after a half has passed.
 
   public setStartingSquad(starting: IFieldPlayer[]) {
@@ -103,6 +101,4 @@ export class MatchSide extends Club implements IClub {
   public matchSquad() {
     return null;
   }
-
-  
 }

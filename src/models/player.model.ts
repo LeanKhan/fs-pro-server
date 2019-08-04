@@ -2,7 +2,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 import { IPlayerAttributes } from '@/interfaces/Player';
 // import Player from '../types/Player';
 
-export interface Player extends Document {
+// TODO: Add proper documentation and description
+//  of player interface i.e JSDoc comments on interface memberrs
+
+export interface IPlayerModel extends Document {
+  /** Name of the Player! */
   FirstName: string;
   LastName: string;
   Age: string;
@@ -55,4 +59,4 @@ const Player: Schema = new Schema(
   { timestamps: true }
 );
 
-export default mongoose.model<Player>('Player', Player, 'Players');
+export default mongoose.model<IPlayerModel>('Player', Player, 'Players');
