@@ -14,7 +14,7 @@ export default class Player implements IPlayer {
   public Position: string;
   public Attributes: IPlayerAttributes;
   public Value: number;
-  public ClubCode: string;
+  public ClubCode?: string;
 
   constructor(player: Player) {
     this.FirstName = player.FirstName;

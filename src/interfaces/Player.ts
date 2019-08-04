@@ -33,8 +33,10 @@ export interface IPlayer {
   Position: string;
   Attributes: IPlayerAttributes;
   Value: number;
-  ClubCode: string;
+  ClubCode?: string;
 }
+
+// It's not all players that will have club :)
 
 export interface IPositions {
   top?: IBlock,

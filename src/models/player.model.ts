@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import {IPlayerAttributes} from '@/interfaces/Player';
+import { IPlayerAttributes } from '@/interfaces/Player';
 // import Player from '../types/Player';
 
 export interface Player extends Document {
