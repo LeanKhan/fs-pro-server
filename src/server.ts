@@ -10,6 +10,8 @@ import h from 'http';
 
 const http = new h.Server(app);
 
+const port = process.env.PORT || 3000;
+
 import i = require('socket.io');
 
 const io = i(http);
@@ -21,9 +23,11 @@ app.use(bodyparser.urlencoded({ extended: true }));
 
 // MongoDB Database Connection
 
-mongoose.connect('mongodb://localhost:27017/football-simulator', {
-  useNewUrlParser: true,
-}).then(client => {
+mongoose
+  .connect('mongodb://localhost:27017/fs-pro', {
+    useNewUrlParser: true,
+  })
+  .then(client => {
     app.locals.db = client.connection.db;
     console.log(
       `Connection to ${client.connection.db.databaseName} database successful!`
@@ -55,8 +59,8 @@ mongoose.connection.on('error', () => {
 //     console.error(`Error in connecting to database: `, err);
 //   });
 
-mongoose.set("useFindAndModify", false);
-mongoose.set("useCreateIndex", true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 
 // Stuff
 
@@ -68,8 +72,8 @@ app.use('/api', router);
 
 // Server
 
-app.listen('3080', () => {
-  console.log('Game Server running successfully!');
+app.listen(port, () => {
+  console.log('Game Server running successfully! on port ' + port);
 });
 
 io.on('connection', socket => {
