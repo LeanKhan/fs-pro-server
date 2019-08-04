@@ -1,41 +1,16 @@
-import { Team } from './Team';
+import { Club } from './Club';
 import { MatchSide } from './MatchSide';
 import { matchEvents } from '../utils/events';
 import { IBlock } from './Ball';
 import { IFieldPlayer } from '../interfaces/Player';
 
-export interface MatchDetails {
-  Title: string;
-  LeagueString: string;
-  Draw: boolean;
-  Played: boolean;
-  Time: Date;
-  HomeTeamScore: number;
-  AwayTeamScore: number;
-  Winner: string | null;
-  Loser: string | null;
-  HomeTeamDetails: {};
-  AwayTeamDetails: {};
-}
-
 /**
- * Match Interface bro!
+ * The Match Class gan gan
  */
-export interface MatchInterface {
-  Home: MatchSide;
-  Away: MatchSide;
-  Details: MatchDetails;
-  Events: {};
-  getCurrentTime: number;
-  setCurrentTime(time: number): any;
-  report(): void;
-  start(): void;
-}
-
-export class Match implements MatchInterface {
+export class Match implements IMatch {
   public Home: MatchSide;
   public Away: MatchSide;
-  public Details!: MatchDetails;
+  public Details!: IMatchDetails;
   public Events!: {};
   private CurrentTime: number = 0;
 
@@ -48,10 +23,10 @@ export class Match implements MatchInterface {
    * @param {IBlock} awayPost The Post of the Away team (where Home will score)
    * @param {IBlock} homePost The Post of the Home team (where Away will score)
    */
-  constructor(home: Team, away: Team, awayPost: IBlock, homePost: IBlock) {
+  constructor(home: Club, away: Club, awayPost: IBlock, homePost: IBlock) {
     this.Home = new MatchSide(home, awayPost);
     this.Away = new MatchSide(away, homePost);
-    this.Details = {} as MatchDetails;
+    this.Details = {} as IMatchDetails;
 
     matchEvents.on('game halt', data => {
       console.log(
@@ -61,7 +36,7 @@ export class Match implements MatchInterface {
       );
     });
 
-    matchEvents.on('goal', () => {
+    matchEvents.on('goal!', () => {
       console.log('GOAAAALLL!!!');
     });
 
@@ -119,26 +94,6 @@ export class Match implements MatchInterface {
     this.Details.Title = `${this.Home.Name} vs ${this.Away.Name} <-> ${
       this.Details.Time
     }`;
-    this.Details.HomeTeamDetails = {
-      GoalsScored: this.Home.GoalsScored,
-      ChancesCreatedRate: this.Home.ChancesCreatedRate,
-      ChancesCreatedNumber: this.Home.ChancesCreatedNumber,
-      ProbabilityNumber: this.Home.ProbalityNumber,
-      DefensiveForm: this.Home.DefensiveForm,
-      AttackingForm: this.Home.AttackingForm,
-      DefensiveClass: this.Home.DefensiveClass,
-      AttackingClass: this.Home.AttackingClass,
-    };
-    this.Details.AwayTeamDetails = {
-      GoalsScored: this.Away.GoalsScored,
-      ChancesCreatedRate: this.Away.ChancesCreatedRate,
-      ChancesCreatedNumber: this.Away.ChancesCreatedNumber,
-      ProbabilityNumber: this.Away.ProbalityNumber,
-      DefensiveForm: this.Away.DefensiveForm,
-      AttackingForm: this.Away.AttackingForm,
-      DefensiveClass: this.Away.DefensiveClass,
-      AttackingClass: this.Away.AttackingClass,
-    };
   };
 
   public setCurrentTime(time: number) {
@@ -173,4 +128,53 @@ export interface IMatchData {
   activePlayerAS?: IFieldPlayer;
   defendingSide?: MatchSide;
   activePlayerDS?: IFieldPlayer;
+}
+
+export interface IMatchSideDetails {
+  Score: number;
+  Possession: number;
+  Goals: number;
+  Shots: number;
+  Fouls: number;
+  YellowCards: number;
+  RedCards: number;
+  Passes: number;
+  Events: IMatchEvent[];
+  [key: string]: any;
+}
+
+/**
+ *  @todo Flesh this guy out!
+ */
+
+// TODO:
+// Flesh this guy out! - LeanKhan
+export interface IMatchEvent {
+  Type: string;
+}
+
+export interface IMatchDetails {
+  Title: string;
+  LeagueName: string;
+  Draw: boolean;
+  Played: boolean;
+  Score: number;
+  Time: Date;
+  HomeTeamScore: number;
+  AwayTeamScore: number;
+  Winner: string | null;
+  Loser: string | null;
+  HomeTeamDetails: IMatchSideDetails;
+  AwayTeamDetails: IMatchSideDetails;
+}
+
+export interface IMatch {
+  Home: MatchSide;
+  Away: MatchSide;
+  Details: IMatchDetails;
+  Events: {};
+  getCurrentTime: number;
+  setCurrentTime(time: number): any;
+  report(): void;
+  start(): void;
 }

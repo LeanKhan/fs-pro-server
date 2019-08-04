@@ -1,5 +1,5 @@
-import { Team } from './Team';
-import { Club } from '../interfaces/Club';
+import { Club } from './Club';
+import { IClub } from '../interfaces/Club';
 import { IFieldPlayer } from '../interfaces/Player';
 import FieldPlayer from './FieldPlayer';
 import Ball, { IBlock } from './Ball';
@@ -17,7 +17,7 @@ import {
  * @extends Team
  */
 
-export class MatchSide extends Team implements Club {
+export class MatchSide extends Club implements IClub {
   public AttackingForm: number = 0;
   public DefensiveForm: number = 0;
   public ProbalityNumber: number = 0;
