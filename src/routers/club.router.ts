@@ -1,68 +1,52 @@
 import express from 'express';
-import clubModel, { IClubModel } from '../models/club.model';
+import respond from '../helpers/responseHandler';
+import {
+  fetchAllClubs,
+  createNewClub,
+  fetchSingleClubById,
+} from '../services/club.service';
 
-const clubRouter = express.Router();
+const router = express.Router();
 
-clubRouter.get('/all', (req, res) => {
-  clubModel.find({}, (err, doc) => {
-    if (!err) {
-      res.status(200).send(
-        JSON.stringify({
-          error: false,
-          message: 'Clubs retrieved successfully!',
-          result: doc,
-        })
-      );
-    } else {
-      res.status(400).send(JSON.stringify({ error: true, message: err }));
-    }
-  });
+// Get all clubs bro
+router.get('/all', async (req, res) => {
+  const response = await fetchAllClubs();
+
+  if (!response.error) {
+    // Use the response handler to send a success message
+    respond.success(res, 200, 'Clubs retrieved successfully', response.result);
+  } else {
+    // Use the response handler to send a fail message
+    respond.fail(res, 400, 'Error fetching clubs', response.result);
+  }
 });
 
-clubRouter.post('/new', (req, res) => {
-  const NEW_CLUB: IClubModel = new clubModel(req.body);
+/**
+ * Create a new club bross
+ */
+router.post('/new', async (req, res) => {
+  const response = await createNewClub(req.body);
 
-  NEW_CLUB.save()
-    .then((club: IClubModel) => {
-      res.status(200).send(
-        JSON.stringify({
-          error: false,
-          message: `${club.Name} created successfully!`,
-          result: club,
-        })
-      );
-    })
-    .catch((err: any) =>
-      res.status(500).send(
-        JSON.stringify({
-          error: true,
-          message: 'Error in creating Club',
-          err_message: err,
-        })
-      )
-    );
+  if (!response.error) {
+    respond.success(res, 200, `${response.result.Name}`);
+  } else {
+    respond.fail(res, 500, 'Error creting new club', response.result);
+  }
 });
 
-clubRouter.get('/get/:id', (req, res) => {
-  clubModel.findById(req.params.id, (err, club) => {
-    if (!err) {
-      res.status(200).send(
-        JSON.stringify({
-          error: false,
-          message: 'Club fetched successfully',
-          result: club,
-        })
-      );
-    } else {
-      res.status(404).send(
-        JSON.stringify({
-          error: true,
-          message: 'Error in fetching club',
-          error_message: err,
-        })
-      );
-    }
-  });
+/**
+ * fetchSingleClubById
+ *
+ * fetch a single club by it's id brozay
+ */
+router.get('/get/:id', async (req, res) => {
+  const response = await fetchSingleClubById(req.params.id);
+
+  if (!response.error) {
+    respond.success(res, 200, 'Club fetched successfully', response.result);
+  } else {
+    respond.fail(res, 404, 'Club not found', response.result);
+  }
 });
 
-export default clubRouter;
+export default router;
