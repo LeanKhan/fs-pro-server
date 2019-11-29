@@ -10,7 +10,7 @@ for receiving contributions. Read about the Fork & Pull Model
 
 ### Upstream
 
-The main / original / upstream (hereinafter upstream) repository will have only two (2) branches - master and develop. Additional hotfix branches may be created to work on critical bugs in the deployment. 
+The main / original / upstream (hereinafter upstream) repository will have only two (2) branches - master and develop. Additional hotfix branches may be created to work on critical bugs in the deployment.
 
 **'_master_' - Development branch.** This is where features from the feature branches are brought together. This is the default branch. An integration team will be responsible for bringing it all together and resolving any possible merge conflicts that may arise.
 
@@ -20,7 +20,7 @@ The main / original / upstream (hereinafter upstream) repository will have only 
 
 **'_hotfix'_ - Fixing branch** In the event that a bug slips past the integration team and makes it into deployment, a hotfix branch is created off of the latest stable branch. Prefix hotfix branch names with "hf/" e.g "hotfix/kill-bird". On completion, this branch is merged with stable, and also with _master_ so the fixes are reflected in all future deployments.
 
-**'_feature_' -  Feature branch** You create a new branch when you are working on a specific feature. Prefix feature branch names with "feat/" e.g "feat/find-two-stones". The integration team will merge your branch into _staging_ first then if everthing checks out it will be merged into master. When _master_ reaches a milestone, we will create a new _release_ branch. 
+**'_feature_' - Feature branch** You create a new branch when you are working on a specific feature. Prefix feature branch names with "feat/" e.g "feat/find-two-stones". The integration team will merge your branch into _staging_ first then if everthing checks out it will be merged into master. When _master_ reaches a milestone, we will create a new _release_ branch.
 
 ### Forks
 
@@ -36,7 +36,7 @@ When working with many people on the same codebase, sometimes others make change
 
 After setting up your fork on github and cloning it locally on your system, you'll need to run a command just once to create a connection between your local repository and the remote upstream repository. Note that there's automatically a remote 'origin' repository set up when you clone. This points to your fork. Now you need to set up 'upstream' which will point to the central upstream repo.
 
-0. Open a terminal and go into the directory for the newly cloned repo. Now add the upstream remote like so:  
+0. Open a terminal and go into the directory for the newly cloned repo. Now add the upstream remote like so:
     <pre>git remote add upstream git://github.com/TEAM-NAME/REPO-NAME.git</pre>
    PS: _You may get an error saying the `upstream` remote has already been configured. If so, then you are good to go._
 
@@ -49,7 +49,7 @@ or commit all local changes first.
    <pre>git checkout develop</pre>
 2. Get all remote upstream changes into your local computer.
    <pre>git pull upstream develop</pre>
-4. Push the newly merged changes to your fork's remote (online) repo. This is configured as 'origin' by default.
+3. Push the newly merged changes to your fork's remote (online) repo. This is configured as 'origin' by default.
    <pre>git push origin develop</pre>
 
 If you've created a new branch to work on rather than working directly on `develop`, then run the next steps.
@@ -90,7 +90,7 @@ If you've created a new branch to work on rather than working directly on `devel
 
 **utils** – Reusable code that is essential to game functionality. Like the functions that determine a players blokc position.
 
-**./server.ts** where the magic happens 
+**./server.ts** where the magic happens
 
 <!-- **test** – Mocha test files through Chai assertion library. - comming soon -->
 
@@ -106,7 +106,7 @@ We expect that all team members use VS Code as we have a .editorconfig file that
 
 ### NAMING CONVENTION
 
-Every team member should adhere to pascalCase naming for all variables and functions. Class names should start with capital letters, interface names should start with 'I' then a capital letter. Use sensible and understandable names fot function names.
+Every team member should adhere to pascalCase naming for all variables and functions. Class names should start with capital letters, interface names should start with 'I' then a capital letter. Use sensible and understandable names fot function names. Name's of class files should start with capital letter. Follow the pattern already existing.
 
 ### CODE COMMENTS
 
@@ -120,6 +120,6 @@ Files coming from the develop branch are not to be adjusted or modified without 
 
 Endeavour to have at most 2 commits when you are raising PR, you must squash all your other commits.
 
+#### Most of all don't forget to enjoy yourself in this codebase, run wild! Let's see the delightful things you come up with. _Do Great Things_ _The Bird must die_ ( ͡ᵔ ͜ʖ ͡ᵔ )
 
-#### Most of all don't forget to enjoy yourself in this codebase, run wild! Let's see the delightful things you come up with. _Do Great Things_ _The Bird must die_
- - LeanKhan :)
+- LeanKhan :)

@@ -1,6 +1,6 @@
 import { ICoordinate, IBlock } from '../classes/Ball';
 import { IFieldPlayer } from '../interfaces/Player';
-import { PlayingField } from '../GameState/ImmutableState/FieldGrid';
+import { PlayingField } from '../state/ImmutableState/FieldGrid';
 
 /**
  * Returns the tile index of the given coordinates

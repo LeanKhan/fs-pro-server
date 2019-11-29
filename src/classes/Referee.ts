@@ -1,6 +1,6 @@
 import { IFieldPlayer } from '../interfaces/Player';
 import { matchEvents } from '../utils/events';
-import { Actions } from '../GameState/ImmutableState/Actions/Actions';
+import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { IBlock } from './Ball';
 import * as playerFunc from '../utils/players';
 import * as co from '../utils/coordinates';

@@ -3,6 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import bodyparser from 'body-parser';
 import router from './routers';
+import stage from '../environment/environment';
 
 const app: express.Application = express();
 
@@ -14,6 +15,10 @@ const port = process.env.PORT || 3000;
 
 import i = require('socket.io');
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+// const env = process.env.NODE_ENV as string;
+
 const io = i(http);
 
 app.use(cors());
@@ -24,7 +29,7 @@ app.use(bodyparser.urlencoded({ extended: true }));
 // MongoDB Database Connection
 
 mongoose
-  .connect('mongodb://localhost:27017/fs-pro', {
+  .connect(stage.dev.MONGO_URL, {
     useNewUrlParser: true,
   })
   .then(client => {
@@ -69,8 +74,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api', router);
-
-// Server
 
 app.listen(port, () => {
   console.log('Game Server running successfully! on port ' + port);

@@ -6,6 +6,7 @@ export interface IFieldPlayer extends IPlayer {
   Starting: boolean;
   Substitute: boolean;
   BlockPosition: IBlock;
+  /** Where the player starts the match */
   StartingPosition: any | null;
   WithBall: boolean;
   Ball: IBall;
@@ -39,25 +40,25 @@ export interface IPlayer {
 // It's not all players that will have club :)
 
 export interface IPositions {
-  top?: IBlock,
-  left?: IBlock,
-  right?: IBlock,
-  bottom?: IBlock,
+  top?: IBlock;
+  left?: IBlock;
+  right?: IBlock;
+  bottom?: IBlock;
   [key: string]: IBlock | undefined;
 }
 
 export interface IPlayerAttributes {
-    Speed: number,
-    Shooting: number,
-    LongPass: number,
-    ShortPass: number,
-    MediumPass: number,
-    Tactics: number,
-    Tackling: number,
-    Strength: number,
-    Stamina: number,
-    PreferredFoot: string,
-    AttackingMindset: boolean,
-    DefensiveMindset: boolean,
-    [key: string]: any;
+  Speed: number;
+  Shooting: number;
+  LongPass: number;
+  ShortPass: number;
+  MediumPass: number;
+  Tactics: number;
+  Tackling: number;
+  Strength: number;
+  Stamina: number;
+  PreferredFoot: string;
+  AttackingMindset: boolean;
+  DefensiveMindset: boolean;
+  [key: string]: any;
 }

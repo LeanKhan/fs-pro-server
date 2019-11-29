@@ -13,10 +13,8 @@ router.get('/all', async (req, res) => {
   const response = await fetchAllClubs();
 
   if (!response.error) {
-    // Use the response handler to send a success message
-    respond.success(res, 200, 'Clubs retrieved successfully', response.result);
+    respond.success(res, 200, 'Clubs fetched successfully', response.result);
   } else {
-    // Use the response handler to send a fail message
     respond.fail(res, 400, 'Error fetching clubs', response.result);
   }
 });
@@ -28,9 +26,9 @@ router.post('/new', async (req, res) => {
   const response = await createNewClub(req.body);
 
   if (!response.error) {
-    respond.success(res, 200, `${response.result.Name}`);
+    respond.success(res, 200, 'Club created successfully', response.result);
   } else {
-    respond.fail(res, 500, 'Error creting new club', response.result);
+    respond.fail(res, 500, 'Error creating club', response.result);
   }
 });
 
@@ -45,7 +43,7 @@ router.get('/get/:id', async (req, res) => {
   if (!response.error) {
     respond.success(res, 200, 'Club fetched successfully', response.result);
   } else {
-    respond.fail(res, 404, 'Club not found', response.result);
+    respond.fail(res, 400, 'Error fetching club', response.result);
   }
 });
 

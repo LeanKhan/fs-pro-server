@@ -9,7 +9,7 @@ import Ball, { IBlock } from './Ball';
 import {
   formations,
   FormationsList,
-} from '../GameState/PersistentState/Formations';
+} from '../state/PersistentState/Formations';
 
 /** MatchSide
  *

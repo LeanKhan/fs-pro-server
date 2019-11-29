@@ -1,12 +1,12 @@
 import { Match } from '../classes/Match';
 import ClubModel, { IClubModel } from '../models/club.model';
 import Ball, { IBlock } from '../classes/Ball';
-import { PlayingField } from '../GameState/ImmutableState/FieldGrid';
+import { PlayingField } from '../state/ImmutableState/FieldGrid';
 import * as co from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
 import { MatchSide } from '../classes/MatchSide';
 import Referee, { IReferee } from '../classes/Referee';
-import { Actions } from '../GameState/ImmutableState/Actions/Actions';
+import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { matchEvents } from '../utils/events';
 // import { EventEmitter } from 'events';
 
@@ -35,6 +35,9 @@ const awayPost: IBlock = co.coordinateToBlock({ x: 0, y: 3 });
 ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
   if (!err) {
     Clubs = clubs;
+
+    console.log(Clubs);
+
     match = new Match(Clubs[0], Clubs[1], awayPost, homePost);
 
     match.Home.setFormation('HOME-433', MatchBall, PlayingField);
@@ -45,7 +48,6 @@ ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
 
     // console.log('Home Starting Squad', match.Home.StartingSquad);
   }
-  
 });
 
 const MatchBall: Ball = new Ball('#ffffff', centerBlock);
@@ -88,7 +90,6 @@ async function gamePlay() {
  */
     // Set Match time in Match
 
-
     console.log(`------------Loop Position ${i + 1}---------`);
     setPlayingSides();
 
@@ -126,9 +127,11 @@ function setPlayingSides() {
 
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
-    activePlayerDS = co.findClosestFieldPlayer(MatchBall.Position, DS.StartingSquad);
+    activePlayerDS = co.findClosestFieldPlayer(
+      MatchBall.Position,
+      DS.StartingSquad
+    );
     // return {activePlayerAS, AS, activePlayerDS, DS};
-
   } else if (
     match.Away.StartingSquad.find(p => {
       return p.WithBall;
@@ -146,11 +149,14 @@ function setPlayingSides() {
 
     // Set the activePlayer in the defending team to be the player closest to
     // the ball
-    activePlayerDS = co.findClosestFieldPlayer(MatchBall.Position, DS.StartingSquad);
+    activePlayerDS = co.findClosestFieldPlayer(
+      MatchBall.Position,
+      DS.StartingSquad
+    );
     // return {activePlayerAS, AS, activePlayerDS, DS};
   }
   // MatchActions.setSides(activePlayerAS, AS, activePlayerDS, DS);
-  return {activePlayerAS, AS, activePlayerDS, DS};
+  return { activePlayerAS, AS, activePlayerDS, DS };
 }
 
 /**
@@ -179,7 +185,7 @@ function listenForMatchEvents() {
     console.log('*---- setting playing sides ----*');
 
     const playingSides = setPlayingSides();
-   
+
     matchEvents.emit('setting-playing-sides', playingSides);
   });
 }
@@ -218,13 +224,13 @@ function matchComments() {
   `);
 }
 
-listenForMatchEvents();
+// listenForMatchEvents();
 
-setTimeout(() => {
-  console.log('Match Starting...');
+// // setTimeout(() => {
+// //   console.log('Match Starting...');
 
-  startMatch();
-}, 5000);
+// //   startMatch();
+// // }, 5000);
 
 // match.start();
 // console.log('From db', clubs);
