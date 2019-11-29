@@ -18,17 +18,18 @@ The main / original / upstream (hereinafter upstream) repository will have only 
 
 **'_staging_' - Testing / staging branch** We use this to test all our shii
 
-**'_hotfix'_ - Fixing branch** In the event that a bug slips past the integration team and makes it into deployment, a hotfix branch is created off of the latest stable branch. Prefix hotfix branch names with "hf/" e.g "hotfix/kill-bird". On completion, this branch is merged with stable, and also with _master_ so the fixes are reflected in all future deployments.
+**'_hotfix'_ - Fixing branch** In the event that a bug slips past the integration team and makes it into deployment, a hotfix branch is created off of the latest release branch. Prefix hotfix branch names with "hf/" e.g "hotfix/kill-bird". On completion, this branch is merged with `release`, and also with `master` so the fixes are reflected in all future deployments.
 
-**'_feature_' - Feature branch** You create a new branch when you are working on a specific feature. Prefix feature branch names with "feat/" e.g "feat/find-two-stones". The integration team will merge your branch into _staging_ first then if everthing checks out it will be merged into master. When _master_ reaches a milestone, we will create a new _release_ branch.
+**'_feature_' - Feature branch** You create a new branch when you are working on a specific feature. Prefix feature branch names with "feat/" e.g "feat/find-two-stones". The integration team will merge your branch into _staging_ first then if everthing checks out it will be merged into master. When `master` reaches a milestone, we will create a new `release` branch.
 
 ### Forks
 
-Each fork represents work on a specific feature or task. Fork this repository to your own account and do all your work there. Create a feature branch or hotfix branch off of _master_ from your repo, then when you are done create a pull request to the `develop` branch of the main (upstream) repo.
+Each fork represents work on a specific feature or task. Fork this repository to your own account and do all your work there. Create a feature branch or hotfix branch off of _master_ from your repo=. Check the Pivotal Tracker board for any tasks assigned to you or pick an issue to work on. then when you are done create a pull request to the `develop` branch of the main (upstream) repo.
 
 ### Staying Updated
 
-When working with many people on the same codebase, sometimes others make changes that affect your work. While great care has been taken to create a modular team workflow to keep this to a minimum, merge conflicts are inevitable. It would _suck_ to finish working on a task or feature, only to find that the codebase has evolved and you need to rework everything to conform to the new changes. This is managed in two ways.  
+When working with many people on the same codebase, sometimes others make changes that affect your work. While great care has been taken to create a modular team workflow to keep this to a minimum, merge conflicts are inevitable. It would _suck_ to finish working on a task or feature, only to find that the codebase has evolved and you need to rework everything to conform to the new changes. This is managed in two ways:
+
 **_First_**, make sure your work is in line with our specifications. Understand the folder structure and stick to it. Study the tasks list on Pivotal Tracker and identify any tasks that your work may depend on or that relates to yours in some way. Contact the team leads or project managers if you need any clarification. Do your due dilligence to make sure you are on the same page with everyone else. This is your responsibility. Your submission may be rejected if it's non-compliant.  
 **_Second_**, each team member needs to make sure that at every given time, their working directory is up-to-date with the latest changes from the upstream _develop_ branch. This is achieved with a two-fold process.
 
@@ -99,8 +100,8 @@ If you've created a new branch to work on rather than working directly on `devel
 **Install Plugins** – Below plugins is recommende for installation
 
 1. ESLint
-2. Editor Config For VS Code
-3. Prettier
+2. Prettier
+3. Editor Config For VS Code
 
 We expect that all team members use VS Code as we have a .editorconfig file that helps all team members maintain a similar code structure
 
@@ -120,6 +121,6 @@ Files coming from the develop branch are not to be adjusted or modified without 
 
 Endeavour to have at most 2 commits when you are raising PR, you must squash all your other commits.
 
-#### Most of all don't forget to enjoy yourself in this codebase, run wild! Let's see the delightful things you come up with. _Do Great Things_ _The Bird must die_ ( ͡ᵔ ͜ʖ ͡ᵔ )
+#### Most of all don't forget to enjoy yourself in this codebase, run wild! I am grateful for your assistance. Let's see the delightful things you come up with. _Do Great Things_ , _The Bird must die_ ( ͡ᵔ ͜ʖ ͡ᵔ )
 
 - LeanKhan :)

@@ -38,7 +38,7 @@ src
 <!-- ##### Test Driven
 Tests are written with mocha, chai-http and chai. -->
 
-#### This is going to be _EPIC_
+#### This is going to be _EPIC_ Our goal is for FSPro to be the best open source football fantasy game. We will do it, I have the best team :)
 
 ### Stack:
 
