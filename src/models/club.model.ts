@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IPlayer } from '@/interfaces/Player';
+import { IPlayer } from '../interfaces/Player';
 // import { Player } from '../models/player.model'; // Uncomment this after testing!
 
 export interface IClubModel extends Document {

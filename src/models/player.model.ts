@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IPlayerAttributes } from '../interfaces/Player';
+import { IPlayerAttributes, IPlayerStats } from '../interfaces/Player';
 
 export interface IPlayerModel extends Document {
   /** Name of the Player! */
   FirstName: string;
   LastName: string;
-  Age: string;
-  Player_ID: string;
+  Age: number;
+  PlayerID: string;
   /** overall Player rating */
   Rating: number;
   /** Goals scored in total */
@@ -14,6 +14,8 @@ export interface IPlayerModel extends Document {
   ShirtNumber: string;
   /** Collecting of Player's attributes */
   Attributes: IPlayerAttributes;
+  Stats: IPlayerStats;
+  isSigned: boolean;
   /** Monetary value of Player */
   Value: number;
   /** Some Players don't have clubs (free agents) hence can be undefined */
@@ -30,10 +32,11 @@ const Player: Schema = new Schema(
       type: String,
       required: true,
     },
+    Nationality: String,
     Age: {
       type: Number,
     },
-    Player_ID: String,
+    PlayerID: String,
     /** Default position */
     Position: {
       type: String,
@@ -57,19 +60,33 @@ const Player: Schema = new Schema(
     },
     /** overall Player rating over 100 - e.g 88 */
     Rating: Number,
+    Stats: {
+      type: Object,
+      Goals: { type: Number, default: 0 },
+      Saves: { type: Number, default: 0 },
+      YellowCards: { type: Number, default: 0 },
+      RedCards: { type: Number, default: 0 },
+      Assists: { type: Number, default: 0 },
+      CleanSheets: { type: Number, default: 0 },
+    },
     GoalsScored: Number,
     ShirtNumber: String,
     Value: {
       type: Number,
-      default: 0,
     },
     isSigned: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    ClubCode: String,
+    ClubCode: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
+
+// TODO:
+// Record Player form and see how it affects their game...
 
 export default mongoose.model<IPlayerModel>('Player', Player, 'Players');

@@ -3,7 +3,7 @@ import { IPlayer, IPlayerAttributes } from '../interfaces/Player';
 export default class Player implements IPlayer {
   public FirstName: string;
   public LastName: string;
-  public Age: string;
+  public Age: number;
   public PlayerID: string;
   public Rating: number;
   public GoalsScored: number;

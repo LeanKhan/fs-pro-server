@@ -1,6 +1,8 @@
 import express from 'express';
 import respond from '../helpers/responseHandler';
 import { fetchAllPlayers, createNewPlayer } from '../services/player.service';
+import { getCurrentCounter } from '../middleware/player';
+import { incrementCounter } from '../utils/counter';
 
 const router = express.Router();
 
@@ -28,7 +30,8 @@ router.get('/all', async (req, res) => {
  * }
  *
  */
-router.post('/new', async (req, res) => {
+router.post('/new', getCurrentCounter, async (req, res) => {
+
   const response = await createNewPlayer(req.body);
 
   // TODO:
@@ -37,6 +40,7 @@ router.post('/new', async (req, res) => {
 
   if (!response.error) {
     respond.success(res, 200, 'Player created successfully', response.result);
+    incrementCounter('player_counter');
   } else {
     respond.fail(res, 400, 'Error creating player', response.result);
   }

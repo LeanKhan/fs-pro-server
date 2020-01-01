@@ -124,10 +124,120 @@ function findFreeBlock(around: IPositions) {
 //       });
 // }
 
+function calculatePlayerValue(rating: number, age: number) {
+  let value;
+
+  if (age >= 17 && age < 20) {
+    if (rating < 60) {
+      value = 1000000;
+    } else if (rating >= 60 && rating < 70) {
+      value = 2000000;
+    } else if (rating >= 70 && rating < 75) {
+      value = 4000000;
+    } else if (rating >= 75 && rating < 80) {
+      value = 12000000;
+    } else if (rating >= 80 && rating < 85) {
+      value = 40000000;
+    } else if (rating >= 85 && rating < 90) {
+      value = 100000000;
+    } else if (rating >= 90 && rating < 95) {
+      value = 160000000;
+    } else if (rating >= 95 && rating <= 100) {
+      value = 200000000;
+    } else {
+      value = 0;
+    }
+  } else if (age >= 20 && age < 24) {
+    if (rating < 60) {
+      value = 500000;
+    } else if (rating >= 60 && rating < 70) {
+      value = 4000000;
+    } else if (rating >= 70 && rating < 75) {
+      value = 6000000;
+    } else if (rating >= 75 && rating < 80) {
+      value = 15000000;
+    } else if (rating >= 80 && rating < 85) {
+      value = 44000000;
+    } else if (rating >= 85 && rating < 90) {
+      value = value = 90000000;
+    } else if (rating >= 90 && rating < 95) {
+      value = 180000000;
+    } else if (rating >= 95 && rating <= 100) {
+      value = 240000000;
+    } else {
+      value = 0;
+    }
+  } else if (age >= 24 && age < 26) {
+    if (rating < 60) {
+      value = 400000;
+    } else if (rating >= 60 && rating < 70) {
+      value = 3000000;
+    } else if (rating >= 70 && rating < 75) {
+      value = 18000000;
+    } else if (rating >= 75 && rating < 80) {
+      value = 30000000;
+    } else if (rating >= 80 && rating < 85) {
+      value = 48000000;
+    } else if (rating >= 85 && rating < 90) {
+      value = 120000000;
+    } else if (rating >= 90 && rating < 95) {
+      value = 200000000;
+    } else if (rating >= 95 && rating <= 100) {
+      value = 250000000;
+    } else {
+      value = 0;
+    }
+  } else if (age >= 26 && age < 30) {
+    if (rating < 60) {
+      value = 350000;
+    } else if (rating >= 60 && rating < 70) {
+      value = 2500000;
+    } else if (rating >= 70 && rating < 75) {
+      value = 15000000;
+    } else if (rating >= 75 && rating < 80) {
+      value = 34000000;
+    } else if (rating >= 80 && rating < 85) {
+      value = 8000000;
+    } else if (rating >= 85 && rating < 90) {
+      value = 120000000;
+    } else if (rating >= 90 && rating < 95) {
+      value = 140000000;
+    } else if (rating >= 95 && rating <= 100) {
+      value = 240000000;
+    } else {
+      value = 0;
+    }
+  } else if (age >= 30 && age < 42) {
+    if (rating < 60) {
+      value = 350000;
+    } else if (rating >= 60 && rating < 70) {
+      value = 2000000;
+    } else if (rating >= 70 && rating < 75) {
+      value = 12000000;
+    } else if (rating >= 75 && rating < 80) {
+      value = 28000000;
+    } else if (rating >= 80 && rating < 85) {
+      value = 46000000;
+    } else if (rating >= 85 && rating < 90) {
+      value = 90000000;
+    } else if (rating >= 90 && rating < 95) {
+      value = 130000000;
+    } else if (rating >= 95 && rating <= 100) {
+      value = 220000000;
+    } else {
+      value = 0;
+    }
+  } else {
+    value = 0;
+  }
+  return value;
+}
+
 export {
   getATTMID,
   findFreeBlock,
   findRandomFreeBlock,
   getRandomATTMID,
   getGK,
+  calculatePlayerValue,
 };

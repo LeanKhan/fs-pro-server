@@ -1,4 +1,6 @@
 import playerModel, { IPlayerModel } from '../models/player.model';
+import { IPlayer } from '../interfaces/Player';
+import { calculatePlayerValue } from '../utils/players';
 
 /**
  * fetchAllPlayers
@@ -20,10 +22,12 @@ export const fetchAllPlayers = async () => {
  * @param p Player making data
  * @returns - {error: boolean, result: any}
  */
-export const createNewPlayer = async (p: any) => {
-  const PLAYER: IPlayerModel = new playerModel(p);
+export const createNewPlayer = async (p: IPlayer) => {
+  p.Value = calculatePlayerValue(p.Rating, p.Age);
+
+  const PLAYER = new playerModel(p);
 
   return PLAYER.save()
-    .then((player: IPlayerModel) => ({ error: false, result: player }))
+    .then(player => ({ error: false, result: player }))
     .catch(error => ({ error: true, result: error }));
 };

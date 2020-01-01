@@ -23,7 +23,7 @@ export interface IPlayer {
   _id?: string;
   FirstName: string;
   LastName: string;
-  Age: string;
+  Age: number;
   PlayerID: string;
   Rating: number;
   GoalsScored: number;
@@ -62,4 +62,13 @@ export interface IPlayerAttributes {
   AttackingMindset: boolean;
   DefensiveMindset: boolean;
   [key: string]: any;
+}
+
+export interface IPlayerStats {
+  Goals: number;
+  Saves: number;
+  YellowCards: number;
+  RedCards: number;
+  Assists: number;
+  CleanSheets: number;
 }
