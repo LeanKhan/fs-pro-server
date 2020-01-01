@@ -28,12 +28,10 @@ export interface IPlayer {
   Rating: number;
   GoalsScored: number;
   ShirtNumber: string;
-  AttackingClass: number;
-  DefensiveClass: number;
-  GoalkeepingClass: number;
   Position: string;
   Attributes: IPlayerAttributes;
   Value: number;
+  isSigned: boolean;
   ClubCode?: string;
 }
 
@@ -52,11 +50,14 @@ export interface IPlayerAttributes {
   Shooting: number;
   LongPass: number;
   ShortPass: number;
-  MediumPass: number;
-  Tactics: number;
+  Mental: number;
   Tackling: number;
+  Catching: number;
+  Control: number;
   Strength: number;
   Stamina: number;
+  SetPiece: number;
+  Dribbling: number;
   PreferredFoot: string;
   AttackingMindset: boolean;
   DefensiveMindset: boolean;

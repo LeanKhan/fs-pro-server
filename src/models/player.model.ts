@@ -12,12 +12,6 @@ export interface IPlayerModel extends Document {
   /** Goals scored in total */
   GoalsScored: number;
   ShirtNumber: string;
-  /** Players overall Attacking rating */
-  AttackingClass: number;
-  /** Player's overall Defensive rating */
-  DefensiveClass: number;
-  /** Player's overall Goalkeeping rating */
-  GoalkeepingClass: number;
   /** Collecting of Player's attributes */
   Attributes: IPlayerAttributes;
   /** Monetary value of Player */
@@ -51,12 +45,13 @@ const Player: Schema = new Schema(
       Shooting: Number,
       LongPass: Number,
       ShortPass: Number,
-      MediumPass: Number,
-      Tactics: Number,
+      Mental: Number,
+      Control: Number,
       Tackling: Number,
       Strength: Number,
       Stamina: Number,
       PreferredFoot: String,
+      Catching: Number,
       AttackingMindset: Boolean,
       DefensiveMindset: Boolean,
     },
@@ -64,21 +59,13 @@ const Player: Schema = new Schema(
     Rating: Number,
     GoalsScored: Number,
     ShirtNumber: String,
-    AttackingClass: {
-      type: Number,
-      required: true,
-    },
-    DefensiveClass: {
-      type: Number,
-      required: true,
-    },
-    GoalkeepingClass: {
-      type: Number,
-      required: true,
-    },
     Value: {
       type: Number,
       default: 0,
+    },
+    isSigned: {
+      type: Boolean,
+      default: false
     },
     ClubCode: String,
   },

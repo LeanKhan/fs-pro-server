@@ -308,8 +308,8 @@ export class Actions {
           } else if (player.WithBall && opponentBlock !== undefined) {
             if (
               prob.compareValues(
-                player.AttackingClass,
-                opponentBlock.DefensiveClass
+                player.Attributes.Dribbling,
+                opponentBlock.Attributes.Tackling
               )
             ) {
               // this.makeMove(player, p, around);
@@ -607,4 +607,3 @@ interface ISituation {
   status?: boolean;
   reason: string;
 }
-

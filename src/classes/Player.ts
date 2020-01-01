@@ -8,12 +8,10 @@ export default class Player implements IPlayer {
   public Rating: number;
   public GoalsScored: number;
   public ShirtNumber: string;
-  public AttackingClass: number;
-  public DefensiveClass: number;
-  public GoalkeepingClass: number;
   public Position: string;
   public Attributes: IPlayerAttributes;
   public Value: number;
+  public isSigned: boolean;
   public ClubCode?: string;
 
   constructor(player: Player) {
@@ -24,10 +22,8 @@ export default class Player implements IPlayer {
     this.Rating = player.Rating;
     this.GoalsScored = player.GoalsScored;
     this.ShirtNumber = player.ShirtNumber;
-    this.AttackingClass = player.AttackingClass;
-    this.DefensiveClass = player.DefensiveClass;
-    this.GoalkeepingClass = player.GoalkeepingClass;
     this.Position = player.Position;
+    this.isSigned = player.isSigned;
     this.Attributes = player.Attributes;
     this.Value = player.Value;
     this.ClubCode = player.ClubCode;
