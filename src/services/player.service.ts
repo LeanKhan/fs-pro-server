@@ -1,4 +1,4 @@
-import playerModel, { IPlayerModel } from '../models/player.model';
+import playerModel from '../models/player.model';
 import { IPlayer } from '../interfaces/Player';
 import { calculatePlayerValue } from '../utils/players';
 
@@ -30,4 +30,26 @@ export const createNewPlayer = async (p: IPlayer) => {
   return PLAYER.save()
     .then(player => ({ error: false, result: player }))
     .catch(error => ({ error: true, result: error }));
+};
+
+/**
+ * Toggle Signed
+ * @param playerId
+ * @param value
+ */
+export const toggleSigned = async (
+  playerId: string,
+  value: boolean,
+  clubCode: string
+) => {
+  return playerModel
+    .findByIdAndUpdate(playerId, {
+      $set: { isSigned: value, ClubCode: clubCode },
+    })
+    .then(res => ({
+      error: false,
+      message: 'Player signed status changed successfully',
+      result: null,
+    }))
+    .catch(err => ({ error: true, result: err }));
 };

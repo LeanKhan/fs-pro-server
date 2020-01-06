@@ -7,17 +7,22 @@ export interface IClubModel extends Document {
   AttackingClass: number;
   DefensiveClass: number;
   Players: IPlayer[];
-  PlayingStyle: 'attacking' | 'defensive' | 'balanced';
   assets: {
     Kit: string;
     Logo: string;
     Stadium: string;
   };
+  Rating: number;
+  Address: {};
   Manager: string;
-  Stadium: string;
+  Stadium: {};
+  Stats: {};
   LeagueCode: string;
   League: string;
 }
+
+// TODO:
+// Figure out how to calculate Club rating o!
 
 const ClubSchema: Schema = new Schema(
   {
@@ -37,10 +42,7 @@ const ClubSchema: Schema = new Schema(
     DefensiveClass: {
       type: Number,
     },
-    PlayingStyle: {
-      type: String,
-      required: true,
-    },
+    Rating: Number,
     Manager: {
       type: String,
       unique: true,
@@ -51,8 +53,23 @@ const ClubSchema: Schema = new Schema(
       Logo: String,
       Stadium: String,
     },
+    Stats: {
+      type: Object,
+      LeagueTitles: Number,
+      Cups: Number,
+    },
+    Address: {
+      type: Object,
+      Section: String,
+      City: String,
+      Country: String,
+    },
     Stadium: {
-      type: String,
+      type: Object,
+      Name: String,
+      Capacity: String,
+      YearOccupied: String,
+      Location: String,
       unique: true,
     },
     LeagueCode: String,

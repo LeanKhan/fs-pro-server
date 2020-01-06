@@ -4,7 +4,9 @@ import {
   fetchAllClubs,
   createNewClub,
   fetchSingleClubById,
+  addPlayerToClub,
 } from '../services/club.service';
+import { updatePlayerSigning } from '../middleware/player';
 
 const router = express.Router();
 
@@ -44,6 +46,20 @@ router.get('/get/:id', async (req, res) => {
     respond.success(res, 200, 'Club fetched successfully', response.result);
   } else {
     respond.fail(res, 400, 'Error fetching club', response.result);
+  }
+});
+
+/**
+ * add Player to club
+ */
+
+router.put('/:id/sign-player', updatePlayerSigning, async (req, res) => {
+  const response = await addPlayerToClub(req.params.id, req.body.playerId);
+
+  if (!response.error) {
+    respond.success(res, 200, 'Player signed successfully!', response.result);
+  } else {
+    respond.fail(res, 400, 'Error adding player to club', response.result);
   }
 });
 

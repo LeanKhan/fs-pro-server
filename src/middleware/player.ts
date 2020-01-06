@@ -8,6 +8,7 @@ import {
   RequestHandler,
 } from 'express';
 import responseHandler from '../helpers/responseHandler';
+import { toggleSigned } from '../services/player.service';
 
 export const getCurrentCounter: RequestHandler = (
   req: Request,
@@ -30,4 +31,24 @@ export const getCurrentCounter: RequestHandler = (
         responseHandler.fail(res, 404, 'Counter not found!');
       }
     });
+};
+
+export const updatePlayerSigning: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  console.log('In middleware');
+
+  const resp = await toggleSigned(
+    req.body.playerId,
+    req.query.player_is_signed,
+    req.query.club_code
+  );
+
+  if (!resp.error) {
+    next();
+  } else {
+    responseHandler.fail(res, 400, 'Error adding player to club');
+  }
 };
