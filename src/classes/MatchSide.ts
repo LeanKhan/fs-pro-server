@@ -14,7 +14,7 @@ import {
 /** MatchSide
  *
  * Represents a team playing in a match.
- * @extends Team
+ * @extends Club
  */
 
 export class MatchSide extends Club implements IClub {

@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "tsc": "tsc",
-    "dev": "set NODE_ENV=dev && ts-node-dev --respawn --transpileOnly ./src/server.ts",
+    "dev": "set NODE_ENV=dev && ts-node-dev --respawn --debug --transpileOnly ./src/server.ts",
     "prod": "tsc && node ./build/server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

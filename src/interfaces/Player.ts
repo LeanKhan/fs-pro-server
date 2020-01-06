@@ -30,6 +30,7 @@ export interface IPlayer {
   ShirtNumber: string;
   Position: string;
   Attributes: IPlayerAttributes;
+  Stats?: IPlayerStats;
   Value: number;
   isSigned: boolean;
   ClubCode?: string;

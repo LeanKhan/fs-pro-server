@@ -1,6 +1,6 @@
 import { Match } from '../classes/Match';
-import ClubModel, { IClubModel } from '../models/club.model';
-import Ball, { IBlock } from '../classes/Ball';
+// import ClubModel, { IClubModel } from '../models/club.model';
+import Ball, { IBlock, IBall } from '../classes/Ball';
 import { PlayingField } from '../state/ImmutableState/FieldGrid';
 import * as co from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
@@ -8,187 +8,255 @@ import { MatchSide } from '../classes/MatchSide';
 import Referee, { IReferee } from '../classes/Referee';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { matchEvents } from '../utils/events';
+import { fetchClubs } from '../services/club.service';
+import { IClub } from '../interfaces/Club';
 // import { EventEmitter } from 'events';
 
-let Clubs: IClubModel[] = [];
+// let Clubs: IClubModel[] = [];
 
-let match: Match;
+// let match: Match;
 
 const centerBlock = PlayingField[42];
 
 // const gameLoop = 90;
 
-let AS: MatchSide;
-
-let DS: MatchSide;
-
-let activePlayerAS: IFieldPlayer;
-let activePlayerDS: IFieldPlayer;
-
-// let matchInterruption: any;
-
-// Sides
-
 const homePost: IBlock = co.coordinateToBlock({ x: 11, y: 3 });
 const awayPost: IBlock = co.coordinateToBlock({ x: 0, y: 3 });
 
-ClubModel.find({ ClubCode: { $in: ['RP', 'DR'] } }, (err, clubs) => {
-  if (!err) {
-    Clubs = clubs;
+class Game {
+  public homePost: IBlock;
+  public awayPost: IBlock;
+  public Referee: Referee;
+  public AS?: MatchSide;
+  public DS?: MatchSide;
+  public ActivePlayerAS?: IFieldPlayer;
+  public ActivePlayerDS?: IFieldPlayer;
+  private Match: Match;
+  private Clubs: IClub[];
+  private MatchBall: Ball;
+  private PlayingField: IBlock[];
+  private MatchActions: Actions;
 
-    console.log(Clubs);
+  constructor(
+    clubs: IClub[],
+    hp: IBlock,
+    ap: IBlock,
+    field: IBlock[],
+    ball: Ball,
+    ref: Referee
+  ) {
+    this.Match = new Match(clubs[0], clubs[1], ap, hp);
+    this.Clubs = clubs;
+    this.homePost = hp;
+    this.awayPost = ap;
 
-    match = new Match(Clubs[0], Clubs[1], awayPost, homePost);
+    this.MatchBall = ball;
 
-    match.Home.setFormation('HOME-433', MatchBall, PlayingField);
+    this.PlayingField = field;
 
-    match.Away.setFormation('AWAY-433', MatchBall, PlayingField);
+    this.Referee = ref;
 
-    MatchReferee.assignMatch(match);
+    this.MatchActions = new Actions(ref);
+
+    console.log('Game created');
+  }
+
+  public setMatchBall(ball: Ball) {
+    this.MatchBall = ball;
+  }
+
+  public refAssignMatch() {
+    this.Referee.assignMatch(this.Match);
+
+    console.log('Someone', this.Match.Home.StartingSquad[0]);
+  }
+
+  public setClubFormations(homeFormation: string, awayFormation: string) {
+    this.Match.Home.setFormation(
+      homeFormation,
+      this.MatchBall as Ball,
+      this.PlayingField
+    );
+
+    this.Match.Away.setFormation(
+      awayFormation,
+      this.MatchBall as Ball,
+      this.PlayingField
+    );
+  }
+
+  public setPlayingSides() {
+    if (
+      this.Match.Home.StartingSquad.find(p => {
+        return p.WithBall;
+      })
+    ) {
+      this.AS = this.Match.Home as MatchSide;
+
+      // Set the activePlayer in the attacking team to be the player with
+      // the ball
+      this.ActivePlayerAS = this.Match.Home.StartingSquad.find(p => {
+        return p.WithBall;
+      }) as IFieldPlayer;
+
+      this.DS = this.Match.Away as MatchSide;
+
+      // Set the activePlayer in the defending team to be the player closest to
+      // the ball
+      this.ActivePlayerDS = co.findClosestFieldPlayer(
+        this.MatchBall.Position,
+        this.DS.StartingSquad
+      );
+      // return {activePlayerAS, AS, activePlayerDS, DS};
+    } else if (
+      this.Match.Away.StartingSquad.find(p => {
+        return p.WithBall;
+      })
+    ) {
+      this.AS = this.Match.Away as MatchSide;
+
+      // Set the activePlayer in the attacking team to be the player with
+      // the ball
+      this.ActivePlayerAS = this.Match.Away.StartingSquad.find(p => {
+        return p.WithBall;
+      }) as IFieldPlayer;
+
+      this.DS = this.Match.Home as MatchSide;
+
+      // Set the activePlayer in the defending team to be the player closest to
+      // the ball
+      this.ActivePlayerDS = co.findClosestFieldPlayer(
+        this.MatchBall.Position,
+        this.DS.StartingSquad
+      );
+      // return {activePlayerAS, AS, activePlayerDS, DS};
+    }
+    // MatchActions.setSides(activePlayerAS, AS, activePlayerDS, DS);
+  }
+
+  public moveTowardsBall() {
+    this.ActivePlayerAS = co.findClosestFieldPlayer(
+      this.MatchBall.Position,
+      this.Match.Home.StartingSquad
+    );
+
+    this.MatchActions.move(
+      this.ActivePlayerAS,
+      'towards ball',
+      this.MatchBall.Position
+    );
+
+    this.ActivePlayerDS = co.findClosestFieldPlayer(
+      this.MatchBall.Position,
+      this.Match.Away.StartingSquad
+    );
+
+    this.MatchActions.move(
+      this.ActivePlayerDS,
+      'towards ball',
+      this.MatchBall.Position
+    );
+
+    this.matchComments();
+  }
+
+  public matchComments() {
+    console.log(`Ball is at ${JSON.stringify({
+      x: this.MatchBall.Position.x,
+      y: this.MatchBall.Position.y,
+      key: this.MatchBall.Position.key,
+    })}
+    ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
+      this.ActivePlayerAS!.LastName
+    } at ${JSON.stringify({
+      x: this.ActivePlayerAS!.BlockPosition.x,
+      y: this.ActivePlayerAS!.BlockPosition.y,
+      key: this.ActivePlayerAS!.BlockPosition.key,
+    })}
+    ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
+      this.ActivePlayerDS!.LastName
+    } at ${JSON.stringify({
+      x: this.ActivePlayerDS!.BlockPosition.x,
+      y: this.ActivePlayerDS!.BlockPosition.y,
+      key: this.ActivePlayerDS!.BlockPosition.key,
+    })}
+    `);
+  }
+
+  public gamePlay() {
+    // match.Home.StartingSquad[4].move({ x: 0, y: 1 });
+    // console.log(
+    //   `Ball is at ${JSON.stringify(MatchBall.Position)}`,
+    //   `Closest player in ${match.Away.Name} is ${
+    //     findClosestPlayer(MatchBall.Position, match.Away.StartingSquad).LastName
+    //   }`
+    // );
+
+    for (let i = 0; i < 24; i++) {
+      console.log(`------------Loop Position ${i + 1}---------`);
+      this.setPlayingSides();
+
+      this.Match.setCurrentTime(i);
+
+      if (this.AS === undefined || this.DS === undefined) {
+        this.moveTowardsBall();
+      } else {
+        this.MatchActions.takeAction(
+          this.ActivePlayerAS as IFieldPlayer,
+          this.AS,
+          this.DS,
+          this.ActivePlayerDS as IFieldPlayer
+        );
+        // setPlayingSides();
+        // console.log(interruption);
+      }
+
+      this.matchComments();
+    }
+  }
+
+  public startHalf() {
+    this.gamePlay();
+  }
+}
+
+let CurrentGame: Game;
+
+const getClubs = async () => {
+  try {
+    const { result } = await fetchClubs({ ClubCode: { $in: ['IB', 'RP'] } });
+
+    const ball = new Ball('#ffffff', centerBlock);
+
+    const ref = new Referee('Anjus', 'Banjus', 'normal');
+
+    CurrentGame = new Game(result, homePost, awayPost, PlayingField, ball, ref);
+
+    CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
+
+    CurrentGame.refAssignMatch();
 
     // console.log('Home Starting Squad', match.Home.StartingSquad);
+
+    // console.log('Clubs =>', Clubs);
+  } catch (error) {
+    console.log('EErrro!', error);
   }
-});
+};
 
-const MatchBall: Ball = new Ball('#ffffff', centerBlock);
+// Getting clubs
+console.log('-------- getting clubs --------');
+getClubs();
 
-const MatchReferee: IReferee = new Referee('Anjus', 'Banjus', 'normal');
+// function listenForMatchEvents() {
+//   matchEvents.on('set-playing-sides', () => {
+//     console.log('*---- setting playing sides ----*');
 
-const MatchActions: Actions = new Actions(MatchReferee);
+//     const playingSides = CurrentGame.setPlayingSides();
 
-function startMatch() {
-  gamePlay();
-}
-
-async function gamePlay() {
-  // match.Home.StartingSquad[4].move({ x: 0, y: 1 });
-  // console.log(
-  //   `Ball is at ${JSON.stringify(MatchBall.Position)}`,
-  //   `Closest player in ${match.Away.Name} is ${
-  //     findClosestPlayer(MatchBall.Position, match.Away.StartingSquad).LastName
-  //   }`
-  // );
-
-  for (let i = 0; i < 24; i++) {
-    /*
- * The game loop works in a way whereby each loop presents an opportunity
- for either side to make an action. Each action has a reaction.
- 
- key:
- [n] where n is loop location
- Attacking Side (AS) is the side with the ball
- Defensive Side (DS) is the side without the ball
-
- [1] 
-  - AS action: move ball 1 block
-  - DS reaction: move defender 1 block
-
- [2] 
-  - AS action: pass ball 2 blocks right
-  - DS reaction: move defender 2 blocks right or something :3
-
- */
-    // Set Match time in Match
-
-    console.log(`------------Loop Position ${i + 1}---------`);
-    setPlayingSides();
-
-    match.setCurrentTime(i);
-
-    if (AS === undefined || DS === undefined) {
-      moveTowardsBall();
-    } else {
-      MatchActions.takeAction(activePlayerAS, AS, DS, activePlayerDS);
-      // setPlayingSides();
-      // console.log(interruption);
-    }
-
-    matchComments();
-
-    // loop();
-  }
-}
-
-function setPlayingSides() {
-  if (
-    match.Home.StartingSquad.find(p => {
-      return p.WithBall;
-    })
-  ) {
-    AS = match.Home as MatchSide;
-
-    // Set the activePlayer in the attacking team to be the player with
-    // the ball
-    activePlayerAS = match.Home.StartingSquad.find(p => {
-      return p.WithBall;
-    }) as IFieldPlayer;
-
-    DS = match.Away as MatchSide;
-
-    // Set the activePlayer in the defending team to be the player closest to
-    // the ball
-    activePlayerDS = co.findClosestFieldPlayer(
-      MatchBall.Position,
-      DS.StartingSquad
-    );
-    // return {activePlayerAS, AS, activePlayerDS, DS};
-  } else if (
-    match.Away.StartingSquad.find(p => {
-      return p.WithBall;
-    })
-  ) {
-    AS = match.Away as MatchSide;
-
-    // Set the activePlayer in the attacking team to be the player with
-    // the ball
-    activePlayerAS = match.Away.StartingSquad.find(p => {
-      return p.WithBall;
-    }) as IFieldPlayer;
-
-    DS = match.Home as MatchSide;
-
-    // Set the activePlayer in the defending team to be the player closest to
-    // the ball
-    activePlayerDS = co.findClosestFieldPlayer(
-      MatchBall.Position,
-      DS.StartingSquad
-    );
-    // return {activePlayerAS, AS, activePlayerDS, DS};
-  }
-  // MatchActions.setSides(activePlayerAS, AS, activePlayerDS, DS);
-  return { activePlayerAS, AS, activePlayerDS, DS };
-}
-
-/**
- * Here, everyone moves towards the ball
- */
-function moveTowardsBall() {
-  activePlayerAS = co.findClosestFieldPlayer(
-    MatchBall.Position,
-    match.Home.StartingSquad
-  );
-
-  MatchActions.move(activePlayerAS, 'towards ball', MatchBall.Position);
-
-  activePlayerDS = co.findClosestFieldPlayer(
-    MatchBall.Position,
-    match.Away.StartingSquad
-  );
-
-  MatchActions.move(activePlayerDS, 'towards ball', MatchBall.Position);
-
-  // matchComments();
-}
-
-function listenForMatchEvents() {
-  matchEvents.on('set-playing-sides', () => {
-    console.log('*---- setting playing sides ----*');
-
-    const playingSides = setPlayingSides();
-
-    matchEvents.emit('setting-playing-sides', playingSides);
-  });
-}
+//     matchEvents.emit('setting-playing-sides', playingSides);
+//   });
+// }
 
 // function attackingAction() {
 //   MatchActions.takeAction(activePlayerAS, AS, DS, activePlayerDS);
@@ -201,36 +269,13 @@ function listenForMatchEvents() {
 //   pushForward(AS);
 // }
 
-function matchComments() {
-  console.log(`Ball is at ${JSON.stringify({
-    x: MatchBall.Position.x,
-    y: MatchBall.Position.y,
-    key: MatchBall.Position.key,
-  })}
-  ActivePlayerAS is ${activePlayerAS.FirstName} ${
-    activePlayerAS.LastName
-  } at ${JSON.stringify({
-    x: activePlayerAS.BlockPosition.x,
-    y: activePlayerAS.BlockPosition.y,
-    key: activePlayerAS.BlockPosition.key,
-  })}
-  ActivePlayerDS is ${activePlayerDS.FirstName} ${
-    activePlayerDS.LastName
-  } at ${JSON.stringify({
-    x: activePlayerDS.BlockPosition.x,
-    y: activePlayerDS.BlockPosition.y,
-    key: activePlayerDS.BlockPosition.key,
-  })}
-  `);
-}
-
 // listenForMatchEvents();
 
-// // setTimeout(() => {
-// //   console.log('Match Starting...');
+// setTimeout(() => {
+//   console.log('Match Starting...');
 
-// //   startMatch();
-// // }, 5000);
+//   startMatch();
+// }, 5000);
 
 // match.start();
 // console.log('From db', clubs);

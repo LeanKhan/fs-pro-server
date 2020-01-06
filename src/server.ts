@@ -83,4 +83,5 @@ io.on('connection', socket => {
   console.log(`${socket.id} connection successful!`);
 });
 
-// require('./controllers/game.controller');
+// tslint:disable-next-line: no-var-requires
+require('./controllers/game.controller');
