@@ -62,7 +62,7 @@ function findClosestPlayer(
   players: IFieldPlayer[],
   originPlayer?: IFieldPlayer
 ) {
-  const plyrs = players;
+  let plyrs = players;
 
   // plyrs = players.filter(p => {
   //   return !(ref.x === p.BlockPosition.x && ref.y === p.BlockPosition.y);
@@ -75,18 +75,39 @@ function findClosestPlayer(
       : 1;
   });
 
+  console.table(
+    plyrs.map(p => ({
+      Name: p.FirstName + ' ' + p.LastName,
+      PlayerID: p.PlayerID,
+      Club: p.ClubCode,
+      Position: p.BlockPosition.key,
+      Distance: calculateDistance(ref, p.BlockPosition),
+    }))
+  );
+
+  console.log('Player =>', originPlayer ? originPlayer.PlayerID : 'nONE ');
+  // console.table(
+  //   plyrs.map(p => ({
+  //     Name: p.FirstName + ' ' + p.LastName,
+  //     PlayerID: p.PlayerID,
+  //     Club: p.ClubCode,
+  //     Position: p.BlockPosition.key,
+  //   }))
+  // );
+
   /**
    * The index of the origin player so we can remove it :)
    */
-  if (originPlayer) {
-    const psI = plyrs.findIndex(p => {
-      return p === originPlayer;
-    });
 
-    plyrs.slice(psI, 1);
+  if (originPlayer) {
+    plyrs = plyrs.filter(p => p.PlayerID !== originPlayer.PlayerID);
   }
 
-  return plyrs[0];
+  // Now select a random player from the first three options
+
+  const index = Math.round(Math.random() * 2);
+
+  return plyrs[index];
 }
 
 /**

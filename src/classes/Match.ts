@@ -24,8 +24,8 @@ export class Match implements IMatch {
    * @param {IBlock} homePost The Post of the Home team (where Away will score)
    */
   constructor(home: Club, away: Club, awayPost: IBlock, homePost: IBlock) {
-    this.Home = new MatchSide(home, awayPost);
-    this.Away = new MatchSide(away, homePost);
+    this.Home = new MatchSide(home, awayPost, homePost);
+    this.Away = new MatchSide(away, homePost, awayPost);
     this.Details = {} as IMatchDetails;
 
     matchEvents.on('game halt', data => {

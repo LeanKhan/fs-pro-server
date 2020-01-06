@@ -54,7 +54,7 @@ function findRandomFreeBlock(player: IFieldPlayer): IBlock {
 
   // Then return a random one...
 
-  const randomIndex = Math.round(Math.random() * circumference.length - 1);
+  const randomIndex = Math.round(Math.random() * (circumference.length - 1));
 
   return circumference[randomIndex];
 }

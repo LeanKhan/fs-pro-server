@@ -67,8 +67,6 @@ class Game {
 
   public refAssignMatch() {
     this.Referee.assignMatch(this.Match);
-
-    console.log('Someone', this.Match.Home.StartingSquad[0]);
   }
 
   public setClubFormations(homeFormation: string, awayFormation: string) {
@@ -99,6 +97,8 @@ class Game {
         return p.WithBall;
       }) as IFieldPlayer;
 
+      console.log('Attacking player AS =>', this.ActivePlayerAS.LastName);
+
       this.DS = this.Match.Away as MatchSide;
 
       // Set the activePlayer in the defending team to be the player closest to
@@ -107,7 +107,16 @@ class Game {
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
+
+      console.log('Attacking player DS =>', this.ActivePlayerDS.LastName);
+
       // return {activePlayerAS, AS, activePlayerDS, DS};
+      return {
+        activePlayerAS: this.ActivePlayerAS,
+        AS: this.AS,
+        activePlayerDS: this.ActivePlayerDS,
+        DS: this.DS,
+      };
     } else if (
       this.Match.Away.StartingSquad.find(p => {
         return p.WithBall;
@@ -121,6 +130,8 @@ class Game {
         return p.WithBall;
       }) as IFieldPlayer;
 
+      console.log('Attacking player AS =>', this.ActivePlayerAS.LastName);
+
       this.DS = this.Match.Home as MatchSide;
 
       // Set the activePlayer in the defending team to be the player closest to
@@ -129,9 +140,17 @@ class Game {
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
-      // return {activePlayerAS, AS, activePlayerDS, DS};
+
+      console.log('Attacking player DS =>', this.ActivePlayerAS.LastName);
+
+      return {
+        activePlayerAS: this.ActivePlayerAS,
+        AS: this.AS,
+        activePlayerDS: this.ActivePlayerDS,
+        DS: this.DS,
+      };
     }
-    // MatchActions.setSides(activePlayerAS, AS, activePlayerDS, DS);
+    // this.MatchActions.setSides(this.ActivePlayerAS, this.AS, this.ActivePlayerDS, this.DS);
   }
 
   public moveTowardsBall() {
@@ -168,14 +187,14 @@ class Game {
     })}
     ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
       this.ActivePlayerAS!.LastName
-    } at ${JSON.stringify({
+    } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
       x: this.ActivePlayerAS!.BlockPosition.x,
       y: this.ActivePlayerAS!.BlockPosition.y,
       key: this.ActivePlayerAS!.BlockPosition.key,
     })}
     ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
       this.ActivePlayerDS!.LastName
-    } at ${JSON.stringify({
+    } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
       x: this.ActivePlayerDS!.BlockPosition.x,
       y: this.ActivePlayerDS!.BlockPosition.y,
       key: this.ActivePlayerDS!.BlockPosition.key,
@@ -183,16 +202,13 @@ class Game {
     `);
   }
 
-  public gamePlay() {
-    // match.Home.StartingSquad[4].move({ x: 0, y: 1 });
-    // console.log(
-    //   `Ball is at ${JSON.stringify(MatchBall.Position)}`,
-    //   `Closest player in ${match.Away.Name} is ${
-    //     findClosestPlayer(MatchBall.Position, match.Away.StartingSquad).LastName
-    //   }`
-    // );
+  public startHalf() {
+    // console.table(this.Match.Home.StartingSquad[0].Attributes);
+    this.gamePlay();
+  }
 
-    for (let i = 0; i < 24; i++) {
+  private gamePlay() {
+    for (let i = 0; i < 12; i++) {
       console.log(`------------Loop Position ${i + 1}---------`);
       this.setPlayingSides();
 
@@ -207,16 +223,11 @@ class Game {
           this.DS,
           this.ActivePlayerDS as IFieldPlayer
         );
-        // setPlayingSides();
-        // console.log(interruption);
+        this.setPlayingSides();
       }
 
       this.matchComments();
     }
-  }
-
-  public startHalf() {
-    this.gamePlay();
   }
 }
 
@@ -236,9 +247,9 @@ const getClubs = async () => {
 
     CurrentGame.refAssignMatch();
 
-    // console.log('Home Starting Squad', match.Home.StartingSquad);
+    CurrentGame.startHalf();
 
-    // console.log('Clubs =>', Clubs);
+    // After here, the game should start!
   } catch (error) {
     console.log('EErrro!', error);
   }
@@ -248,15 +259,15 @@ const getClubs = async () => {
 console.log('-------- getting clubs --------');
 getClubs();
 
-// function listenForMatchEvents() {
-//   matchEvents.on('set-playing-sides', () => {
-//     console.log('*---- setting playing sides ----*');
+function listenForMatchEvents() {
+  matchEvents.on('set-playing-sides', () => {
+    console.log('*---- setting playing sides ----*');
 
-//     const playingSides = CurrentGame.setPlayingSides();
+    const playingSides = CurrentGame.setPlayingSides();
 
-//     matchEvents.emit('setting-playing-sides', playingSides);
-//   });
-// }
+    matchEvents.emit('setting-playing-sides', playingSides);
+  });
+}
 
 // function attackingAction() {
 //   MatchActions.takeAction(activePlayerAS, AS, DS, activePlayerDS);
@@ -269,7 +280,7 @@ getClubs();
 //   pushForward(AS);
 // }
 
-// listenForMatchEvents();
+listenForMatchEvents();
 
 // setTimeout(() => {
 //   console.log('Match Starting...');

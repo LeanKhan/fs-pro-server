@@ -6,7 +6,7 @@ import { MatchSide } from '../../../classes/MatchSide';
 import { IBlock, ICoordinate, IBall } from '../../../classes/Ball';
 import { matchEvents } from '../../../utils/events';
 import { IReferee, IFoul, IShot } from '../../../classes/Referee';
-import {Decider, IStrategy} from './Decider';
+import { Decider, IStrategy } from './Decider';
 import { IMatchData } from '../../../classes/Match';
 
 export class Actions {
@@ -18,7 +18,13 @@ export class Actions {
   public attackingSide: MatchSide | undefined;
   public defendingSide: MatchSide | undefined;
 
-  constructor(ref: IReferee, as?: MatchSide, ds?: MatchSide, activePlayerAS?: IFieldPlayer, activePlayerDS?: IFieldPlayer) {
+  constructor(
+    ref: IReferee,
+    as?: MatchSide,
+    ds?: MatchSide,
+    activePlayerAS?: IFieldPlayer,
+    activePlayerDS?: IFieldPlayer
+  ) {
     this.referee = ref;
     this.decider = new Decider();
     this.interruption = false;
@@ -27,24 +33,28 @@ export class Actions {
     this.attackingSide = as;
     this.defendingSide = ds;
 
-
-    matchEvents.on('game halt', (data)=>{
+    matchEvents.on('game halt', data => {
       this.interruption = true;
       this.referee.handleFoul(data, this);
     });
 
-    matchEvents.on('shot', (data: IShot)=>{
+    matchEvents.on('shot', (data: IShot) => {
       this.interruption = data.interruption;
       this.referee.handleShot(data, this);
     });
 
-    matchEvents.on('setting-playing-sides', (data: IMatchData)=>{
+    matchEvents.on('setting-playing-sides', (data: IMatchData) => {
       this.setSides(data);
     });
   }
 
   get getPlayingSides(): IMatchData {
-    const data = {activePlayerAS: this.activePlayerAS , attackingSide: this.attackingSide, activePlayerDS: this.activePlayerDS, defendingSide: this.defendingSide} as IMatchData
+    const data = {
+      activePlayerAS: this.activePlayerAS,
+      attackingSide: this.attackingSide,
+      activePlayerDS: this.activePlayerDS,
+      defendingSide: this.defendingSide,
+    } as IMatchData;
     return data as IMatchData;
   }
 
@@ -59,41 +69,54 @@ export class Actions {
 
     // const option = getOption();
 
-    this.setSides({activePlayerAS: attackingPlayer, attackingSide, activePlayerDS: defendingPlayer,  defendingSide} as IMatchData)
+    this.setSides({
+      activePlayerAS: attackingPlayer,
+      attackingSide,
+      activePlayerDS: defendingPlayer,
+      defendingSide,
+    } as IMatchData);
 
-    const strategy: IStrategy = this.decider.decide(attackingPlayer, 'attack', attackingSide, defendingSide);
+    const strategy: IStrategy = this.decider.decide(
+      attackingPlayer,
+      'attack',
+      attackingSide,
+      defendingSide
+    );
 
     this.interruption = false;
 
-    console.log('Strategy is => ', strategy.detail, ' ', strategy.type)
+    console.log('Strategy is => ', strategy.detail, ' ', strategy.type);
 
     switch (strategy.type) {
       case 'pass':
         switch (strategy.detail) {
-          
           case 'short':
-              this.pass(attackingPlayer, 'short', attackingSide, defendingSide);
+            this.pass(attackingPlayer, 'short', attackingSide, defendingSide);
             break;
-          
+
           case 'long':
-              this.pass(attackingPlayer, 'long', attackingSide, defendingSide);
+            this.pass(attackingPlayer, 'long', attackingSide, defendingSide);
             break;
 
           case 'pass to post':
-              this.pass(attackingPlayer, 'pass to post', attackingSide, defendingSide);
+            this.pass(
+              attackingPlayer,
+              'pass to post',
+              attackingSide,
+              defendingSide
+            );
             break;
-        
+
           default:
             break;
         }
-
 
         matchEvents.emit('set-playing-sides');
         break;
       case 'shoot':
         console.log('SHOOOOOOT!!!!!');
         this.shoot(attackingPlayer, attackingSide.ScoringSide, 'shot');
-      break;
+        break;
 
       case 'move':
         console.log('Move attempt');
@@ -107,6 +130,7 @@ export class Actions {
         // if(!response.status) {this.interruption = true} else {this.interruption = false}
 
         console.log(response);
+        // this.interruption = !response.status as boolean;
 
         // this.pass(attackingPlayer, attackingSide, defendingSide);
 
@@ -115,15 +139,19 @@ export class Actions {
 
     // Move attackers and midfielders forward
 
-    if(this.interruption){
+    if (this.interruption) {
       // handle interruption
       console.log('handling interruption...');
     } else {
       matchEvents.emit('set-playing-sides');
-    //  Continue gameplay
-    this.continueGamePlay(attackingPlayer,attackingSide,defendingPlayer, defendingSide);
+      //  Continue gameplay
+      this.continueGamePlay(
+        attackingPlayer,
+        attackingSide,
+        defendingPlayer,
+        defendingSide
+      );
     }
-
   }
 
   public pass(
@@ -132,7 +160,6 @@ export class Actions {
     squad: MatchSide,
     defendingSide: MatchSide
   ) {
-
     // I am only doing this because of an error :!!!!:
     let teammate: IFieldPlayer;
 
@@ -140,30 +167,29 @@ export class Actions {
 
     // situation = { status: false, reason: 'no where to move' };
 
-
     switch (type) {
       case 'short':
-          teammate = co.findClosestPlayer(
-            player.BlockPosition,
-            squad.StartingSquad,
-            player
-          );
+        teammate = co.findClosestPlayer(
+          player.BlockPosition,
+          squad.StartingSquad,
+          player,
+        );
         break;
-      
+
       case 'long':
-          teammate = co.findRandomPlayer(
-            player.BlockPosition,
-            squad.StartingSquad,
-            player
-          );
+        teammate = co.findRandomPlayer(
+          player.BlockPosition,
+          squad.StartingSquad,
+          player
+        );
         break;
-    
+      // Find the keeper! but keeper may alos be not gien the ball
       case 'pass to post':
-          teammate = co.findClosestPlayer(
-            squad.ScoringSide,
-            squad.StartingSquad,
-            player
-          );
+        teammate = co.findClosestPlayer(
+          squad.KeepingSide,
+          squad.StartingSquad,
+          player
+        );
         break;
       default:
         teammate = player;
@@ -172,14 +198,12 @@ export class Actions {
 
     /**
      * Find a teammate to pass to
-     * 
-     * 
+     *
+     *
      */
 
     console.log(
-      `Closest Teammate => ${teammate.LastName} for [${
-        teammate.ClubCode
-      }] at {x: ${teammate.BlockPosition.x}, y: ${teammate.BlockPosition.y}}`
+      `Closest Teammate => ${teammate.LastName} for [${teammate.ClubCode}] at {x: ${teammate.BlockPosition.x}, y: ${teammate.BlockPosition.y}}`
     );
 
     /**
@@ -187,18 +211,17 @@ export class Actions {
      */
     const interceptor = co.findClosestPlayer(
       teammate.BlockPosition,
-      defendingSide.StartingSquad,
+      defendingSide.StartingSquad
     );
 
     console.log(
-      `Potential Interceptor => ${interceptor.LastName} for [${
-        interceptor.ClubCode
-      }] at {x: ${interceptor.BlockPosition.x}, y: ${
-        interceptor.BlockPosition.y
-      }}`
+      `Potential Interceptor => ${interceptor.LastName} for [${interceptor.ClubCode}] at {x: ${interceptor.BlockPosition.x}, y: ${interceptor.BlockPosition.y}}`
     );
 
-    if(co.calculateDistance(teammate.BlockPosition,interceptor.BlockPosition) > 2){
+    if (
+      co.calculateDistance(teammate.BlockPosition, interceptor.BlockPosition) >
+      2
+    ) {
       // This player can't intercept the ball hohoho, let it pass.
       player.pass(
         co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
@@ -211,33 +234,35 @@ export class Actions {
       // This player is close enough to intercept
 
       const chance = Math.round(Math.random() * 100);
-    if (chance < 70) {
-      player.pass(
-        co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
-      );
-      matchEvents.emit('pass made', {
-        passer: player.LastName,
-        reciever: teammate.LastName,
-      });
-      situation = { status: true, reason: 'Player pass successful' };
-    } else {
-      player.pass(
-        co.calculateDifference(interceptor.BlockPosition, player.BlockPosition)
-      );
-      matchEvents.emit('pass intercepted', {
-        passer: player.LastName,
-        interceptor: interceptor.LastName,
-      });
+      if (chance < 70) {
+        player.pass(
+          co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
+        );
+        matchEvents.emit('pass made', {
+          passer: player.LastName,
+          reciever: teammate.LastName,
+        });
+        situation = { status: true, reason: 'Player pass successful' };
+      } else {
+        player.pass(
+          co.calculateDifference(
+            interceptor.BlockPosition,
+            player.BlockPosition
+          )
+        );
+        matchEvents.emit('pass intercepted', {
+          passer: player.LastName,
+          interceptor: interceptor.LastName,
+        });
 
-      situation = { status: true, reason: 'pass intercepted' };
-    }
+        situation = { status: true, reason: 'pass intercepted' };
+      }
     }
 
     /**
      * If the players AttackingClass beats the interceptors DefensiveClass
      * then allow the pass to go through. Else, pass to the interceptor hehe
      */
-    
   }
 
   /**
@@ -248,7 +273,6 @@ export class Actions {
    * @param ref where you want to move the player to
    */
   public move(player: IFieldPlayer, type: string, ref: IBlock): ISituation {
-
     const around = player.checkNextBlocks();
 
     let situation: ISituation = {
@@ -274,7 +298,10 @@ export class Actions {
             };
           } else {
             // means no where to move
-            situation = { status: true, reason: 'no where to move, no interruption' };
+            situation = {
+              status: true,
+              reason: 'no where to move, no interruption',
+            };
           }
           break;
 
@@ -302,7 +329,10 @@ export class Actions {
             if (this.makeMove(player, p, around)) {
               situation = { status: true, reason: 'move forward successful' };
             } else {
-              situation = { status: true, reason: 'no where to move, no interruption' };
+              situation = {
+                status: true,
+                reason: 'no where to move, no interruption',
+              };
             }
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
@@ -322,7 +352,7 @@ export class Actions {
             } else {
               if (this.tackle(player, opponentBlock)) {
                 situation = {
-                  status: true,
+                  status: false,
                   reason: 'move towards not successful, because of tackle',
                 };
               }
@@ -355,23 +385,28 @@ export class Actions {
 
   /**
    * Continue gameplay...
-   * * Push attacking side forward 
+   * * Push attacking side forward
    * * Move Defending player towards the ball
    * * Defending side pressures the ball
-   * @param attackingPlayer 
-   * @param attackingSide 
-   * @param defendingPlayer 
-   * @param defendingSide 
+   * @param attackingPlayer
+   * @param attackingSide
+   * @param defendingPlayer
+   * @param defendingSide
    */
-  public continueGamePlay(attackingPlayer: IFieldPlayer, attackingSide: MatchSide, defendingPlayer: IFieldPlayer, defendingSide: MatchSide){
+  public continueGamePlay(
+    attackingPlayer: IFieldPlayer,
+    attackingSide: MatchSide,
+    defendingPlayer: IFieldPlayer,
+    defendingSide: MatchSide
+  ) {
     this.pushForward(attackingSide);
-    
-      // After every action by the attacking team, the defensive player must move towards the ball
-      // and the attacking team must move forward towards opposition lines
-      this.move(defendingPlayer, 'towards ball', defendingPlayer.Ball.Position);
-  
-          // Another function that makes midfielders and attackers move towards the ball
-      this.pressureBall(defendingSide);
+
+    // After every action by the attacking team, the defensive player must move towards the ball
+    // and the attacking team must move forward towards opposition lines
+    this.move(defendingPlayer, 'towards ball', defendingPlayer.Ball.Position);
+
+    // Another function that makes midfielders and attackers move towards the ball
+    this.pressureBall(defendingSide);
   }
 
   public kick(player: IFieldPlayer, direction: IBlock) {
@@ -386,18 +421,39 @@ export class Actions {
 
     const keeper = player.Team.ScoringSide.occupant;
 
-    if(chance > 7 || keeper === null){
+    if (chance > 7 || keeper === null) {
       // Shot is a goal
-      matchEvents.emit('shot', { shooter: player, keeper, where: player.BlockPosition, interruption: true, result: 'goal', reason } as IShot);
+      matchEvents.emit('shot', {
+        shooter: player,
+        keeper,
+        where: player.BlockPosition,
+        interruption: true,
+        result: 'goal',
+        reason,
+      } as IShot);
     } else if (chance < 7 && chance > 4) {
       // Shot is a miss
-      matchEvents.emit('shot', { shooter: player, keeper, where: player.BlockPosition, interruption: true, result: 'miss', reason } as IShot);
+      matchEvents.emit('shot', {
+        shooter: player,
+        keeper,
+        where: player.BlockPosition,
+        interruption: true,
+        result: 'miss',
+        reason,
+      } as IShot);
     } else {
       // Shot is saved by the keeper
-      matchEvents.emit('shot', { shooter: player, keeper, where: player.BlockPosition, interruption: true, result: 'save', reason } as IShot);
+      matchEvents.emit('shot', {
+        shooter: player,
+        keeper,
+        where: player.BlockPosition,
+        interruption: true,
+        result: 'save',
+        reason,
+      } as IShot);
     }
   }
-  
+
   public freekick(player: IFieldPlayer, ball: IBall, direction: IBlock) {
     // Move the ball to the player taking the freekick
     ball.move(co.calculateDifference(player.BlockPosition, ball.Position));
@@ -413,11 +469,16 @@ export class Actions {
 
   /**
    * Set Match data
-   * 
+   *
    */
 
-  private setSides(data: IMatchData){
-    const {activePlayerAS, attackingSide, activePlayerDS, defendingSide} = data;
+  private setSides(data: IMatchData) {
+    const {
+      activePlayerAS,
+      attackingSide,
+      activePlayerDS,
+      defendingSide,
+    } = data;
 
     this.activePlayerAS = activePlayerAS;
     this.attackingSide = attackingSide;
@@ -453,7 +514,6 @@ export class Actions {
     path: ICoordinate,
     around: IPositions
   ) {
-
     switch (path.x) {
       case -1:
         const b1 = around.left as IBlock;
@@ -572,11 +632,11 @@ export class Actions {
         },
       });
       this.referee.foul(tackler, player);
-      return false
+      return false;
     }
   }
 
-  private markBall(player: IFieldPlayer){
+  private markBall(player: IFieldPlayer) {
     this.move(player, 'towards ball', player.Ball.Position);
   }
 
@@ -586,12 +646,28 @@ export class Actions {
 
     const attackingPlayers = playerFunc.getATTMID(team);
 
+    console.table(
+      attackingPlayers.map(p => ({
+        Name: p.FirstName + ' ' + p.LastName,
+        PlayerID: p.PlayerID,
+        Club: p.ClubCode,
+        Position: p.BlockPosition.key,
+      }))
+    );
+
     attackingPlayers.forEach(p => {
+      console.log(
+        `${p.FirstName} ${p.LastName} [${p.ClubCode}] was at ${JSON.stringify({
+          x: p.BlockPosition.x,
+          y: p.BlockPosition.y,
+          key: p.BlockPosition.key,
+        })}`
+      );
       this.movePlayersForward(p, team);
     });
   }
 
-  private pressureBall(team: MatchSide){
+  private pressureBall(team: MatchSide) {
     console.log('*-- Defending Side pressuring ball --*');
 
     // Find midfielders and attackers
@@ -599,7 +675,7 @@ export class Actions {
 
     defendingPlayers.forEach(p => {
       this.markBall(p);
-    })
+    });
   }
 }
 

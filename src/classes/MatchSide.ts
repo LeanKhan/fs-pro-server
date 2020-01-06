@@ -33,10 +33,18 @@ export class MatchSide extends Club implements IClub {
    * that is, it is the opponents post :p
    */
   public ScoringSide: IBlock;
+  public KeepingSide: IBlock;
+  /**
+   * 
+   * @param club 
+   * @param scoringSide 
+   * @param KeepingSide 
+   */
 
-  constructor(club: Club, scoringSide: IBlock) {
+  constructor(club: Club, scoringSide: IBlock, keepingSide: IBlock) {
     super(club);
     this.ScoringSide = scoringSide;
+    this.KeepingSide = keepingSide;
   }
 
   // Class methods
@@ -85,6 +93,32 @@ export class MatchSide extends Club implements IClub {
       const sp = new FieldPlayer(p, true, pb, ball, this);
       return sp;
     });
+  }
+
+  public rollCall() {
+    this.StartingSquad.forEach(pl => {
+      console.log(`${pl.FirstName} ${pl.LastName} [${pl.ClubCode}] - ${
+        pl.Position
+      }
+      is at postion ${JSON.stringify({
+        x: pl.BlockPosition.x,
+        y: pl.BlockPosition.y,
+        key: pl.BlockPosition.key,
+      })}`);
+    });
+    console.table(
+      this.StartingSquad.map(p => ({
+        Name: p.FirstName + ' ' + p.LastName,
+        PlayerID: p.PlayerID,
+        Club: p.ClubCode,
+        Position:
+          p.BlockPosition.x +
+          '-' +
+          p.BlockPosition.y +
+          '-' +
+          p.BlockPosition.key,
+      }))
+    );
   }
 
   // TODO: Add a public function to change ScoringSide
