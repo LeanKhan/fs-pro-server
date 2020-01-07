@@ -10,12 +10,15 @@ export interface IFieldPlayer extends IPlayer {
   StartingPosition: any | null;
   WithBall: boolean;
   Ball: IBall;
+  GameStats: IGameStats;
   Team: MatchSide;
   move(pos: any): void;
   pass(pos: any): void;
   shoot(pos: any): void;
   updateBallPosition(pos: any): void;
   getBlocksAround(radius: number): any[];
+  increaseGoalTally(): void;
+  increasePoints(pnts: number): void;
   checkNextBlocks(): IPositions;
 }
 
@@ -53,7 +56,7 @@ export interface IPlayerAttributes {
   ShortPass: number;
   Mental: number;
   Tackling: number;
-  Catching: number;
+  Keeping: number;
   Control: number;
   Strength: number;
   Stamina: number;
@@ -72,4 +75,8 @@ export interface IPlayerStats {
   RedCards: number;
   Assists: number;
   CleanSheets: number;
+}
+
+export interface IGameStats extends IPlayerStats {
+  Points: number;
 }

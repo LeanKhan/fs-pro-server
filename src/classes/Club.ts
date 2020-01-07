@@ -10,8 +10,10 @@ export class Club implements IClub {
   public Rating: number;
   public Address: {};
   public Stats: {};
+  public ClubCode: string;
   constructor(club: IClub) {
     this.Name = club.Name;
+    this.ClubCode = club.ClubCode;
     this.AttackingClass = club.AttackingClass;
     this.DefensiveClass = club.DefensiveClass;
     this.Stadium = club.Stadium;

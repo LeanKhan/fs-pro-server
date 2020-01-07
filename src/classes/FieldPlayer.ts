@@ -1,4 +1,4 @@
-import { IFieldPlayer, IPositions } from '../interfaces/Player';
+import { IFieldPlayer, IPositions, IGameStats } from '../interfaces/Player';
 import Player from './Player';
 import Ball from './Ball';
 import { ICoordinate, IBlock } from './Ball';
@@ -16,8 +16,23 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
   public WithBall: boolean;
   public Ball: Ball;
   public Team: MatchSide;
+  public GameStats: IGameStats = {
+    Goals: 0,
+    Saves: 0,
+    YellowCards: 0,
+    RedCards: 0,
+    Assists: 0,
+    CleanSheets: 0,
+    Points: 0,
+  };
 
-  constructor(player: any, starting: boolean, pos: IBlock, ball: Ball, team: MatchSide) {
+  constructor(
+    player: any,
+    starting: boolean,
+    pos: IBlock,
+    ball: Ball,
+    team: MatchSide
+  ) {
     super(player);
     this.Starting = starting;
     this.Ball = ball;
@@ -54,6 +69,16 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     this.checkWithBall();
   }
 
+  // TODO: WIP!
+  public increaseGoalTally() {
+    this.GameStats.Goals = this.GameStats.Goals + 1;
+  }
+
+  // TODO: WIP!
+  public increasePoints(pnts: number) {
+    this.GameStats.Points += pnts;
+  }
+
   public move(pos: ICoordinate): void {
     // First set occupant of current Block to null
     this.setBlockOccupant(null, this.BlockPosition);
@@ -71,13 +96,13 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     if (this.WithBall) {
       this.Ball.move(pos);
     }
-    console.log(
-      `${this.FirstName} ${this.LastName} [${
-        this.ClubCode
-      }] moved  ${JSON.stringify(pos)} steps.
-      And is at {x: ${this.BlockPosition.x}, y: ${this.BlockPosition.y}}
-      `
-    );
+    // console.log(
+    //   `${this.FirstName} ${this.LastName} [${
+    //     this.ClubCode
+    //   }] moved  ${JSON.stringify(pos)} steps.
+    //   And is at {x: ${this.BlockPosition.x}, y: ${this.BlockPosition.y}}
+    //   `
+    // );
     this.checkWithBall();
   }
 

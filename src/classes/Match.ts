@@ -3,6 +3,7 @@ import { MatchSide } from './MatchSide';
 import { matchEvents } from '../utils/events';
 import { IBlock } from './Ball';
 import { IFieldPlayer } from '../interfaces/Player';
+import { IShot } from './Referee';
 
 /**
  * The Match Class gan gan
@@ -26,18 +27,49 @@ export class Match implements IMatch {
   constructor(home: Club, away: Club, awayPost: IBlock, homePost: IBlock) {
     this.Home = new MatchSide(home, awayPost, homePost);
     this.Away = new MatchSide(away, homePost, awayPost);
-    this.Details = {} as IMatchDetails;
+    this.Details = {
+      HomeTeamScore: 0,
+      AwayTeamScore: 0,
+    } as IMatchDetails;
 
     matchEvents.on('game halt', data => {
       console.log(
-        `${data.reason} offence by ${data.subject.LastName} on ${
-          data.object.LastName
-        }`
+        `${data.reason} offence by ${data.subject.LastName} on ${data.object.LastName}`
       );
     });
 
-    matchEvents.on('goal!', () => {
+    matchEvents.on('goal!', (data: IShot) => {
       console.log('GOAAAALLL!!!');
+
+      let player: IFieldPlayer;
+
+      console.log(
+        `Goal from ${data.shooter.FirstName} ${data.shooter.LastName} now at ${data.shooter.GameStats.Goals}`
+      );
+
+      data.shooter.increaseGoalTally();
+
+      data.shooter.increasePoints(1);
+
+      if (data.shooter.ClubCode === this.Home.ClubCode) {
+        player = this.Home.StartingSquad.find(p => {
+          return p.PlayerID === data.shooter.PlayerID;
+        }) as IFieldPlayer;
+        this.Details.HomeTeamScore++;
+      } else if (data.shooter.ClubCode === this.Away.ClubCode) {
+        player = this.Away.StartingSquad.find(p => {
+          return p.PlayerID === data.shooter.PlayerID;
+        }) as IFieldPlayer;
+        this.Details.AwayTeamScore++;
+      }
+
+      console.log(
+        `Goal from ${data.shooter.FirstName} ${data.shooter.LastName} now at ${
+          player!.GameStats.Goals
+        }`
+      );
+
+      this.Details.Goals ? this.Details.Goals++ : (this.Details.Goals = 1);
     });
 
     matchEvents.on('pass made', data => {
@@ -73,6 +105,14 @@ export class Match implements IMatch {
         )} at ${this.getCurrentTime} mins`
       );
     });
+
+    matchEvents.on('half-end', () => {
+      console.log('First half over!');
+      console.log(
+        'Match Result => ',
+        `[${this.Home.ClubCode}] ${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore} [${this.Away.ClubCode}]`
+      );
+    });
   }
 
   /** Create match report */
@@ -91,9 +131,7 @@ export class Match implements IMatch {
       this.Details.Loser = this.Home.Name;
     }
     this.Details.Time = new Date();
-    this.Details.Title = `${this.Home.Name} vs ${this.Away.Name} <-> ${
-      this.Details.Time
-    }`;
+    this.Details.Title = `${this.Home.Name} vs ${this.Away.Name} <-> ${this.Details.Time}`;
   };
 
   public setCurrentTime(time: number) {
@@ -163,6 +201,8 @@ export interface IMatchDetails {
   AwayTeamScore: number;
   Winner: string | null;
   Loser: string | null;
+  TotalPasses: number;
+  Goals: number;
   HomeTeamDetails: IMatchSideDetails;
   AwayTeamDetails: IMatchSideDetails;
 }

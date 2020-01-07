@@ -76,16 +76,34 @@ export class Actions {
       defendingSide,
     } as IMatchData);
 
-    const strategy: IStrategy = this.decider.decide(
-      attackingPlayer,
-      'attack',
-      attackingSide,
-      defendingSide
-    );
+    let strategy: IStrategy;
+
+    if (attackingPlayer.Position !== 'DEF') {
+      strategy = this.decider.makeDecision(
+        attackingPlayer,
+        attackingSide,
+        defendingSide
+      );
+    } else {
+      strategy = this.decider.decide(
+        attackingPlayer,
+        'attack',
+        attackingSide,
+        defendingSide
+      );
+    }
 
     this.interruption = false;
+    console.log('Taking Action... \nStrategy is => ', strategy.detail, ' ', strategy.type);
+    const log = {
+      Player: attackingPlayer.FirstName + ' ' + attackingPlayer.LastName,
+      Club: attackingSide.ClubCode,
+      Position: attackingPlayer.Position,
+    };
 
-    console.log('Strategy is => ', strategy.detail, ' ', strategy.type);
+
+
+    console.table(log);
 
     switch (strategy.type) {
       case 'pass':
@@ -129,7 +147,7 @@ export class Actions {
 
         // if(!response.status) {this.interruption = true} else {this.interruption = false}
 
-        console.log(response);
+        // console.log(response);
         // this.interruption = !response.status as boolean;
 
         // this.pass(attackingPlayer, attackingSide, defendingSide);
@@ -172,12 +190,12 @@ export class Actions {
         teammate = co.findClosestPlayer(
           player.BlockPosition,
           squad.StartingSquad,
-          player,
+          player
         );
         break;
 
       case 'long':
-        teammate = co.findRandomPlayer(
+        teammate = co.findLongPlayer(
           player.BlockPosition,
           squad.StartingSquad,
           player
@@ -188,7 +206,7 @@ export class Actions {
         teammate = co.findClosestPlayer(
           squad.KeepingSide,
           squad.StartingSquad,
-          player
+          player,
         );
         break;
       default:
@@ -202,25 +220,22 @@ export class Actions {
      *
      */
 
-    console.log(
-      `Closest Teammate => ${teammate.LastName} for [${teammate.ClubCode}] at {x: ${teammate.BlockPosition.x}, y: ${teammate.BlockPosition.y}}`
-    );
+    // console.log(
+    //   `Closest Teammate => ${teammate.LastName} for [${teammate.ClubCode}] at {x: ${teammate.BlockPosition.x}, y: ${teammate.BlockPosition.y}}`
+    // );
 
     /**
      * Find an opponent closest to the teammate to intercept...
      */
-    const interceptor = co.findClosestPlayer(
+    const interceptor = co.findClosestFieldPlayer(
       teammate.BlockPosition,
-      defendingSide.StartingSquad
-    );
-
-    console.log(
-      `Potential Interceptor => ${interceptor.LastName} for [${interceptor.ClubCode}] at {x: ${interceptor.BlockPosition.x}, y: ${interceptor.BlockPosition.y}}`
+      defendingSide.StartingSquad,
+      undefined,
+      3
     );
 
     if (
-      co.calculateDistance(teammate.BlockPosition, interceptor.BlockPosition) >
-      2
+      !interceptor
     ) {
       // This player can't intercept the ball hohoho, let it pass.
       player.pass(
@@ -232,6 +247,8 @@ export class Actions {
       });
     } else {
       // This player is close enough to intercept
+
+      // Actually from now on it is the Decider class that will handle all this success rate...
 
       const chance = Math.round(Math.random() * 100);
       if (chance < 70) {
@@ -311,12 +328,8 @@ export class Actions {
             around
           ) as IFieldPlayer;
 
-          // console.log('Around the player => ', around);
-
           // r being where you want to move the player to
           const r = ref as IBlock;
-
-          // console.log(`Opponent block => ${opponentBlock.LastName} [${opponentBlock.ClubCode}]`);
 
           // asin x: -1 or y: 1
           const p = co.findPath(r, player.BlockPosition);
@@ -325,7 +338,6 @@ export class Actions {
           // But if there is a marking opponent nearby, the opponent will try to take the ball from
           // the attackingPlayer
           if (opponentBlock === undefined) {
-            // console.log('opponent block is undefined')
             if (this.makeMove(player, p, around)) {
               situation = { status: true, reason: 'move forward successful' };
             } else {
@@ -509,6 +521,9 @@ export class Actions {
     });
   }
 
+  // TODO:
+  // Allow players to find the closest free block and 'SPRINT' there hohoho
+
   private makeMove(
     player: IFieldPlayer,
     path: ICoordinate,
@@ -598,7 +613,7 @@ export class Actions {
   }
 
   private tackle(player: IFieldPlayer, tackler: IFieldPlayer) {
-    console.log(`${tackler.LastName} is tackling ${player.LastName}`);
+    // console.log(`${tackler.LastName} is tackling ${player.LastName}`);
     const chance = Math.round(Math.random() * 12);
 
     if (chance >= 4) {
@@ -642,33 +657,33 @@ export class Actions {
 
   private pushForward(team: MatchSide) {
     // const chance = Math.round(Math.random() * 100);
-    console.log('*-- Attacking Side pushing forward --*');
+    //  console.log('*-- Attacking Side pushing forward --*');
 
     const attackingPlayers = playerFunc.getATTMID(team);
 
-    console.table(
-      attackingPlayers.map(p => ({
-        Name: p.FirstName + ' ' + p.LastName,
-        PlayerID: p.PlayerID,
-        Club: p.ClubCode,
-        Position: p.BlockPosition.key,
-      }))
-    );
+    // console.table(
+    //   attackingPlayers.map(p => ({
+    //     Name: p.FirstName + ' ' + p.LastName,
+    //     PlayerID: p.PlayerID,
+    //     Club: p.ClubCode,
+    //     Position: p.BlockPosition.key,
+    //   }))
+    // );
 
     attackingPlayers.forEach(p => {
-      console.log(
-        `${p.FirstName} ${p.LastName} [${p.ClubCode}] was at ${JSON.stringify({
-          x: p.BlockPosition.x,
-          y: p.BlockPosition.y,
-          key: p.BlockPosition.key,
-        })}`
-      );
+      // console.log(
+      //   `${p.FirstName} ${p.LastName} [${p.ClubCode}] was at ${JSON.stringify({
+      //     x: p.BlockPosition.x,
+      //     y: p.BlockPosition.y,
+      //     key: p.BlockPosition.key,
+      //   })}`
+      // );
       this.movePlayersForward(p, team);
     });
   }
 
   private pressureBall(team: MatchSide) {
-    console.log('*-- Defending Side pressuring ball --*');
+    // console.log('*-- Defending Side pressuring ball --*');
 
     // Find midfielders and attackers
     const defendingPlayers = playerFunc.getATTMID(team);

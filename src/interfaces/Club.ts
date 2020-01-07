@@ -10,6 +10,7 @@ export interface IClub {
   Players: IPlayer[];
   Rating: number;
   Address: {};
+  ClubCode: string;
   Manager: string;
   Stadium: {};
   Stats: {};

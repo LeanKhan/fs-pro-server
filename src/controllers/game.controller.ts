@@ -57,8 +57,6 @@ class Game {
     this.Referee = ref;
 
     this.MatchActions = new Actions(ref);
-
-    console.log('Game created');
   }
 
   public setMatchBall(ball: Ball) {
@@ -97,7 +95,7 @@ class Game {
         return p.WithBall;
       }) as IFieldPlayer;
 
-      console.log('Attacking player AS =>', this.ActivePlayerAS.LastName);
+      // console.log('Actiev player AS =>', this.ActivePlayerAS.LastName);
 
       this.DS = this.Match.Away as MatchSide;
 
@@ -108,7 +106,7 @@ class Game {
         this.DS.StartingSquad
       );
 
-      console.log('Attacking player DS =>', this.ActivePlayerDS.LastName);
+      // console.log('Active player DS =>', this.ActivePlayerDS.LastName);
 
       // return {activePlayerAS, AS, activePlayerDS, DS};
       return {
@@ -130,7 +128,7 @@ class Game {
         return p.WithBall;
       }) as IFieldPlayer;
 
-      console.log('Attacking player AS =>', this.ActivePlayerAS.LastName);
+      // console.log('Attacking player AS =>', this.ActivePlayerAS.LastName);
 
       this.DS = this.Match.Home as MatchSide;
 
@@ -141,7 +139,7 @@ class Game {
         this.DS.StartingSquad
       );
 
-      console.log('Attacking player DS =>', this.ActivePlayerAS.LastName);
+      // console.log('Active player DS =>', this.ActivePlayerDS.LastName);
 
       return {
         activePlayerAS: this.ActivePlayerAS,
@@ -203,12 +201,11 @@ class Game {
   }
 
   public startHalf() {
-    // console.table(this.Match.Home.StartingSquad[0].Attributes);
     this.gamePlay();
   }
 
   private gamePlay() {
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 90; i++) {
       console.log(`------------Loop Position ${i + 1}---------`);
       this.setPlayingSides();
 
@@ -228,6 +225,8 @@ class Game {
 
       this.matchComments();
     }
+
+    matchEvents.emit('half-end');
   }
 }
 
@@ -256,13 +255,10 @@ const getClubs = async () => {
 };
 
 // Getting clubs
-console.log('-------- getting clubs --------');
 getClubs();
 
 function listenForMatchEvents() {
   matchEvents.on('set-playing-sides', () => {
-    console.log('*---- setting playing sides ----*');
-
     const playingSides = CurrentGame.setPlayingSides();
 
     matchEvents.emit('setting-playing-sides', playingSides);
@@ -281,16 +277,6 @@ function listenForMatchEvents() {
 // }
 
 listenForMatchEvents();
-
-// setTimeout(() => {
-//   console.log('Match Starting...');
-
-//   startMatch();
-// }, 5000);
-
-// match.start();
-// console.log('From db', clubs);
-// console.log('From class', Clubs);
 
 /**
  * TODO:

@@ -206,14 +206,15 @@ export default class Referee {
         // Keeper to his StartingPosition
         const defendingSide = matchActions.getPlayingSides
           .defendingSide as MatchSide;
-        console.log('Defending Side => ', defendingSide.Name);
-        const keeper = playerFunc.getGK(
+
+         const keeper = playerFunc.getGK(
           defendingSide.StartingSquad
         ) as IFieldPlayer;
-        console.log('Keeper => ', keeper);
+
         keeper.move(
           co.calculateDifference(keeper.StartingPosition, keeper.BlockPosition)
         );
+
         // Move ball to keeper position
         keeper.Ball.move(
           co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
