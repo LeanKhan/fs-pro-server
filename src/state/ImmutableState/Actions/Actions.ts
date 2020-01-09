@@ -3,9 +3,10 @@ import * as co from '../../../utils/coordinates';
 import * as prob from '../../../utils/probability';
 import * as playerFunc from '../../../utils/players';
 import { MatchSide } from '../../../classes/MatchSide';
-import { IBlock, ICoordinate, IBall } from '../../../classes/Ball';
+import { IBlock, ICoordinate } from '../../ImmutableState/FieldGrid';
+import { IBall } from '../../../classes/Ball';
 import { matchEvents } from '../../../utils/events';
-import { IReferee, IFoul, IShot } from '../../../classes/Referee';
+import { IReferee, IShot } from '../../../classes/Referee';
 import { Decider, IStrategy } from './Decider';
 import { IMatchData } from '../../../classes/Match';
 

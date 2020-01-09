@@ -1,4 +1,5 @@
-import { IBlock, IBall } from '../classes/Ball';
+import { IBlock } from '../state/ImmutableState/FieldGrid';
+import { IBall } from '../classes/Ball';
 import { MatchSide } from '../classes/MatchSide';
 
 export interface IFieldPlayer extends IPlayer {

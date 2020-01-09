@@ -1,7 +1,7 @@
 import { IFieldPlayer } from '../interfaces/Player';
 import { matchEvents } from '../utils/events';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
-import { IBlock } from './Ball';
+import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as playerFunc from '../utils/players';
 import * as co from '../utils/coordinates';
 import { Match, IMatchData } from './Match';

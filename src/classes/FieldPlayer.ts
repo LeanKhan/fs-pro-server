@@ -1,7 +1,7 @@
 import { IFieldPlayer, IPositions, IGameStats } from '../interfaces/Player';
 import Player from './Player';
 import Ball from './Ball';
-import { ICoordinate, IBlock } from './Ball';
+import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { coordinateToBlock } from '../utils/coordinates';
 import { ballMove } from '../utils/events';
 import { MatchSide } from './MatchSide';

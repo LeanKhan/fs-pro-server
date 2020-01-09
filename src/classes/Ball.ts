@@ -1,6 +1,6 @@
-import { IFieldPlayer } from '../interfaces/Player';
 import { ballMove } from '../utils/events';
-import { XYToIndex, coordinateToBlock } from '../utils/coordinates';
+import { coordinateToBlock } from '../utils/coordinates';
+import { IBlock, ICoordinate } from '../state/ImmutableState/FieldGrid';
 // import { EventEmitter } from 'events';
 
 export default class Ball implements IBall {
@@ -42,16 +42,6 @@ export default class Ball implements IBall {
     // this.notifyObservers();
     this.ballMove.emit('ball-moved', this.Position);
   }
-}
-
-export interface ICoordinate {
-  x: number;
-  y: number;
-}
-
-export interface IBlock extends ICoordinate {
-  key: string;
-  occupant: IFieldPlayer | null;
 }
 
 export interface IBall {

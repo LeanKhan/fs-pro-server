@@ -1,7 +1,7 @@
 import { Club } from './Club';
 import { MatchSide } from './MatchSide';
 import { matchEvents } from '../utils/events';
-import { IBlock } from './Ball';
+import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
 import { IShot } from './Referee';
 

@@ -1,7 +1,7 @@
 import { Match } from '../classes/Match';
 // import ClubModel, { IClubModel } from '../models/club.model';
-import Ball, { IBlock, IBall } from '../classes/Ball';
-import { PlayingField } from '../state/ImmutableState/FieldGrid';
+import Ball, { IBall } from '../classes/Ball';
+import Field, { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as co from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
 import { MatchSide } from '../classes/MatchSide';
@@ -15,6 +15,8 @@ import { IClub } from '../interfaces/Club';
 // let Clubs: IClubModel[] = [];
 
 // let match: Match;
+
+export const PlayingField = new Field().PlayingField;
 
 const centerBlock = PlayingField[42];
 

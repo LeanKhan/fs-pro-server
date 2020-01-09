@@ -2,13 +2,13 @@ import { Club } from './Club';
 import { IClub } from '../interfaces/Club';
 import { IFieldPlayer } from '../interfaces/Player';
 import FieldPlayer from './FieldPlayer';
-import Ball, { IBlock } from './Ball';
+import { IBlock } from '../state/ImmutableState/FieldGrid';
+import Ball from './Ball';
 // import {formations} from '../GameState/PersistentState/Formations';
 // tslint:disable-next-line: no-var-requires
 // const formations = require('../GameState/PersistentState/Formations');
 import {
   formations,
-  FormationsList,
 } from '../state/PersistentState/Formations';
 
 /** MatchSide
