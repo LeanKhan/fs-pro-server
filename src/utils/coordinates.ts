@@ -1,6 +1,6 @@
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
-import { PlayingField } from '../controllers/game.controller';
+import { PlayingField, mapWidth } from '../controllers/game.controller';
 
 /**
  * Returns the tile index of the given coordinates
@@ -10,6 +10,7 @@ import { PlayingField } from '../controllers/game.controller';
  * @param mapWidth
  */
 
+// tslint:disable-next-line: no-shadowed-variable
 function XYToIndex(x: number, y: number, mapWidth: number): number {
   return y * mapWidth + x;
 }
@@ -19,6 +20,7 @@ function XYToIndex(x: number, y: number, mapWidth: number): number {
  * @param index
  * @param mapWidth
  */
+// tslint:disable-next-line: no-shadowed-variable
 function indexToXY(index: number, mapWidth: number): ICoordinate {
   const i = { x: 0, y: 0 };
 
@@ -37,7 +39,7 @@ function indexToXY(index: number, mapWidth: number): ICoordinate {
  * @returns {IBlock} Field Block
  */
 function coordinateToBlock(pos: ICoordinate): IBlock {
-  return PlayingField[XYToIndex(pos.x, pos.y, 12)];
+  return PlayingField[XYToIndex(pos.x, pos.y, mapWidth)];
 }
 
 /**
@@ -76,14 +78,15 @@ function findClosestPlayer(
       : 1;
   });
 
-  // console.table(
-  //   plyrs.map(p => ({
-  //     Name: p.FirstName + ' ' + p.LastName,
-  //     PlayerID: p.PlayerID,
-  //     Club: p.ClubCode,
-  //     Position: p.BlockPosition.key,
-  //   }))
-  // );
+  console.table(
+    plyrs.map(p => ({
+      Name: p.FirstName + ' ' + p.LastName,
+      PlayerID: p.PlayerID,
+      Club: p.ClubCode,
+      Position: p.BlockPosition.key,
+      Distance: calculateDistance(ref, p.BlockPosition),
+    }))
+  );
 
   /**
    * The index of the origin player so we can remove it :)
@@ -280,7 +283,7 @@ function calculateDifference(ref: ICoordinate, pos: ICoordinate) {
 }
 
 const atExtremeBlock = (pos: ICoordinate) => {
-  return pos.x === 0 || pos.x === 11 || pos.y === 0 || pos.y === 6;
+  return pos.x === 0 || pos.x === 14 || pos.y === 0 || pos.y === 10;
 };
 
 // function findAdjacentBlocks(ref: ICoordinate, pos:ICoordinate){

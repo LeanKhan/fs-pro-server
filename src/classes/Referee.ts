@@ -221,7 +221,12 @@ export default class Referee {
         );
         // console.log('resume gameplay :)')
         // Move players to starting position
-        matchEvents.emit('set-playing-sides');
+
+        // Move players to starting position...
+
+        matchEvents.emit('reset-formations');
+
+        // matchEvents.emit('set-playing-sides');
         break;
       case 'miss':
         console.log('missed shot');

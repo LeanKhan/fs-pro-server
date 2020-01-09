@@ -1,6 +1,11 @@
-import { IFieldPlayer, IPositions, IGameStats } from '../interfaces/Player';
+import {
+  IFieldPlayer,
+  IPositions,
+  IGameStats,
+  IPlayer,
+} from '../interfaces/Player';
 import Player from './Player';
-import Ball from './Ball';
+import Ball, { IBall } from './Ball';
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { coordinateToBlock } from '../utils/coordinates';
 import { ballMove } from '../utils/events';
@@ -11,7 +16,7 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
   public Starting: boolean;
   public Substitute: boolean;
   public BlockPosition: IBlock;
-  public StartingPosition: ICoordinate | null;
+  public StartingPosition: IBlock;
   public BallPosition: ICoordinate;
   public WithBall: boolean;
   public Ball: Ball;
@@ -26,8 +31,16 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     Points: 0,
   };
 
+  /**
+   *
+   * @param {IPlayer} player The player guy
+   * @param {boolean} starting Is the player starting?
+   * @param {IBlock} pos starting position
+   * @param {IBall} ball the match ball
+   * @param {MatchSide} team player's team
+   */
   constructor(
-    player: any,
+    player: IPlayer,
     starting: boolean,
     pos: IBlock,
     ball: Ball,
@@ -50,6 +63,8 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     ballMove.on('ball-moved', p => {
       this.updateBallPosition(p);
     });
+
+    console.log('======= BALL MOVED LISTENER ADDED !==========');
   }
 
   public pass(pos: ICoordinate) {
@@ -141,14 +156,14 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
             y: this.BlockPosition.y,
           });
     around.right =
-      this.BlockPosition.x + 1 > 11
+      this.BlockPosition.x + 1 > 14
         ? undefined
         : coordinateToBlock({
             x: this.BlockPosition.x + 1,
             y: this.BlockPosition.y,
           });
     around.bottom =
-      this.BlockPosition.y + 1 > 6
+      this.BlockPosition.y + 1 > 10
         ? undefined
         : coordinateToBlock({
             x: this.BlockPosition.x,
@@ -203,7 +218,7 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
           // Right side
           for (let r = 1; r < radius; r++) {
             const block =
-              this.BlockPosition.x + 1 > 11
+              this.BlockPosition.x + 1 > 14
                 ? undefined
                 : coordinateToBlock({
                     x: this.BlockPosition.x + 1,
@@ -216,7 +231,7 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
           // Bottom side
           for (let r = 1; r < radius; r++) {
             const block =
-              this.BlockPosition.y + 1 > 6
+              this.BlockPosition.y + 1 > 10
                 ? undefined
                 : coordinateToBlock({
                     x: this.BlockPosition.x,
@@ -231,6 +246,21 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
       }
     }
     return blocks;
+  }
+
+  /**
+   *
+   * @param pos new block position
+   */
+  public changePosition(pos: IBlock) {
+    // Empty old block position
+    this.setBlockOccupant(null, this.BlockPosition);
+
+    // Change player's BlockPosition to initial position
+    this.BlockPosition = pos;
+
+    // Move to new position
+    this.setBlockOccupant(this, pos);
   }
 
   private checkWithBall() {

@@ -1,15 +1,13 @@
 import { Club } from './Club';
 import { IClub } from '../interfaces/Club';
-import { IFieldPlayer } from '../interfaces/Player';
+import { IFieldPlayer, IPlayer } from '../interfaces/Player';
 import FieldPlayer from './FieldPlayer';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import Ball from './Ball';
 // import {formations} from '../GameState/PersistentState/Formations';
 // tslint:disable-next-line: no-var-requires
 // const formations = require('../GameState/PersistentState/Formations');
-import {
-  formations,
-} from '../state/PersistentState/Formations';
+import { formations } from '../state/PersistentState/Formations';
 
 /** MatchSide
  *
@@ -35,10 +33,10 @@ export class MatchSide extends Club implements IClub {
   public ScoringSide: IBlock;
   public KeepingSide: IBlock;
   /**
-   * 
-   * @param club 
-   * @param scoringSide 
-   * @param KeepingSide 
+   *
+   * @param club
+   * @param scoringSide
+   * @param KeepingSide
    */
 
   constructor(club: Club, scoringSide: IBlock, keepingSide: IBlock) {
@@ -88,37 +86,32 @@ export class MatchSide extends Club implements IClub {
   public setFormation(formation: string, ball: Ball, fieldPlay: any) {
     this.Formation = formations[formation];
 
-    this.StartingSquad = this.Players.map((p: any, i) => {
-      const pb = fieldPlay[this.Formation[i]];
-      const sp = new FieldPlayer(p, true, pb, ball, this);
-      return sp;
+    this.StartingSquad = this.Players.map((p: IPlayer, i) => {
+      const startingBlock = fieldPlay[this.Formation[i]];
+      const player = new FieldPlayer(p, true, startingBlock, ball, this);
+      return player;
+    });
+  }
+
+  public resetFormation() {
+    this.StartingSquad.forEach(player => {
+      player.changePosition(player.StartingPosition);
     });
   }
 
   public rollCall() {
-    this.StartingSquad.forEach(pl => {
-      console.log(`${pl.FirstName} ${pl.LastName} [${pl.ClubCode}] - ${
-        pl.Position
-      }
-      is at postion ${JSON.stringify({
-        x: pl.BlockPosition.x,
-        y: pl.BlockPosition.y,
-        key: pl.BlockPosition.key,
-      })}`);
-    });
+    console.log('------ ======== -----');
+
     console.table(
       this.StartingSquad.map(p => ({
         Name: p.FirstName + ' ' + p.LastName,
-        PlayerID: p.PlayerID,
         Club: p.ClubCode,
-        Position:
-          p.BlockPosition.x +
-          '-' +
-          p.BlockPosition.y +
-          '-' +
-          p.BlockPosition.key,
+        Position: p.Position,
+        Block: p.BlockPosition.key,
       }))
     );
+
+    console.log('-----------');
   }
 
   // TODO: Add a public function to change ScoringSide

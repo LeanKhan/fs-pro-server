@@ -16,14 +16,17 @@ import { IClub } from '../interfaces/Club';
 
 // let match: Match;
 
-export const PlayingField = new Field().PlayingField;
+export const GameField = new Field();
+export const PlayingField = GameField.PlayingField;
 
-const centerBlock = PlayingField[42];
+export const mapWidth = GameField.mapWidth;
+
+const centerBlock = PlayingField[82];
 
 // const gameLoop = 90;
 
-const homePost: IBlock = co.coordinateToBlock({ x: 11, y: 3 });
-const awayPost: IBlock = co.coordinateToBlock({ x: 0, y: 3 });
+const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
+const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
 
 class Game {
   public homePost: IBlock;
@@ -59,6 +62,8 @@ class Game {
     this.Referee = ref;
 
     this.MatchActions = new Actions(ref);
+
+    /* ---------- LISTEN TO MATCH EVENTS ----------- */
   }
 
   public setMatchBall(ball: Ball) {
@@ -207,7 +212,7 @@ class Game {
   }
 
   private gamePlay() {
-    for (let i = 0; i < 90; i++) {
+    for (let i = 0; i < 180; i++) {
       console.log(`------------Loop Position ${i + 1}---------`);
       this.setPlayingSides();
 

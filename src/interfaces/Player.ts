@@ -8,12 +8,13 @@ export interface IFieldPlayer extends IPlayer {
   Substitute: boolean;
   BlockPosition: IBlock;
   /** Where the player starts the match */
-  StartingPosition: any | null;
+  StartingPosition: IBlock;
   WithBall: boolean;
   Ball: IBall;
   GameStats: IGameStats;
   Team: MatchSide;
   move(pos: any): void;
+  changePosition(pos: IBlock): void;
   pass(pos: any): void;
   shoot(pos: any): void;
   updateBallPosition(pos: any): void;

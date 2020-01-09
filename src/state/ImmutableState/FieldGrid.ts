@@ -2,6 +2,8 @@ import { IFieldPlayer } from '../../interfaces/Player';
 
 export default class Field {
   public PlayingField: IBlock[];
+  public mapWidth: number;
+  public mapHeight: number;
 
   /**
    * Create a new Playing Field
@@ -11,6 +13,8 @@ export default class Field {
    */
   constructor(xBlocks: number = 15, yBlocks: number = 11) {
     this.PlayingField = this.createGrid(xBlocks, yBlocks);
+    this.mapWidth = xBlocks;
+    this.mapHeight = yBlocks;
   }
 
   /**

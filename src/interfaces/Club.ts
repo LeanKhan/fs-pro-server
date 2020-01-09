@@ -6,7 +6,7 @@ export interface IClub {
   AttackingClass: number;
   /** Club's overall Defensive rating */
   DefensiveClass: number;
-  /** Style of play */
+  /** Players */
   Players: IPlayer[];
   Rating: number;
   Address: {};

@@ -43,10 +43,6 @@ export class Match implements IMatch {
 
       let player: IFieldPlayer;
 
-      console.log(
-        `Goal from ${data.shooter.FirstName} ${data.shooter.LastName} now at ${data.shooter.GameStats.Goals}`
-      );
-
       data.shooter.increaseGoalTally();
 
       data.shooter.increasePoints(1);
@@ -106,6 +102,11 @@ export class Match implements IMatch {
       );
     });
 
+    matchEvents.on('reset-formations', () => {
+      console.log('********Resetting formations *********');
+      this.resetClubFormations();
+    });
+
     matchEvents.on('half-end', () => {
       console.log('First half over!');
       console.log(
@@ -134,6 +135,11 @@ export class Match implements IMatch {
     this.Details.Title = `${this.Home.Name} vs ${this.Away.Name} <-> ${this.Details.Time}`;
   };
 
+  public resetClubFormations() {
+    this.Home.resetFormation();
+    this.Away.resetFormation();
+  }
+
   public setCurrentTime(time: number) {
     this.CurrentTime = time;
   }
@@ -141,24 +147,6 @@ export class Match implements IMatch {
   public get getCurrentTime(): number {
     return this.CurrentTime;
   }
-
-  /** Start match */
-  public start = () => {
-    this.Home.calculateForm();
-    this.Away.calculateForm();
-
-    this.Home.calculateCCR(this.Away.DefensiveClass, this.Away.DefensiveForm);
-    this.Away.calculateCCR(this.Home.DefensiveClass, this.Home.DefensiveForm);
-
-    this.Home.calculateCCN();
-    this.Away.calculateCCN();
-
-    this.Home.calculateGoalsScored(this.Away.DefensiveForm);
-    this.Away.calculateGoalsScored(this.Home.DefensiveForm);
-
-    this.report();
-    // console.log(this.Home)
-  };
 }
 
 export interface IMatchData {
@@ -215,5 +203,4 @@ export interface IMatch {
   getCurrentTime: number;
   setCurrentTime(time: number): any;
   report(): void;
-  start(): void;
 }
