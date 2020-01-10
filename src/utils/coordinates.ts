@@ -81,7 +81,7 @@ function findClosestPlayer(
   console.table(
     plyrs.map(p => ({
       Name: p.FirstName + ' ' + p.LastName,
-      PlayerID: p.PlayerID,
+      PlayerPosition: p.Position,
       Club: p.ClubCode,
       Position: p.BlockPosition.key,
       Distance: calculateDistance(ref, p.BlockPosition),

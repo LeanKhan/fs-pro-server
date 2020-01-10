@@ -36,7 +36,6 @@ export class Actions {
 
     matchEvents.on('game halt', data => {
       this.interruption = true;
-      this.referee.handleFoul(data, this);
     });
 
     matchEvents.on('shot', (data: IShot) => {
@@ -79,30 +78,25 @@ export class Actions {
 
     let strategy: IStrategy;
 
-    if (attackingPlayer.Position !== 'DEF') {
-      strategy = this.decider.makeDecision(
-        attackingPlayer,
-        attackingSide,
-        defendingSide
-      );
-    } else {
-      strategy = this.decider.decide(
-        attackingPlayer,
-        'attack',
-        attackingSide,
-        defendingSide
-      );
-    }
+    strategy = this.decider.makeDecision(
+      attackingPlayer,
+      attackingSide,
+      defendingSide
+    );
 
     this.interruption = false;
-    console.log('Taking Action... \nStrategy is => ', strategy.detail, ' ', strategy.type);
+
+    console.log(
+      'Taking Action... \nStrategy is => ',
+      strategy.detail,
+      ' ',
+      strategy.type
+    );
     const log = {
       Player: attackingPlayer.FirstName + ' ' + attackingPlayer.LastName,
       Club: attackingSide.ClubCode,
       Position: attackingPlayer.Position,
     };
-
-
 
     console.table(log);
 
@@ -116,7 +110,7 @@ export class Actions {
           case 'long':
             this.pass(attackingPlayer, 'long', attackingSide, defendingSide);
             break;
-
+          // TODO: I am yet to handle passes to post...
           case 'pass to post':
             this.pass(
               attackingPlayer,
@@ -140,20 +134,14 @@ export class Actions {
       case 'move':
         console.log('Move attempt');
 
-        const response = this.move(
+        this.move(
           attackingPlayer,
           'forward',
           attackingSide.ScoringSide
         );
 
-        // if(!response.status) {this.interruption = true} else {this.interruption = false}
-
-        // console.log(response);
-        // this.interruption = !response.status as boolean;
-
-        // this.pass(attackingPlayer, attackingSide, defendingSide);
-
         break;
+
     }
 
     // Move attackers and midfielders forward
@@ -184,6 +172,8 @@ export class Actions {
 
     let situation: ISituation;
 
+    let interceptor_distance = 2;
+
     // situation = { status: false, reason: 'no where to move' };
 
     switch (type) {
@@ -201,13 +191,14 @@ export class Actions {
           squad.StartingSquad,
           player
         );
+        interceptor_distance = 3;
         break;
       // Find the keeper! but keeper may alos be not gien the ball
       case 'pass to post':
         teammate = co.findClosestPlayer(
           squad.KeepingSide,
           squad.StartingSquad,
-          player,
+          player
         );
         break;
       default:
@@ -216,28 +207,16 @@ export class Actions {
     }
 
     /**
-     * Find a teammate to pass to
-     *
-     *
-     */
-
-    // console.log(
-    //   `Closest Teammate => ${teammate.LastName} for [${teammate.ClubCode}] at {x: ${teammate.BlockPosition.x}, y: ${teammate.BlockPosition.y}}`
-    // );
-
-    /**
      * Find an opponent closest to the teammate to intercept...
      */
     const interceptor = co.findClosestFieldPlayer(
       teammate.BlockPosition,
       defendingSide.StartingSquad,
       undefined,
-      3
+      interceptor_distance
     );
 
-    if (
-      !interceptor
-    ) {
+    if (!interceptor) {
       // This player can't intercept the ball hohoho, let it pass.
       player.pass(
         co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
@@ -251,8 +230,20 @@ export class Actions {
 
       // Actually from now on it is the Decider class that will handle all this success rate...
 
-      const chance = Math.round(Math.random() * 100);
-      if (chance < 70) {
+      // Decider class, handle!
+      /**
+       * pass the player, the reciever and the nearest interceptor if possible...
+       */
+
+      const fail = this.decider.getPassResult(
+        player,
+        teammate,
+        type,
+        40,
+        interceptor
+      );
+
+      if (!fail) {
         player.pass(
           co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
         );
@@ -276,11 +267,6 @@ export class Actions {
         situation = { status: true, reason: 'pass intercepted' };
       }
     }
-
-    /**
-     * If the players AttackingClass beats the interceptors DefensiveClass
-     * then allow the pass to go through. Else, pass to the interceptor hehe
-     */
   }
 
   /**
@@ -349,14 +335,13 @@ export class Actions {
             }
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
+            const fail = this.decider.getDribbleResult(player, opponentBlock)
             if (
-              prob.compareValues(
-                player.Attributes.Dribbling,
-                opponentBlock.Attributes.Tackling
-              )
+              !fail
             ) {
               // this.makeMove(player, p, around);
               if (this.successfulDribble(player, p, around, opponentBlock)) {
+                this.makeMove(player, p, around)
                 situation = {
                   status: true,
                   reason: 'move towards ball successful via dribble',
@@ -367,6 +352,12 @@ export class Actions {
                 situation = {
                   status: false,
                   reason: 'move towards not successful, because of tackle',
+                };
+              } else {
+                this.makeMove(player, p, around)
+                situation = {
+                  status: true,
+                  reason: 'tackle failed, continue moving',
                 };
               }
             }
@@ -615,9 +606,10 @@ export class Actions {
 
   private tackle(player: IFieldPlayer, tackler: IFieldPlayer) {
     // console.log(`${tackler.LastName} is tackling ${player.LastName}`);
-    const chance = Math.round(Math.random() * 12);
+    const fail = this.decider.getTackleResult(tackler, player);
 
-    if (chance >= 4) {
+    if (!fail) {
+      // Ball is now in possession of tackler :)
       tackler.Ball.move(
         co.calculateDifference(tackler.BlockPosition, player.BlockPosition)
       );
@@ -635,7 +627,7 @@ export class Actions {
       });
       return true;
     } else {
-      matchEvents.emit('bad-tackle', {
+      matchEvents.emit('unsuccessful-tackle', {
         tackler: tackler.LastName,
         tacklerPosition: {
           x: tackler.BlockPosition.x,
@@ -647,7 +639,6 @@ export class Actions {
           y: player.BlockPosition.y,
         },
       });
-      this.referee.foul(tackler, player);
       return false;
     }
   }

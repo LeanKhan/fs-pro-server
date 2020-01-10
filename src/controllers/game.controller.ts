@@ -212,7 +212,7 @@ class Game {
   }
 
   private gamePlay() {
-    for (let i = 0; i < 180; i++) {
+    for (let i = 0; i < 30; i++) {
       console.log(`------------Loop Position ${i + 1}---------`);
       this.setPlayingSides();
 
