@@ -140,9 +140,7 @@ export default class Referee {
       );
 
       console.log(
-        `${taker.FirstName} ${taker.LastName} [${
-          taker.Position
-        }] is taking the freekick`
+        `${taker.FirstName} ${taker.LastName} [${taker.Position}] is taking the freekick`
       );
 
       // Move involved players away
@@ -178,9 +176,7 @@ export default class Referee {
       );
 
       console.log(
-        `${taker.FirstName} ${taker.LastName} [${
-          taker.Position
-        }] is taking the freekick`
+        `${taker.FirstName} ${taker.LastName} [${taker.Position}] is taking the freekick`
       );
 
       // Move involved players away
@@ -207,7 +203,7 @@ export default class Referee {
         const defendingSide = matchActions.getPlayingSides
           .defendingSide as MatchSide;
 
-         const keeper = playerFunc.getGK(
+        const keeper = playerFunc.getGK(
           defendingSide.StartingSquad
         ) as IFieldPlayer;
 
@@ -230,9 +226,12 @@ export default class Referee {
         break;
       case 'miss':
         console.log('missed shot');
+        // matchEvents.emit('set-playing-sides');
+        matchEvents.emit('missed-shot', data);
         break;
       case 'save':
         console.log('shot saved');
+        matchEvents.emit('saved-shot', data);
         break;
       default:
         break;

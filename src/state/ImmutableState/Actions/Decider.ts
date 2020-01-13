@@ -76,8 +76,9 @@ export class Decider {
             this.strategy = this.chanceToMoveForward(
               player,
               attackingSide,
-              50,
-              true
+              30,
+              true,
+              2
             );
           } else {
             // here player is neither shooting or moving forward, therefore pass!
@@ -88,7 +89,7 @@ export class Decider {
               this.strategy = this.chanceToMoveForward(
                 player,
                 attackingSide,
-                50,
+                30,
                 false
               );
             } else {
@@ -161,11 +162,8 @@ export class Decider {
         // let chance = Math.round(Math.random() * 100);
         if (interceptor) {
           const tally =
-            passer.Attributes.LongPass +
-            reciever.Attributes.Control / 2 +
-            passer.Attributes.Mental / 2 -
-            interceptor!.Attributes.Tackling;
-          result = chance > tally;
+            passer.Attributes.LongPass > interceptor!.Attributes.Tackling;
+          result = tally && chance <= passer.Attributes.Mental;
         } else {
           const tally =
             passer.Attributes.LongPass +
@@ -202,6 +200,28 @@ export class Decider {
     return chance > tally;
   }
 
+  public getShotResult(shooter: IFieldPlayer, keeper: IFieldPlayer) {
+    // Let's see what happens.
+    // What determines a goal? Shooter's shooting (duh), ball control, Keepers keeping and the *le randomness* :)
+    const onTarget = this.getShotTarget(shooter);
+    const chance = Math.round(Math.random() * 100);
+
+    if (!keeper && onTarget) {
+      return { onTarget, goal: true };
+    } else {
+      if (onTarget) {
+        const tally =
+          shooter.Attributes.Shooting +
+          shooter.Attributes.Mental -
+          keeper.Attributes.Keeping;
+
+        return { onTarget, goal: chance <= tally };
+      } else {
+        return { onTarget, goal: false };
+      }
+    }
+  }
+
   /**
    * gimmeAChance
    */
@@ -221,6 +241,18 @@ export class Decider {
     );
   }
 
+  private getShotTarget(shooter: IFieldPlayer) {
+    // if distance from post is near post...
+    const chance = Math.round(Math.random() * 100);
+
+    if (this.isNearPost(shooter, shooter.Team, 2)) {
+      // here player is 80% likely to shoot on target
+      return chance <= 80;
+    } else {
+      return chance <= 60;
+    }
+  }
+
   private chanceToMoveForward(
     player: IFieldPlayer,
     attackingSide: MatchSide,
@@ -234,19 +266,19 @@ export class Decider {
 
     if (
       co.atExtremeBlock(player.BlockPosition) &&
-      player.Attributes.LongPass > 30
+      player.Attributes.LongPass > 30 &&
+      player.Position !== 'ATT'
     ) {
       // TODO: Add some randomness here...
       return { type: 'pass', detail: 'long' };
     }
 
+    const closest = this.isClosestToPost(player, attackingSide);
+
+    const pos = player.Position === 'ATT';
+
     if (
-      this.passability(
-        player,
-        attackingSide,
-        passingDistance,
-        teammatePosition
-      ) &&
+      this.passability(player, attackingSide, passingDistance, !pos) &&
       this.gimmeAChance() <= threshold
     ) {
       //  If the closest teammate is also an attacker then pass
@@ -273,7 +305,8 @@ export class Decider {
     const teammate = co.findClosestPlayer(
       player.BlockPosition,
       attackingSide.StartingSquad,
-      player
+      player,
+      true
     );
 
     const teammateIsClose =
@@ -283,8 +316,8 @@ export class Decider {
     if (teammatePosition) {
       // Pass to Attackers or Midfielders
       return (
-        teammate.Position === 'ATT' ||
-        (teammate.Position === 'MID' && teammateIsClose)
+        (teammate.Position === 'ATT' || teammate.Position === 'MID') &&
+        teammateIsClose
       );
     }
 
@@ -297,9 +330,14 @@ export class Decider {
    * @param player Player in focus
    * @param attackingSide Player's team
    */
-  private isNearPost(player: IFieldPlayer, attackingSide: MatchSide) {
+  private isNearPost(
+    player: IFieldPlayer,
+    attackingSide: MatchSide,
+    distance: number
+  ) {
     return (
-      co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <= 5
+      co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <=
+      distance
     );
   }
 
@@ -318,17 +356,21 @@ export class Decider {
   ): IStrategy {
     let strategy = { type: 'pass', detail: 'short' };
 
-    if (
-      co.atExtremeBlock(player.BlockPosition) &&
-      player.Attributes.LongPass > 39
-    ) {
-      return { type: 'pass', detail: 'long' };
+    if (co.atExtremeBlock(player.BlockPosition)) {
+      if (this.passability(player, attackingSide, 4, true)) {
+        return { type: 'pass', detail: 'short' };
+      } else {
+        return { type: 'pass', detail: 'long' };
+      }
     }
 
     // Check if his closest teammate is 3 steps away or less
     if (this.passability(player, attackingSide, 4, true)) {
       strategy = { type: 'pass', detail: 'short' };
-    } else if (this.passability(player, attackingSide, 7, true)) {
+    } else if (
+      this.passability(player, attackingSide, 7, true) &&
+      !this.isClosestToPost(player, attackingSide)
+    ) {
       strategy = { type: 'pass', detail: 'long' };
     } else {
       strategy = { type: 'move', detail: 'normal' };

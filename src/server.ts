@@ -70,7 +70,7 @@ mongoose.set('useCreateIndex', true);
 // Stuff
 
 app.get('/', (req, res) => {
-  res.status(200).send('Welcome! To FS-PRO Game Server');
+  res.status(200).send('<p>Welcome to FS-PRO <i>Server</i></p> enjoy! Thank you Jesus!');
 });
 
 app.use('/api', router);

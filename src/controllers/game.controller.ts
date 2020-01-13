@@ -154,6 +154,12 @@ class Game {
         activePlayerDS: this.ActivePlayerDS,
         DS: this.DS,
       };
+    } else {
+      this.AS = undefined;
+      // this.ActivePlayerAS = undefined;
+      this.DS = undefined;
+      // this.ActivePlayerDS = undefined;
+      return false;
     }
     // this.MatchActions.setSides(this.ActivePlayerAS, this.AS, this.ActivePlayerDS, this.DS);
   }
@@ -185,26 +191,29 @@ class Game {
   }
 
   public matchComments() {
-    console.log(`Ball is at ${JSON.stringify({
-      x: this.MatchBall.Position.x,
-      y: this.MatchBall.Position.y,
-      key: this.MatchBall.Position.key,
-    })}
-    ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
-      this.ActivePlayerAS!.LastName
-    } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
-      x: this.ActivePlayerAS!.BlockPosition.x,
-      y: this.ActivePlayerAS!.BlockPosition.y,
-      key: this.ActivePlayerAS!.BlockPosition.key,
-    })}
-    ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
-      this.ActivePlayerDS!.LastName
-    } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
-      x: this.ActivePlayerDS!.BlockPosition.x,
-      y: this.ActivePlayerDS!.BlockPosition.y,
-      key: this.ActivePlayerDS!.BlockPosition.key,
-    })}
-    `);
+    console.log(
+      `Ball is at ${JSON.stringify({
+        x: this.MatchBall.Position.x,
+        y: this.MatchBall.Position.y,
+        key: this.MatchBall.Position.key,
+      })}`
+    );
+      console.log(`
+      ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
+        this.ActivePlayerAS!.LastName
+      } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
+        x: this.ActivePlayerAS!.BlockPosition.x,
+        y: this.ActivePlayerAS!.BlockPosition.y,
+        key: this.ActivePlayerAS!.BlockPosition.key,
+      })}
+      ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
+        this.ActivePlayerDS!.LastName
+      } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
+        x: this.ActivePlayerDS!.BlockPosition.x,
+        y: this.ActivePlayerDS!.BlockPosition.y,
+        key: this.ActivePlayerDS!.BlockPosition.key,
+      })}
+      `);
   }
 
   public startHalf() {
@@ -212,9 +221,9 @@ class Game {
   }
 
   private gamePlay() {
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 90; i++) {
       console.log(`------------Loop Position ${i + 1}---------`);
-      this.setPlayingSides();
+      const anyWithBall = this.setPlayingSides();
 
       this.Match.setCurrentTime(i);
 

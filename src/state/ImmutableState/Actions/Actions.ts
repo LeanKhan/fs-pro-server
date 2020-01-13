@@ -134,14 +134,9 @@ export class Actions {
       case 'move':
         console.log('Move attempt');
 
-        this.move(
-          attackingPlayer,
-          'forward',
-          attackingSide.ScoringSide
-        );
+        this.move(attackingPlayer, 'forward', attackingSide.ScoringSide);
 
         break;
-
     }
 
     // Move attackers and midfielders forward
@@ -335,13 +330,11 @@ export class Actions {
             }
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
-            const fail = this.decider.getDribbleResult(player, opponentBlock)
-            if (
-              !fail
-            ) {
+            const fail = this.decider.getDribbleResult(player, opponentBlock);
+            if (!fail) {
               // this.makeMove(player, p, around);
               if (this.successfulDribble(player, p, around, opponentBlock)) {
-                this.makeMove(player, p, around)
+                this.makeMove(player, p, around);
                 situation = {
                   status: true,
                   reason: 'move towards ball successful via dribble',
@@ -354,7 +347,7 @@ export class Actions {
                   reason: 'move towards not successful, because of tackle',
                 };
               } else {
-                this.makeMove(player, p, around)
+                this.makeMove(player, p, around);
                 situation = {
                   status: true,
                   reason: 'tackle failed, continue moving',
@@ -418,15 +411,16 @@ export class Actions {
     matchEvents.emit('kick', { subject: player });
   }
 
-  public shoot(player: IFieldPlayer, direction: IBlock, reason: string) {
+  public shoot(player: IFieldPlayer, post: IBlock, reason: string) {
     // matchEvents.emit('shot', { subject: player });
-    player.shoot(co.calculateDifference(direction, player.BlockPosition));
-    const chance = Math.round(Math.random() * 12);
 
     const keeper = player.Team.ScoringSide.occupant;
 
-    if (chance > 7 || keeper === null) {
-      // Shot is a goal
+    const result = this.decider.getShotResult(player, keeper as IFieldPlayer);
+
+    if (result.goal) {
+      // Shot is a goal, fine and good
+      player.shoot(co.calculateDifference(post, player.BlockPosition));
       matchEvents.emit('shot', {
         shooter: player,
         keeper,
@@ -435,24 +429,55 @@ export class Actions {
         result: 'goal',
         reason,
       } as IShot);
-    } else if (chance < 7 && chance > 4) {
+    } else if (result.onTarget && !result.goal) {
       // Shot is a miss
-      matchEvents.emit('shot', {
-        shooter: player,
-        keeper,
-        where: player.BlockPosition,
-        interruption: true,
-        result: 'miss',
-        reason,
-      } as IShot);
-    } else {
-      // Shot is saved by the keeper
+      player.shoot(co.calculateDifference(post, player.BlockPosition));
       matchEvents.emit('shot', {
         shooter: player,
         keeper,
         where: player.BlockPosition,
         interruption: true,
         result: 'save',
+        reason,
+      } as IShot);
+    } else if (!result.onTarget) {
+      // Here put the ball at a random block hehehe
+      // find free blocks around the keeper and pick a random one...
+
+      let freeBlocksAroundKeeper = keeper!.getBlocksAround(3);
+
+      // Filter the undefined or occupied ones
+      freeBlocksAroundKeeper = freeBlocksAroundKeeper.filter(
+        (block: IBlock) => {
+          if (block === undefined || block.occupant !== null) {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      );
+
+      // Then return a random one...
+
+      const randomIndex = Math.round(
+        Math.random() * (freeBlocksAroundKeeper.length - 1)
+      );
+
+      const landingBlock = freeBlocksAroundKeeper[randomIndex];
+
+      player.shoot(co.calculateDifference(landingBlock, player.BlockPosition));
+
+      console.log('Free Blocks around keeper =>', freeBlocksAroundKeeper);
+
+      console.log('landing block', landingBlock);
+
+      // Shot is off target
+      matchEvents.emit('shot', {
+        shooter: player,
+        keeper,
+        where: player.BlockPosition,
+        interruption: true,
+        result: 'miss',
         reason,
       } as IShot);
     }
@@ -649,33 +674,17 @@ export class Actions {
 
   private pushForward(team: MatchSide) {
     // const chance = Math.round(Math.random() * 100);
-    //  console.log('*-- Attacking Side pushing forward --*');
+    console.log('*-- Attacking Side pushing forward --*');
 
     const attackingPlayers = playerFunc.getATTMID(team);
 
-    // console.table(
-    //   attackingPlayers.map(p => ({
-    //     Name: p.FirstName + ' ' + p.LastName,
-    //     PlayerID: p.PlayerID,
-    //     Club: p.ClubCode,
-    //     Position: p.BlockPosition.key,
-    //   }))
-    // );
-
     attackingPlayers.forEach(p => {
-      // console.log(
-      //   `${p.FirstName} ${p.LastName} [${p.ClubCode}] was at ${JSON.stringify({
-      //     x: p.BlockPosition.x,
-      //     y: p.BlockPosition.y,
-      //     key: p.BlockPosition.key,
-      //   })}`
-      // );
       this.movePlayersForward(p, team);
     });
   }
 
   private pressureBall(team: MatchSide) {
-    // console.log('*-- Defending Side pressuring ball --*');
+    console.log('*-- Defending Side pressuring ball --*');
 
     // Find midfielders and attackers
     const defendingPlayers = playerFunc.getATTMID(team);

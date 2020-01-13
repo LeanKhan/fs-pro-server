@@ -68,6 +68,14 @@ export class Match implements IMatch {
       this.Details.Goals ? this.Details.Goals++ : (this.Details.Goals = 1);
     });
 
+    matchEvents.on('saved-shot', (data: IShot) => {
+      console.log('Shot was saved yo')
+    });
+
+    matchEvents.on('missed-shot', (data: IShot) => {
+      console.log('Missed shot though :(')
+    });
+
     matchEvents.on('pass made', data => {
       console.log(`Pass from ${data.passer} to ${data.reciever}`);
     });

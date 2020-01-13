@@ -63,8 +63,6 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     ballMove.on('ball-moved', p => {
       this.updateBallPosition(p);
     });
-
-    console.log('======= BALL MOVED LISTENER ADDED !==========');
   }
 
   public pass(pos: ICoordinate) {
@@ -191,11 +189,11 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
           // Top side
           for (let r = 1; r <= radius; r++) {
             const block =
-              this.BlockPosition.y - 1 < 0
+              this.BlockPosition.y - r < 0
                 ? undefined
                 : coordinateToBlock({
                     x: this.BlockPosition.x,
-                    y: this.BlockPosition.y - 1,
+                    y: this.BlockPosition.y - r,
                   });
             blocks.push(block);
           }
@@ -203,12 +201,12 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
 
         case 2:
           // Left side
-          for (let r = 1; r < radius; r++) {
+          for (let r = 1; r <= radius; r++) {
             const block =
-              this.BlockPosition.x - 1 < 0
+              this.BlockPosition.x - r < 0
                 ? undefined
                 : coordinateToBlock({
-                    x: this.BlockPosition.x - 1,
+                    x: this.BlockPosition.x - r,
                     y: this.BlockPosition.y,
                   });
             blocks.push(block);
@@ -216,12 +214,12 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
           break;
         case 3:
           // Right side
-          for (let r = 1; r < radius; r++) {
+          for (let r = 1; r <= radius; r++) {
             const block =
-              this.BlockPosition.x + 1 > 14
+              this.BlockPosition.x + r > 14
                 ? undefined
                 : coordinateToBlock({
-                    x: this.BlockPosition.x + 1,
+                    x: this.BlockPosition.x + r,
                     y: this.BlockPosition.y,
                   });
             blocks.push(block);
@@ -229,13 +227,13 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
           break;
         case 4:
           // Bottom side
-          for (let r = 1; r < radius; r++) {
+          for (let r = 1; r <= radius; r++) {
             const block =
-              this.BlockPosition.y + 1 > 10
+              this.BlockPosition.y + r > 10
                 ? undefined
                 : coordinateToBlock({
                     x: this.BlockPosition.x,
-                    y: this.BlockPosition.y + 1,
+                    y: this.BlockPosition.y + r,
                   });
             blocks.push(block);
           }
