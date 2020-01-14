@@ -1,8 +1,9 @@
 import { Club } from './Club';
 import { MatchSide } from './MatchSide';
 import { matchEvents } from '../utils/events';
-import { IBlock } from './Ball';
+import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
+import { IShot } from './Referee';
 
 /**
  * The Match Class gan gan
@@ -24,20 +25,55 @@ export class Match implements IMatch {
    * @param {IBlock} homePost The Post of the Home team (where Away will score)
    */
   constructor(home: Club, away: Club, awayPost: IBlock, homePost: IBlock) {
-    this.Home = new MatchSide(home, awayPost);
-    this.Away = new MatchSide(away, homePost);
-    this.Details = {} as IMatchDetails;
+    this.Home = new MatchSide(home, awayPost, homePost);
+    this.Away = new MatchSide(away, homePost, awayPost);
+    this.Details = {
+      HomeTeamScore: 0,
+      AwayTeamScore: 0,
+    } as IMatchDetails;
 
     matchEvents.on('game halt', data => {
       console.log(
-        `${data.reason} offence by ${data.subject.LastName} on ${
-          data.object.LastName
-        }`
+        `${data.reason} offence by ${data.subject.LastName} on ${data.object.LastName}`
       );
     });
 
-    matchEvents.on('goal!', () => {
+    matchEvents.on('goal!', (data: IShot) => {
       console.log('GOAAAALLL!!!');
+
+      let player: IFieldPlayer;
+
+      data.shooter.increaseGoalTally();
+
+      data.shooter.increasePoints(1);
+
+      if (data.shooter.ClubCode === this.Home.ClubCode) {
+        player = this.Home.StartingSquad.find(p => {
+          return p.PlayerID === data.shooter.PlayerID;
+        }) as IFieldPlayer;
+        this.Details.HomeTeamScore++;
+      } else if (data.shooter.ClubCode === this.Away.ClubCode) {
+        player = this.Away.StartingSquad.find(p => {
+          return p.PlayerID === data.shooter.PlayerID;
+        }) as IFieldPlayer;
+        this.Details.AwayTeamScore++;
+      }
+
+      console.log(
+        `Goal from ${data.shooter.FirstName} ${data.shooter.LastName} now at ${
+          player!.GameStats.Goals
+        }`
+      );
+
+      this.Details.Goals ? this.Details.Goals++ : (this.Details.Goals = 1);
+    });
+
+    matchEvents.on('saved-shot', (data: IShot) => {
+      console.log('Shot was saved yo')
+    });
+
+    matchEvents.on('missed-shot', (data: IShot) => {
+      console.log('Missed shot though :(')
     });
 
     matchEvents.on('pass made', data => {
@@ -73,6 +109,19 @@ export class Match implements IMatch {
         )} at ${this.getCurrentTime} mins`
       );
     });
+
+    matchEvents.on('reset-formations', () => {
+      console.log('********Resetting formations *********');
+      this.resetClubFormations();
+    });
+
+    matchEvents.on('half-end', () => {
+      console.log('First half over!');
+      console.log(
+        'Match Result => ',
+        `[${this.Home.ClubCode}] ${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore} [${this.Away.ClubCode}]`
+      );
+    });
   }
 
   /** Create match report */
@@ -91,10 +140,13 @@ export class Match implements IMatch {
       this.Details.Loser = this.Home.Name;
     }
     this.Details.Time = new Date();
-    this.Details.Title = `${this.Home.Name} vs ${this.Away.Name} <-> ${
-      this.Details.Time
-    }`;
+    this.Details.Title = `${this.Home.Name} vs ${this.Away.Name} <-> ${this.Details.Time}`;
   };
+
+  public resetClubFormations() {
+    this.Home.resetFormation();
+    this.Away.resetFormation();
+  }
 
   public setCurrentTime(time: number) {
     this.CurrentTime = time;
@@ -103,24 +155,6 @@ export class Match implements IMatch {
   public get getCurrentTime(): number {
     return this.CurrentTime;
   }
-
-  /** Start match */
-  public start = () => {
-    this.Home.calculateForm();
-    this.Away.calculateForm();
-
-    this.Home.calculateCCR(this.Away.DefensiveClass, this.Away.DefensiveForm);
-    this.Away.calculateCCR(this.Home.DefensiveClass, this.Home.DefensiveForm);
-
-    this.Home.calculateCCN();
-    this.Away.calculateCCN();
-
-    this.Home.calculateGoalsScored(this.Away.DefensiveForm);
-    this.Away.calculateGoalsScored(this.Home.DefensiveForm);
-
-    this.report();
-    // console.log(this.Home)
-  };
 }
 
 export interface IMatchData {
@@ -163,6 +197,8 @@ export interface IMatchDetails {
   AwayTeamScore: number;
   Winner: string | null;
   Loser: string | null;
+  TotalPasses: number;
+  Goals: number;
   HomeTeamDetails: IMatchSideDetails;
   AwayTeamDetails: IMatchSideDetails;
 }
@@ -175,5 +211,4 @@ export interface IMatch {
   getCurrentTime: number;
   setCurrentTime(time: number): any;
   report(): void;
-  start(): void;
 }

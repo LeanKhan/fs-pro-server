@@ -31,7 +31,6 @@ router.get('/all', async (req, res) => {
  *
  */
 router.post('/new', getCurrentCounter, async (req, res) => {
-
   const response = await createNewPlayer(req.body);
 
   // TODO:

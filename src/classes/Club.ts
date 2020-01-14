@@ -1,22 +1,26 @@
 import { IClub } from '../interfaces/Club';
-import {IPlayer} from '../interfaces/Player';
+import { IPlayer } from '../interfaces/Player';
 export class Club implements IClub {
   public Name: string;
   public AttackingClass: number;
   public DefensiveClass: number;
-  public PlayingStyle: 'attacking' | 'defensive' | 'balanced';
   public Manager: string;
-  public Stadium: string;
-  public LeagueCode: string;
+  public Stadium: {};
   public Players: IPlayer[];
+  public Rating: number;
+  public Address: {};
+  public Stats: {};
+  public ClubCode: string;
   constructor(club: IClub) {
     this.Name = club.Name;
+    this.ClubCode = club.ClubCode;
     this.AttackingClass = club.AttackingClass;
     this.DefensiveClass = club.DefensiveClass;
-    this.PlayingStyle = club.PlayingStyle;
     this.Stadium = club.Stadium;
     this.Manager = club.Manager;
-    this.LeagueCode = club.LeagueCode;
     this.Players = club.Players;
+    this.Address = club.Address;
+    this.Rating = club.Rating;
+    this.Stats = club.Stats;
   }
 }

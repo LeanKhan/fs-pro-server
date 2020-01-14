@@ -5,30 +5,19 @@ export interface FormationsList {
 }
 
 export const formations: FormationsList = {
-  'AWAY-433': [
-    36,
-    49,
-    37,
-    25,
-    62,
-    38,
-    14,
-    64,
-    40,
-    16,
-    41,
-  ],
+  'AWAY-433': [89, 28, 58, 118, 148, 41, 131, 24, 84, 144, 83],
   'HOME-433': [
-    47,
-    58,
+    75,
+    16,
     46,
-    34,
-    69,
-    45,
-    21,
-    67,
-    43,
-    19,
-    42,
+    106,
+    136,
+    33,
+    79,
+    123,
+    20,
+    140,
+    82,
+    // 81, This is the original position the player that is meant to start...
   ],
 };

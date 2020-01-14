@@ -6,10 +6,14 @@ export interface IClub {
   AttackingClass: number;
   /** Club's overall Defensive rating */
   DefensiveClass: number;
-  /** Style of play */
-  PlayingStyle: 'attacking' | 'defensive' | 'balanced';
+  /** Players */
   Players: IPlayer[];
+  Rating: number;
+  Address: {};
+  ClubCode: string;
   Manager: string;
-  Stadium: string;
-  LeagueCode: string;
+  Stadium: {};
+  Stats: {};
+  League?: string;
+  LeagueCode?: string;
 }

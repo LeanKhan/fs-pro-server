@@ -54,7 +54,7 @@ const Player: Schema = new Schema(
       Strength: Number,
       Stamina: Number,
       PreferredFoot: String,
-      Catching: Number,
+      Keeping: Number,
       AttackingMindset: Boolean,
       DefensiveMindset: Boolean,
     },

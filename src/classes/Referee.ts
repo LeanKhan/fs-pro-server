@@ -1,7 +1,7 @@
 import { IFieldPlayer } from '../interfaces/Player';
 import { matchEvents } from '../utils/events';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
-import { IBlock } from './Ball';
+import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as playerFunc from '../utils/players';
 import * as co from '../utils/coordinates';
 import { Match, IMatchData } from './Match';
@@ -140,9 +140,7 @@ export default class Referee {
       );
 
       console.log(
-        `${taker.FirstName} ${taker.LastName} [${
-          taker.Position
-        }] is taking the freekick`
+        `${taker.FirstName} ${taker.LastName} [${taker.Position}] is taking the freekick`
       );
 
       // Move involved players away
@@ -178,9 +176,7 @@ export default class Referee {
       );
 
       console.log(
-        `${taker.FirstName} ${taker.LastName} [${
-          taker.Position
-        }] is taking the freekick`
+        `${taker.FirstName} ${taker.LastName} [${taker.Position}] is taking the freekick`
       );
 
       // Move involved players away
@@ -206,27 +202,36 @@ export default class Referee {
         // Keeper to his StartingPosition
         const defendingSide = matchActions.getPlayingSides
           .defendingSide as MatchSide;
-        console.log('Defending Side => ', defendingSide.Name);
+
         const keeper = playerFunc.getGK(
           defendingSide.StartingSquad
         ) as IFieldPlayer;
-        console.log('Keeper => ', keeper);
+
         keeper.move(
           co.calculateDifference(keeper.StartingPosition, keeper.BlockPosition)
         );
+
         // Move ball to keeper position
         keeper.Ball.move(
           co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
         );
         // console.log('resume gameplay :)')
         // Move players to starting position
-        matchEvents.emit('set-playing-sides');
+
+        // Move players to starting position...
+
+        matchEvents.emit('reset-formations');
+
+        // matchEvents.emit('set-playing-sides');
         break;
       case 'miss':
         console.log('missed shot');
+        // matchEvents.emit('set-playing-sides');
+        matchEvents.emit('missed-shot', data);
         break;
       case 'save':
         console.log('shot saved');
+        matchEvents.emit('saved-shot', data);
         break;
       default:
         break;

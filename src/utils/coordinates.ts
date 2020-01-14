@@ -1,6 +1,6 @@
-import { ICoordinate, IBlock } from '../classes/Ball';
+import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
-import { PlayingField } from '../state/ImmutableState/FieldGrid';
+import { PlayingField, mapWidth } from '../controllers/game.controller';
 
 /**
  * Returns the tile index of the given coordinates
@@ -10,6 +10,7 @@ import { PlayingField } from '../state/ImmutableState/FieldGrid';
  * @param mapWidth
  */
 
+// tslint:disable-next-line: no-shadowed-variable
 function XYToIndex(x: number, y: number, mapWidth: number): number {
   return y * mapWidth + x;
 }
@@ -19,6 +20,7 @@ function XYToIndex(x: number, y: number, mapWidth: number): number {
  * @param index
  * @param mapWidth
  */
+// tslint:disable-next-line: no-shadowed-variable
 function indexToXY(index: number, mapWidth: number): ICoordinate {
   const i = { x: 0, y: 0 };
 
@@ -37,7 +39,7 @@ function indexToXY(index: number, mapWidth: number): ICoordinate {
  * @returns {IBlock} Field Block
  */
 function coordinateToBlock(pos: ICoordinate): IBlock {
-  return PlayingField[XYToIndex(pos.x, pos.y, 12)];
+  return PlayingField[XYToIndex(pos.x, pos.y, mapWidth)];
 }
 
 /**
@@ -60,15 +62,95 @@ function indexToBlock(index: number): IBlock {
 function findClosestPlayer(
   ref: ICoordinate,
   players: IFieldPlayer[],
-  originPlayer?: IFieldPlayer
+  originPlayer?: IFieldPlayer,
+  closest: boolean = false
 ) {
-  const plyrs = players;
+  let plyrs = players;
 
   // plyrs = players.filter(p => {
   //   return !(ref.x === p.BlockPosition.x && ref.y === p.BlockPosition.y);
   // });
 
-  plyrs.sort((a, b) => {
+  plyrs = plyrs.sort((a, b) => {
+    return calculateDistance(ref, a.BlockPosition) <
+      calculateDistance(ref, b.BlockPosition)
+      ? -1
+      : 1;
+  });
+
+  console.table(
+    plyrs.map(p => ({
+      Name: p.FirstName + ' ' + p.LastName,
+      PlayerPosition: p.Position,
+      Club: p.ClubCode,
+      Position: p.BlockPosition.key,
+      Distance: calculateDistance(ref, p.BlockPosition),
+    }))
+  );
+
+  /**
+   * The index of the origin player so we can remove it :)
+   */
+
+  if (originPlayer) {
+    plyrs = plyrs.filter(p => p.PlayerID !== originPlayer.PlayerID);
+  }
+
+  // Now select a random player from the first three options
+
+  const index = closest ? 0 : Math.round(Math.random() * 2);
+
+  return plyrs[index];
+}
+
+/**
+ * Find the closest player to something, including the current player
+ * @param ref
+ * @param players
+ * @param originPlayer
+ */
+function findClosestPlayerInclusive(
+  ref: ICoordinate,
+  players: IFieldPlayer[],
+  originPlayer?: IFieldPlayer
+) {
+  let plyrs = players;
+
+  // plyrs = players.filter(p => {
+  //   return !(ref.x === p.BlockPosition.x && ref.y === p.BlockPosition.y);
+  // });
+
+  plyrs = plyrs.sort((a, b) => {
+    return calculateDistance(ref, a.BlockPosition) <
+      calculateDistance(ref, b.BlockPosition)
+      ? -1
+      : 1;
+  });
+
+  // Now select a random player from the first three options
+  return plyrs[0];
+}
+
+/**
+ * Find the closest player that is not a keeper :)
+ * @param ref
+ * @param players
+ * @param originPlayer
+ */
+function findClosestFieldPlayer(
+  ref: ICoordinate,
+  players: IFieldPlayer[],
+  originPlayer?: IFieldPlayer,
+  limit?: number
+) {
+  // const plyrs = players;
+  // Remove Golakeepers
+  let plyrs: IFieldPlayer[] = players.filter(p => {
+    return p.Position !== 'GK';
+  });
+
+  // Sort by distance
+  plyrs = plyrs.sort((a, b) => {
     return calculateDistance(ref, a.BlockPosition) <
       calculateDistance(ref, b.BlockPosition)
       ? -1
@@ -86,42 +168,10 @@ function findClosestPlayer(
     plyrs.slice(psI, 1);
   }
 
-  return plyrs[0];
-}
-
-/**
- * Find the closest player that is not a keeper :)
- * @param ref
- * @param players
- * @param originPlayer
- */
-function findClosestFieldPlayer(
-  ref: ICoordinate,
-  players: IFieldPlayer[],
-  originPlayer?: IFieldPlayer
-) {
-  // const plyrs = players;
-
-  const plyrs = players.filter(p => {
-    return p.Position !== 'GK';
-  });
-
-  plyrs.sort((a, b) => {
-    return calculateDistance(ref, a.BlockPosition) <
-      calculateDistance(ref, b.BlockPosition)
-      ? -1
-      : 1;
-  });
-
-  /**
-   * The index of the origin player so we can remove it :)
-   */
-  if (originPlayer) {
-    const psI = plyrs.findIndex(p => {
-      return p === originPlayer;
+  if (limit) {
+    plyrs = plyrs.filter(a => {
+      return calculateDistance(ref, a.BlockPosition) <= limit;
     });
-
-    plyrs.slice(psI, 1);
   }
 
   return plyrs[0];
@@ -159,6 +209,27 @@ function findRandomPlayer(
   const index = Math.round(Math.random() * (players.length - 1));
 
   return ps[index];
+}
+
+function findLongPlayer(
+  ref: ICoordinate,
+  players: IFieldPlayer[],
+  originPlayer?: IFieldPlayer
+) {
+  let plyrs = players;
+
+  // Find players that are 5 blocks or more away
+  plyrs = plyrs.filter((a, b) => {
+    return calculateDistance(ref, a.BlockPosition) >= 5;
+  });
+
+  /**
+   * The index of the origin player so we can remove it :)
+   */
+
+  const index = Math.round(Math.random() * (plyrs.length - 1));
+
+  return plyrs[index];
 }
 
 /**
@@ -211,6 +282,10 @@ function calculateDifference(ref: ICoordinate, pos: ICoordinate) {
   return path;
 }
 
+const atExtremeBlock = (pos: ICoordinate) => {
+  return pos.x === 0 || pos.x === 14 || pos.y === 0 || pos.y === 10;
+};
+
 // function findAdjacentBlocks(ref: ICoordinate, pos:ICoordinate){
 
 // }
@@ -226,4 +301,7 @@ export {
   calculateDifference,
   coordinateToBlock,
   indexToBlock,
+  findClosestPlayerInclusive,
+  findLongPlayer,
+  atExtremeBlock,
 };

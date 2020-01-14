@@ -1,5 +1,5 @@
 import { MatchSide } from '../classes/MatchSide';
-import { IBlock } from '../classes/Ball';
+import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as co from './coordinates';
 import { IPositions, IFieldPlayer } from '../interfaces/Player';
 
@@ -54,7 +54,7 @@ function findRandomFreeBlock(player: IFieldPlayer): IBlock {
 
   // Then return a random one...
 
-  const randomIndex = Math.round(Math.random() * circumference.length - 1);
+  const randomIndex = Math.round(Math.random() * (circumference.length - 1));
 
   return circumference[randomIndex];
 }

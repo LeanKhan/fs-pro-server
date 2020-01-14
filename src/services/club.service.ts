@@ -1,6 +1,7 @@
 // Exposes functions that are used to interact with the DB directly
 
 import clubModel, { IClubModel } from '../models/club.model';
+import { IClub } from '../interfaces/Club';
 
 /**
  * fetchAllClubs mate
@@ -10,10 +11,22 @@ import clubModel, { IClubModel } from '../models/club.model';
  */
 export const fetchAllClubs = async () => {
   try {
-    const clubs = await clubModel.find({});
+    const clubs = await clubModel.find({}).populate('Players');
     return { error: false, result: clubs };
   } catch (err) {
     return { error: true, result: err };
+  }
+};
+
+/**
+ * fetchClubs
+ */
+export const fetchClubs = async (condition: any) => {
+  try {
+    const clubs = await clubModel.find(condition).populate('Players');
+    return { error: false, result: clubs } as IClubsResponse;
+  } catch (error) {
+    return { error: true, result: error } as IClubsResponse;
   }
 };
 
@@ -60,3 +73,9 @@ export const createNewClub = (c: any) => {
     .then((club: IClubModel) => ({ error: false, result: club }))
     .catch(error => ({ error: true, result: error }));
 };
+
+interface IClubsResponse {
+  error: boolean;
+  message?: string;
+  result: IClub[];
+}
