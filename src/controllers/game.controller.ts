@@ -187,7 +187,7 @@ class Game {
       this.MatchBall.Position
     );
 
-    this.matchComments();
+    // this.matchComments();
   }
 
   public matchComments() {
@@ -198,21 +198,21 @@ class Game {
         key: this.MatchBall.Position.key,
       })}`
     );
-      console.log(`
+    console.log(`
       ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
-        this.ActivePlayerAS!.LastName
-      } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
-        x: this.ActivePlayerAS!.BlockPosition.x,
-        y: this.ActivePlayerAS!.BlockPosition.y,
-        key: this.ActivePlayerAS!.BlockPosition.key,
-      })}
+      this.ActivePlayerAS!.LastName
+    } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
+      x: this.ActivePlayerAS!.BlockPosition.x,
+      y: this.ActivePlayerAS!.BlockPosition.y,
+      key: this.ActivePlayerAS!.BlockPosition.key,
+    })}
       ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
-        this.ActivePlayerDS!.LastName
-      } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
-        x: this.ActivePlayerDS!.BlockPosition.x,
-        y: this.ActivePlayerDS!.BlockPosition.y,
-        key: this.ActivePlayerDS!.BlockPosition.key,
-      })}
+      this.ActivePlayerDS!.LastName
+    } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
+      x: this.ActivePlayerDS!.BlockPosition.x,
+      y: this.ActivePlayerDS!.BlockPosition.y,
+      key: this.ActivePlayerDS!.BlockPosition.key,
+    })}
       `);
   }
 

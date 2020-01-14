@@ -3,8 +3,7 @@ import { MatchSide } from './MatchSide';
 import { matchEvents } from '../utils/events';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
-import { IShot } from './Referee';
-
+import { IShot, IPass, GamePoints, ITackle, IDribble } from './Referee';
 /**
  * The Match Class gan gan
  */
@@ -30,54 +29,109 @@ export class Match implements IMatch {
     this.Details = {
       HomeTeamScore: 0,
       AwayTeamScore: 0,
+      TotalPasses: 0,
+      Goals: 0,
+      HomeTeamDetails: {
+        Score: 0,
+        Possession: 0,
+        Goals: 0,
+        TotalShots: 0,
+        ShotsOnTarget: 0,
+        ShotsOffTarget: 0,
+        Fouls: 0,
+        YellowCards: 0,
+        RedCards: 0,
+        Passes: 0,
+      },
+      AwayTeamDetails: {
+        Score: 0,
+        Possession: 0,
+        Goals: 0,
+        TotalShots: 0,
+        ShotsOnTarget: 0,
+        ShotsOffTarget: 0,
+        Fouls: 0,
+        YellowCards: 0,
+        RedCards: 0,
+        Passes: 0,
+      },
     } as IMatchDetails;
 
-    matchEvents.on('game halt', data => {
-      console.log(
-        `${data.reason} offence by ${data.subject.LastName} on ${data.object.LastName}`
-      );
+    matchEvents.on('shot', (data: IShot) => {
+      if (this.Home.ClubCode === data.shooter.Team.ClubCode) {
+        this.Details.HomeTeamDetails.TotalShots++;
+        switch (data.result) {
+          case 'goal':
+          case 'save':
+            this.Details.HomeTeamDetails.ShotsOnTarget++;
+            break;
+          case 'miss':
+            this.Details.HomeTeamDetails.ShotsOffTarget++;
+            break;
+        }
+      } else {
+        this.Details.AwayTeamDetails.TotalShots++;
+        switch (data.result) {
+          case 'goal':
+          case 'save':
+            this.Details.AwayTeamDetails.ShotsOnTarget++;
+            break;
+          case 'miss':
+            this.Details.AwayTeamDetails.ShotsOffTarget++;
+            break;
+        }
+      }
     });
 
     matchEvents.on('goal!', (data: IShot) => {
       console.log('GOAAAALLL!!!');
 
-      let player: IFieldPlayer;
-
       data.shooter.increaseGoalTally();
 
       data.shooter.increasePoints(1);
 
+      // subtract from keeper's points :3
+      data.keeper.GameStats.Points -= GamePoints.Goal / 2;
+
       if (data.shooter.ClubCode === this.Home.ClubCode) {
-        player = this.Home.StartingSquad.find(p => {
-          return p.PlayerID === data.shooter.PlayerID;
-        }) as IFieldPlayer;
         this.Details.HomeTeamScore++;
+        this.Details.HomeTeamDetails.Goals++;
       } else if (data.shooter.ClubCode === this.Away.ClubCode) {
-        player = this.Away.StartingSquad.find(p => {
-          return p.PlayerID === data.shooter.PlayerID;
-        }) as IFieldPlayer;
         this.Details.AwayTeamScore++;
+        this.Details.AwayTeamDetails.Goals++;
       }
 
       console.log(
-        `Goal from ${data.shooter.FirstName} ${data.shooter.LastName} now at ${
-          player!.GameStats.Goals
-        }`
+        `Goal from ${data.shooter.FirstName} ${data.shooter.LastName} now at ${data.shooter.GameStats.Goals}`
       );
 
-      this.Details.Goals ? this.Details.Goals++ : (this.Details.Goals = 1);
+      this.Details.Goals++;
     });
 
     matchEvents.on('saved-shot', (data: IShot) => {
-      console.log('Shot was saved yo')
+      data.keeper.GameStats.Saves++;
+      data.keeper.GameStats.Points += GamePoints.Save;
+      console.log('Shot was saved yo');
     });
 
     matchEvents.on('missed-shot', (data: IShot) => {
-      console.log('Missed shot though :(')
+      data.shooter.GameStats.Points -= GamePoints.Goal;
+      console.log('Missed shot though :(');
     });
 
-    matchEvents.on('pass made', data => {
-      console.log(`Pass from ${data.passer} to ${data.reciever}`);
+    matchEvents.on('pass-made', (data: IPass) => {
+      this.Details.TotalPasses++;
+      data.passer.GameStats.Passes++;
+      data.passer.GameStats.Points += GamePoints.Pass;
+
+      // // give receiver some passes
+      data.receiver.GameStats.Points += GamePoints.Pass / 2;
+      this.Home.ClubCode === data.passer.Team.ClubCode
+        ? this.Details.HomeTeamDetails.Passes++
+        : this.Details.AwayTeamDetails.Passes++;
+      console.log(
+        `Pass from ${data.passer.LastName} to ${data.receiver.LastName}`
+      );
     });
 
     matchEvents.on('pass intercepted', data => {
@@ -86,28 +140,49 @@ export class Match implements IMatch {
       );
     });
 
-    matchEvents.on('dribble', data => {
-      console.log(`${data.dribbler} dribbled ${data.dribbled} successfully`);
+    matchEvents.on('dribble', (data: IDribble) => {
+      data.dribbler.GameStats.Dribbles++;
+      data.dribbler.GameStats.Points += GamePoints.Dribble;
+
+      // Remove points from Dribbled :)
+      data.dribbled.GameStats.Points -= GamePoints.Dribble / 2;
+
+      console.log(`${data.dribbler.FirstName} ${data.dribbler.LastName} [${data.dribbler.ClubCode}] dribbled
+      ${data.dribbled.FirstName} ${data.dribbled.LastName} [${data.dribbled.ClubCode}] successfully`);
     });
 
-    matchEvents.on('bad-tackle', data => {
-      console.log(
-        `${data.tackler} at ${JSON.stringify(
-          data.tacklerPosition
-        )} made a bad tackle on ${data.tackled} who was at ${JSON.stringify(
-          data.tackledPlayerPosition
-        )}`
-      );
-    });
+    matchEvents.on('tackle', (data: ITackle) => {
+      // Increase points for somebori
 
-    matchEvents.on('successful-tackle', data => {
-      console.log(
-        `${data.tackler} at ${JSON.stringify(
-          data.tacklerPosition
-        )} tackled the ball from ${data.tackled} who was at ${JSON.stringify(
-          data.tackledPlayerPosition
-        )} at ${this.getCurrentTime} mins`
-      );
+      if (data.success) {
+        data.tackler.GameStats.Tackles++;
+        data.tackler.GameStats.Points += GamePoints.Tackle;
+
+        console.log(
+          `${data.tackler.FirstName} ${
+            data.tackler.LastName
+          } at ${JSON.stringify(
+            data.tackler.BlockPosition.key
+          )} tackled the ball from ${data.tackled.FirstName} ${
+            data.tackled.LastName
+          } who was at ${JSON.stringify(data.tackled.BlockPosition.key)} at ${
+            this.getCurrentTime
+          } mins`
+        );
+      } else {
+        // Subtract points hehe
+        data.tackler.GameStats.Points -= GamePoints.Tackle / 2;
+
+        console.log(
+          `Unsuccessful tackle attempt by ${data.tackler.FirstName} ${
+            data.tackler.LastName
+          } at ${JSON.stringify(data.tackler.BlockPosition.key)} on ${
+            data.tackled.FirstName
+          } ${data.tackled.LastName} who was at ${JSON.stringify(
+            data.tackled.BlockPosition.key
+          )} at ${this.getCurrentTime} mins`
+        );
+      }
     });
 
     matchEvents.on('reset-formations', () => {
@@ -121,6 +196,17 @@ export class Match implements IMatch {
         'Match Result => ',
         `[${this.Home.ClubCode}] ${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore} [${this.Away.ClubCode}]`
       );
+      console.log('Home Team => ', this.Home.ClubCode);
+      this.Home.StartingSquad.forEach(p => {
+        console.log(`[${p.FirstName} ${p.LastName}] - ${p.Position}`);
+        console.table(p.GameStats);
+      });
+
+      console.log('Away Team => ', this.Away.ClubCode);
+      this.Away.StartingSquad.forEach(p => {
+        console.log(`[${p.FirstName} ${p.LastName}] - ${p.Position}`);
+        console.table(p.GameStats);
+      });
     });
   }
 
@@ -164,19 +250,6 @@ export interface IMatchData {
   activePlayerDS?: IFieldPlayer;
 }
 
-export interface IMatchSideDetails {
-  Score: number;
-  Possession: number;
-  Goals: number;
-  Shots: number;
-  Fouls: number;
-  YellowCards: number;
-  RedCards: number;
-  Passes: number;
-  Events: IMatchEvent[];
-  [key: string]: any;
-}
-
 /**
  *  @todo Flesh this guy out!
  */
@@ -193,6 +266,8 @@ export interface IMatchDetails {
   Played: boolean;
   Score: number;
   Time: Date;
+  FirstHalfScore: string;
+  FullTimeScore: string;
   HomeTeamScore: number;
   AwayTeamScore: number;
   Winner: string | null;
@@ -211,4 +286,19 @@ export interface IMatch {
   getCurrentTime: number;
   setCurrentTime(time: number): any;
   report(): void;
+}
+
+export interface IMatchSideDetails {
+  Score: number;
+  Possession: number;
+  Goals: number;
+  TotalShots: number;
+  ShotsOnTarget: number;
+  ShotsOffTarget: number;
+  Fouls: number;
+  YellowCards: number;
+  RedCards: number;
+  Passes: number;
+  Events: IMatchEvent[];
+  [key: string]: any;
 }

@@ -21,15 +21,7 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
   public WithBall: boolean;
   public Ball: Ball;
   public Team: MatchSide;
-  public GameStats: IGameStats = {
-    Goals: 0,
-    Saves: 0,
-    YellowCards: 0,
-    RedCards: 0,
-    Assists: 0,
-    CleanSheets: 0,
-    Points: 0,
-  };
+  public GameStats: IGameStats;
 
   /**
    *
@@ -53,6 +45,18 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     this.Substitute = !this.Starting;
     this.StartingPosition = pos;
     this.Team = team;
+    this.GameStats = {
+      Goals: 0,
+      Saves: 0,
+      YellowCards: 0,
+      RedCards: 0,
+      Assists: 0,
+      CleanSheets: 0,
+      Points: 6,
+      Passes: 0,
+      Tackles: 0,
+      Dribbles: 0
+    };
     this.BlockPosition = pos;
     this.setBlockOccupant(this, this.BlockPosition);
     this.WithBall =

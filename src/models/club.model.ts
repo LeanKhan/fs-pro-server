@@ -4,6 +4,7 @@ import { IPlayer } from '../interfaces/Player';
 
 export interface IClubModel extends Document {
   Name: string;
+  ClubCode: string;
   AttackingClass: number;
   DefensiveClass: number;
   Players: IPlayer[];

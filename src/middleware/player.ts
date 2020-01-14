@@ -38,8 +38,6 @@ export const updatePlayerSigning: RequestHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.log('In middleware');
-
   const resp = await toggleSigned(
     req.body.playerId,
     req.query.player_is_signed,

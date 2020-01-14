@@ -262,9 +262,41 @@ export interface IFoul {
 
 export interface IShot {
   reason: string;
-  result: string;
+  result: 'goal' | 'miss' | 'save';
   shooter: IFieldPlayer;
   keeper: IFieldPlayer;
   where: IBlock;
   interruption: boolean;
 }
+
+export interface IPass {
+  reason?: string;
+  intercepted: boolean;
+  passer: IFieldPlayer;
+  receiver: IFieldPlayer;
+  interceptor?: IFieldPlayer | undefined;
+}
+
+export interface IDribble {
+  dribbler: IFieldPlayer;
+  dribbled: IFieldPlayer;
+}
+
+export interface ITackle {
+  tackler: IFieldPlayer;
+  tackled: IFieldPlayer;
+  success: boolean;
+}
+
+export interface IInterception {
+  passer: IFieldPlayer;
+  interceptor: IFieldPlayer;
+}
+
+export const GamePoints = {
+  Pass: 0.25,
+  Goal: 1,
+  Save: 1,
+  Tackle: 0.25,
+  Dribble: 0.5,
+};

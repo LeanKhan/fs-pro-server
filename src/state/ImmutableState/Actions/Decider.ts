@@ -23,9 +23,9 @@ export class Decider {
           if (player.Attributes.AttackingMindset) {
             // If Midfielder with ball has attacking mindset...
             // check if he is close to the scoring post... and if his chance in 70%
-            if (this.chanceToShoot(player, attackingSide, 70, 3)) {
+            if (this.chanceToShoot(player, attackingSide, 70, 2)) {
               this.strategy = { type: 'shoot', detail: 'normal' };
-            } else if (this.chanceToShoot(player, attackingSide, 50, 5)) {
+            } else if (this.chanceToShoot(player, attackingSide, 50, 3)) {
               // If not close to the post, what can he do? Move forward!
               this.strategy = { type: 'shoot', detail: 'long' };
             } else {
@@ -36,9 +36,9 @@ export class Decider {
               this.strategy = this.whatKindaPass(player, attackingSide);
             }
           } else {
-            if (this.chanceToShoot(player, attackingSide, 50, 3)) {
+            if (this.chanceToShoot(player, attackingSide, 50, 2)) {
               this.strategy = { type: 'shoot', detail: 'normal' };
-            } else if (this.chanceToShoot(player, attackingSide, 30, 5)) {
+            } else if (this.chanceToShoot(player, attackingSide, 30, 3)) {
               // If not close to the post, what can he do? Move forward!
               this.strategy = { type: 'shoot', detail: 'long' };
             } else if (this.gimmeAChance() <= 80) {
@@ -66,9 +66,24 @@ export class Decider {
         if (player.WithBall) {
           // TODO:
           // You can change these chance to shoot to their own shooting ability ...
-          if (this.chanceToShoot(player, attackingSide, 90, 3)) {
+          // Also if the player has good LongPass and shooting you can increase the shoting distance...
+          if (
+            this.chanceToShoot(
+              player,
+              attackingSide,
+              player.Attributes.Shooting - 10,
+              2
+            )
+          ) {
             this.strategy = { type: 'shoot', detail: 'normal' };
-          } else if (this.chanceToShoot(player, attackingSide, 70, 4)) {
+          } else if (
+            this.chanceToShoot(
+              player,
+              attackingSide,
+              player.Attributes.Shooting - 20,
+              3
+            )
+          ) {
             // If not close to the post, what can he do? Move forward!
             this.strategy = { type: 'shoot', detail: 'long' };
           } else if (this.isClosestToPost(player, attackingSide)) {
@@ -104,7 +119,7 @@ export class Decider {
           if (player.Attributes.AttackingMindset) {
             if (this.chanceToShoot(player, attackingSide, 40, 3)) {
               this.strategy = { type: 'shoot', detail: 'normal' };
-            } else if (this.chanceToShoot(player, attackingSide, 60, 5)) {
+            } else if (this.chanceToShoot(player, attackingSide, 60, 4)) {
               // If not close to the post, what can he do? Move forward!
               this.strategy = { type: 'shoot', detail: 'long' };
             } else if (this.isClosestToPost(player, attackingSide)) {
