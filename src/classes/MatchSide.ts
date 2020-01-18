@@ -70,9 +70,6 @@ export class MatchSide extends Club implements IClub {
     console.log('-----------');
   }
 
-  // TODO: Add a public function to change ScoringSide
-  // after a half has passed.
-
   public setStartingSquad(starting: IFieldPlayer[]) {
     this.StartingSquad = starting;
   }

@@ -86,12 +86,10 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     this.checkWithBall();
   }
 
-  // TODO: WIP!
   public increaseGoalTally() {
     this.GameStats.Goals = this.GameStats.Goals + 1;
   }
 
-  // TODO: WIP!
   public increasePoints(pnts: number) {
     this.GameStats.Points += pnts;
   }

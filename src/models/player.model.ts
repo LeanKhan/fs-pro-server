@@ -86,7 +86,4 @@ const Player: Schema = new Schema(
   { timestamps: true }
 );
 
-// TODO:
-// Record Player form and see how it affects their game...
-
 export default mongoose.model<IPlayerModel>('Player', Player, 'Players');
