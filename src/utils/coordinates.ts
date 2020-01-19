@@ -63,7 +63,8 @@ function findClosestPlayer(
   ref: ICoordinate,
   players: IFieldPlayer[],
   originPlayer?: IFieldPlayer,
-  closest: boolean = false
+  closest: boolean = false,
+  position?: string
 ) {
   let plyrs = players;
 
@@ -209,6 +210,38 @@ function findRandomPlayer(
   const index = Math.round(Math.random() * (players.length - 1));
 
   return ps[index];
+}
+
+export function findClosestPlayerByPosition(
+  ref: ICoordinate,
+  position: string,
+  originPlayer: IFieldPlayer,
+  players: IFieldPlayer[]
+) {
+  // const plyrs = players;
+  // Remove Golakeepers
+  let plyrs: IFieldPlayer[] = players.filter(p => {
+    return p.Position === position;
+  });
+
+  // Sort by distance
+  plyrs = plyrs.sort((a, b) => {
+    return calculateDistance(ref, a.BlockPosition) <
+      calculateDistance(ref, b.BlockPosition)
+      ? -1
+      : 1;
+  });
+
+  /**
+   * The index of the origin player so we can remove it :)
+   */
+  const psI = plyrs.findIndex(p => {
+    return p === originPlayer;
+  });
+
+  plyrs.slice(psI, 1);
+
+  return plyrs[0];
 }
 
 function findLongPlayer(

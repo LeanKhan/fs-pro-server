@@ -176,7 +176,7 @@ export class Actions {
 
     let situation: ISituation;
 
-    let interceptor_distance = 2;
+    let interceptorDistance = 2;
 
     // situation = { status: false, reason: 'no where to move' };
 
@@ -195,7 +195,7 @@ export class Actions {
           squad.StartingSquad,
           player
         );
-        interceptor_distance = 3;
+        interceptorDistance = 3;
         break;
       // Find the keeper! but keeper may alos be not gien the ball
       case 'pass to post':
@@ -205,7 +205,7 @@ export class Actions {
           player,
           squad.StartingSquad
         );
-        interceptor_distance = 3;
+        interceptorDistance = 3;
         break;
       default:
         teammate = player;
@@ -219,7 +219,7 @@ export class Actions {
       teammate.BlockPosition,
       defendingSide.StartingSquad,
       undefined,
-      interceptor_distance
+      interceptorDistance
     );
 
     if (!interceptor) {
@@ -343,15 +343,18 @@ export class Actions {
             }
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
-            const success = this.decider.getDribbleResult(player, opponentBlock);
+            const success = this.decider.getDribbleResult(
+              player,
+              opponentBlock
+            );
             if (success) {
               // this.makeMove(player, p, around);
-              this.successfulDribble(player, p, around, opponentBlock)
-                // this.makeMove(player, p, around);
-                situation = {
-                  status: true,
-                  reason: 'move successful via dribble',
-                };
+              this.successfulDribble(player, p, around, opponentBlock);
+              // this.makeMove(player, p, around);
+              situation = {
+                status: true,
+                reason: 'move successful via dribble',
+              };
             } else {
               if (this.tackle(player, opponentBlock)) {
                 situation = {

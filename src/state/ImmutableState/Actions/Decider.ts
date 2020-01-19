@@ -505,7 +505,7 @@ export class Decider {
       }
     }
 
-    if(this.isNearPost(player, attackingSide, 3, true)) {
+    if(this.isNearPost(player, attackingSide, 5, true)) {
       if (this.gimmeAChance() <= 50) {
         return { type: 'pass', detail: 'pass to post' };
       } else {
