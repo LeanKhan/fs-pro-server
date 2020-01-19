@@ -4,6 +4,7 @@ import { IPlayer } from '../interfaces/Player';
 
 export interface IClubModel extends Document {
   Name: string;
+  ClubCode: string;
   AttackingClass: number;
   DefensiveClass: number;
   Players: IPlayer[];
@@ -78,8 +79,6 @@ const ClubSchema: Schema = new Schema(
   },
   { timestamps: true }
 );
-
-// TODO: For me to test anything now, I need to populate the db with actual players :)
 
 /*
  * ClubModel in Database o!

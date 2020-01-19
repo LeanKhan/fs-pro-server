@@ -5,8 +5,14 @@ import * as playerFunc from '../../../utils/players';
 import { MatchSide } from '../../../classes/MatchSide';
 import { IBlock, ICoordinate } from '../../ImmutableState/FieldGrid';
 import { IBall } from '../../../classes/Ball';
-import { matchEvents } from '../../../utils/events';
-import { IReferee, IShot } from '../../../classes/Referee';
+import { matchEvents, createMatchEvent } from '../../../utils/events';
+import {
+  IReferee,
+  IShot,
+  IPass,
+  IDribble,
+  ITackle,
+} from '../../../classes/Referee';
 import { Decider, IStrategy } from './Decider';
 import { IMatchData } from '../../../classes/Match';
 
@@ -57,6 +63,9 @@ export class Actions {
     } as IMatchData;
     return data as IMatchData;
   }
+
+  // TODO:
+  // MAYBE CONSIDER TAKING ACTION FOR ALL PLAYERS!
 
   public takeAction(
     attackingPlayer: IFieldPlayer,
@@ -167,7 +176,7 @@ export class Actions {
 
     let situation: ISituation;
 
-    let interceptor_distance = 2;
+    let interceptorDistance = 2;
 
     // situation = { status: false, reason: 'no where to move' };
 
@@ -186,15 +195,17 @@ export class Actions {
           squad.StartingSquad,
           player
         );
-        interceptor_distance = 3;
+        interceptorDistance = 3;
         break;
       // Find the keeper! but keeper may alos be not gien the ball
       case 'pass to post':
-        teammate = co.findClosestPlayer(
+        teammate = co.findClosestPlayerByPosition(
           squad.KeepingSide,
-          squad.StartingSquad,
-          player
+          'GK',
+          player,
+          squad.StartingSquad
         );
+        interceptorDistance = 3;
         break;
       default:
         teammate = player;
@@ -208,7 +219,7 @@ export class Actions {
       teammate.BlockPosition,
       defendingSide.StartingSquad,
       undefined,
-      interceptor_distance
+      interceptorDistance
     );
 
     if (!interceptor) {
@@ -216,10 +227,11 @@ export class Actions {
       player.pass(
         co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
       );
-      matchEvents.emit('pass made', {
-        passer: player.LastName,
-        reciever: teammate.LastName,
-      });
+      matchEvents.emit('pass-made', {
+        passer: player,
+        receiver: teammate,
+        intercepted: false,
+      } as IPass);
     } else {
       // This player is close enough to intercept
 
@@ -242,10 +254,11 @@ export class Actions {
         player.pass(
           co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
         );
-        matchEvents.emit('pass made', {
-          passer: player.LastName,
-          reciever: teammate.LastName,
-        });
+        matchEvents.emit('pass-made', {
+          passer: player,
+          receiver: teammate,
+          intercepted: false,
+        } as IPass);
         situation = { status: true, reason: 'Player pass successful' };
       } else {
         player.pass(
@@ -324,33 +337,35 @@ export class Actions {
               situation = { status: true, reason: 'move forward successful' };
             } else {
               situation = {
-                status: true,
+                status: false,
                 reason: 'no where to move, no interruption',
               };
             }
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
-            const fail = this.decider.getDribbleResult(player, opponentBlock);
-            if (!fail) {
+            const success = this.decider.getDribbleResult(
+              player,
+              opponentBlock
+            );
+            if (success) {
               // this.makeMove(player, p, around);
-              if (this.successfulDribble(player, p, around, opponentBlock)) {
-                this.makeMove(player, p, around);
-                situation = {
-                  status: true,
-                  reason: 'move towards ball successful via dribble',
-                };
-              }
+              this.successfulDribble(player, p, around, opponentBlock);
+              // this.makeMove(player, p, around);
+              situation = {
+                status: true,
+                reason: 'move successful via dribble',
+              };
             } else {
               if (this.tackle(player, opponentBlock)) {
                 situation = {
                   status: false,
-                  reason: 'move towards not successful, because of tackle',
+                  reason: 'tackle successful, possession lost',
                 };
               } else {
                 this.makeMove(player, p, around);
                 situation = {
                   status: true,
-                  reason: 'tackle failed, continue moving',
+                  reason: 'tackle failed, possession kept',
                 };
               }
             }
@@ -538,9 +553,6 @@ export class Actions {
     });
   }
 
-  // TODO:
-  // Allow players to find the closest free block and 'SPRINT' there hohoho
-
   private makeMove(
     player: IFieldPlayer,
     path: ICoordinate,
@@ -623,47 +635,44 @@ export class Actions {
   ) {
     this.makeMove(player, path, around);
     matchEvents.emit('dribble', {
-      dribbler: player.LastName,
-      dribbled: dribbled.LastName,
-    });
-    return true;
+      dribbler: player,
+      dribbled,
+    } as IDribble);
+    createMatchEvent(
+      `${player.FirstName} ${player.LastName} [${player.ClubCode}] 
+      dribbled ${dribbled.FirstName} ${dribbled.LastName}`,
+      'dribble',
+      player.PlayerID
+    );
   }
 
   private tackle(player: IFieldPlayer, tackler: IFieldPlayer) {
     // console.log(`${tackler.LastName} is tackling ${player.LastName}`);
-    const fail = this.decider.getTackleResult(tackler, player);
+    const success = this.decider.getTackleResult(tackler, player);
 
-    if (!fail) {
+    if (success) {
       // Ball is now in possession of tackler :)
       tackler.Ball.move(
         co.calculateDifference(tackler.BlockPosition, player.BlockPosition)
       );
-      matchEvents.emit('successful-tackle', {
-        tackler: tackler.LastName,
-        tacklerPosition: {
-          x: tackler.BlockPosition.x,
-          y: tackler.BlockPosition.y,
-        },
-        tackled: player.LastName,
-        tackledPlayerPosition: {
-          x: player.BlockPosition.x,
-          y: player.BlockPosition.y,
-        },
-      });
+      matchEvents.emit('tackle', {
+        tackler,
+        tackled: player,
+        success,
+      } as ITackle);
+      createMatchEvent(
+        `${tackler.FirstName} ${tackler.LastName} [${tackler.ClubCode}] 
+        tackled the ball from ${player.FirstName} ${player.LastName}`,
+        'tackle',
+        tackler.PlayerID
+      );
       return true;
     } else {
-      matchEvents.emit('unsuccessful-tackle', {
-        tackler: tackler.LastName,
-        tacklerPosition: {
-          x: tackler.BlockPosition.x,
-          y: tackler.BlockPosition.y,
-        },
-        tackled: player.LastName,
-        tackledPlayerPosition: {
-          x: player.BlockPosition.x,
-          y: player.BlockPosition.y,
-        },
-      });
+      matchEvents.emit('tackle', {
+        tackler,
+        tackled: player,
+        success,
+      } as ITackle);
       return false;
     }
   }

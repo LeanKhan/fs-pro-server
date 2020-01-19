@@ -1,24 +1,36 @@
 import { IFieldPlayer } from '../interfaces/Player';
-import { matchEvents } from '../utils/events';
+import { matchEvents, createMatchEvent } from '../utils/events';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as playerFunc from '../utils/players';
 import * as co from '../utils/coordinates';
 import { Match, IMatchData } from './Match';
 import { MatchSide } from './MatchSide';
+import { IBall } from './Ball';
 
 export default class Referee {
   public FirstName: string;
   public LastName: string;
-  // public RefID: string;
+  public MatchBall: IBall;
   public Difficulty: string;
   public Match?: Match;
 
-  constructor(fname: string, lname: string, diff: string, m?: Match) {
+  constructor(
+    fname: string,
+    lname: string,
+    diff: string,
+    ball: IBall,
+    m?: Match
+  ) {
     this.FirstName = fname;
     this.LastName = lname;
     this.Difficulty = diff;
+    this.MatchBall = ball;
     this.Match = m;
+
+    matchEvents.on('reset-ball-position', () => {
+      this.handleMatchRestart();
+    });
   }
 
   public assignMatch(match: Match) {
@@ -199,6 +211,7 @@ export default class Referee {
       case 'goal':
         // Emit goal event
         matchEvents.emit('goal!', data);
+
         // Keeper to his StartingPosition
         const defendingSide = matchActions.getPlayingSides
           .defendingSide as MatchSide;
@@ -220,6 +233,12 @@ export default class Referee {
 
         // Move players to starting position...
 
+        createMatchEvent(
+          `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] scored`,
+          'goal',
+          data.shooter.PlayerID
+        );
+
         matchEvents.emit('reset-formations');
 
         // matchEvents.emit('set-playing-sides');
@@ -227,15 +246,32 @@ export default class Referee {
       case 'miss':
         console.log('missed shot');
         // matchEvents.emit('set-playing-sides');
+        createMatchEvent(
+          `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] missed a shot`,
+          'miss',
+          data.shooter.PlayerID
+        );
         matchEvents.emit('missed-shot', data);
         break;
       case 'save':
         console.log('shot saved');
+        createMatchEvent(
+          `${data.keeper.FirstName} ${data.keeper.LastName} [${data.keeper.ClubCode}] saved a shot from ${data.shooter.FirstName} ${data.shooter.LastName}`,
+          'save',
+          data.keeper.PlayerID
+        );
         matchEvents.emit('saved-shot', data);
         break;
       default:
         break;
     }
+  }
+
+  public handleMatchRestart() {
+    // move ball to centerBlock
+    this.MatchBall.move(
+      co.calculateDifference(this.Match!.CenterBlock!, this.MatchBall.Position)
+    );
   }
 }
 
@@ -262,9 +298,41 @@ export interface IFoul {
 
 export interface IShot {
   reason: string;
-  result: string;
+  result: 'goal' | 'miss' | 'save';
   shooter: IFieldPlayer;
   keeper: IFieldPlayer;
   where: IBlock;
   interruption: boolean;
 }
+
+export interface IPass {
+  reason?: string;
+  intercepted: boolean;
+  passer: IFieldPlayer;
+  receiver: IFieldPlayer;
+  interceptor?: IFieldPlayer | undefined;
+}
+
+export interface IDribble {
+  dribbler: IFieldPlayer;
+  dribbled: IFieldPlayer;
+}
+
+export interface ITackle {
+  tackler: IFieldPlayer;
+  tackled: IFieldPlayer;
+  success: boolean;
+}
+
+export interface IInterception {
+  passer: IFieldPlayer;
+  interceptor: IFieldPlayer;
+}
+
+export const GamePoints = {
+  Pass: 0.25,
+  Goal: 1,
+  Save: 1,
+  Tackle: 0.25,
+  Dribble: 0.5,
+};

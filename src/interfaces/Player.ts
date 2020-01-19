@@ -75,10 +75,13 @@ export interface IPlayerStats {
   Saves: number;
   YellowCards: number;
   RedCards: number;
+  Passes: number;
+  Tackles: number;
   Assists: number;
   CleanSheets: number;
 }
 
 export interface IGameStats extends IPlayerStats {
   Points: number;
+  Dribbles: number;
 }

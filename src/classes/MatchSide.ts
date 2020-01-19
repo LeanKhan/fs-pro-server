@@ -4,9 +4,6 @@ import { IFieldPlayer, IPlayer } from '../interfaces/Player';
 import FieldPlayer from './FieldPlayer';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import Ball from './Ball';
-// import {formations} from '../GameState/PersistentState/Formations';
-// tslint:disable-next-line: no-var-requires
-// const formations = require('../GameState/PersistentState/Formations');
 import { formations } from '../state/PersistentState/Formations';
 
 /** MatchSide
@@ -18,9 +15,6 @@ import { formations } from '../state/PersistentState/Formations';
 export class MatchSide extends Club implements IClub {
   public AttackingForm: number = 0;
   public DefensiveForm: number = 0;
-  public ProbalityNumber: number = 0;
-  public ChancesCreatedRate: number = 0;
-  public ChancesCreatedNumber: number = 0;
   public GoalsScored: number = 0;
   public StartingSquad: IFieldPlayer[] = [];
   public Substitutes: IFieldPlayer[] = [];
@@ -43,44 +37,6 @@ export class MatchSide extends Club implements IClub {
     super(club);
     this.ScoringSide = scoringSide;
     this.KeepingSide = keepingSide;
-  }
-
-  // Class methods
-
-  public calculateForm(): void {
-    this.AttackingForm = Math.round(Math.random() * 11) + 1;
-    this.DefensiveForm = Math.round(Math.random() * 11) + 1;
-  }
-
-  public calculateCCN(): void {
-    this.ChancesCreatedNumber = this.AttackingClass * this.ChancesCreatedRate;
-  }
-
-  /**
-   * Calculate Chances Created Rate
-   *
-   * @param {number} _DC - Defensive Class of other team
-   * @param {number} _DF - Defensive Form of other team
-   */
-  public calculateCCR(_DC: number, _DF: number): void {
-    this.ChancesCreatedRate =
-      (this.AttackingClass + this.AttackingForm) / (_DC + _DF);
-  }
-
-  public calculateProbalityNumber() {
-    this.ProbalityNumber = Math.round(Math.random() * 11) + 1;
-  }
-
-  /** Calculate Goals team scored
-   * @param {number} _DF - Defensive Form of other team
-   */
-  public calculateGoalsScored(_DF: number) {
-    this.GoalsScored =
-      ((this.ProbalityNumber - _DF) / 12) * this.ChancesCreatedNumber < 1
-        ? 0
-        : Math.round(
-            ((this.ProbalityNumber - _DF) / 12) * this.ChancesCreatedNumber
-          );
   }
 
   public setFormation(formation: string, ball: Ball, fieldPlay: any) {
@@ -113,9 +69,6 @@ export class MatchSide extends Club implements IClub {
 
     console.log('-----------');
   }
-
-  // TODO: Add a public function to change ScoringSide
-  // after a half has passed.
 
   public setStartingSquad(starting: IFieldPlayer[]) {
     this.StartingSquad = starting;

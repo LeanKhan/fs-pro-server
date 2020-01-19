@@ -1,4 +1,4 @@
-import { Match } from '../classes/Match';
+import { Match, IMatchEvent } from '../classes/Match';
 // import ClubModel, { IClubModel } from '../models/club.model';
 import Ball, { IBall } from '../classes/Ball';
 import Field, { IBlock } from '../state/ImmutableState/FieldGrid';
@@ -7,7 +7,7 @@ import { IFieldPlayer } from '../interfaces/Player';
 import { MatchSide } from '../classes/MatchSide';
 import Referee, { IReferee } from '../classes/Referee';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
-import { matchEvents } from '../utils/events';
+import { matchEvents, createMatchEvent } from '../utils/events';
 import { fetchClubs } from '../services/club.service';
 import { IClub } from '../interfaces/Club';
 // import { EventEmitter } from 'events';
@@ -50,7 +50,7 @@ class Game {
     ball: Ball,
     ref: Referee
   ) {
-    this.Match = new Match(clubs[0], clubs[1], ap, hp);
+    this.Match = new Match(clubs[0], clubs[1], ap, hp, centerBlock);
     this.Clubs = clubs;
     this.homePost = hp;
     this.awayPost = ap;
@@ -112,7 +112,6 @@ class Game {
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
-
       // console.log('Active player DS =>', this.ActivePlayerDS.LastName);
 
       // return {activePlayerAS, AS, activePlayerDS, DS};
@@ -187,7 +186,7 @@ class Game {
       this.MatchBall.Position
     );
 
-    this.matchComments();
+    // this.matchComments();
   }
 
   public matchComments() {
@@ -198,34 +197,47 @@ class Game {
         key: this.MatchBall.Position.key,
       })}`
     );
-      console.log(`
+    console.log(`
       ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
-        this.ActivePlayerAS!.LastName
-      } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
-        x: this.ActivePlayerAS!.BlockPosition.x,
-        y: this.ActivePlayerAS!.BlockPosition.y,
-        key: this.ActivePlayerAS!.BlockPosition.key,
-      })}
+      this.ActivePlayerAS!.LastName
+    } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
+      x: this.ActivePlayerAS!.BlockPosition.x,
+      y: this.ActivePlayerAS!.BlockPosition.y,
+      key: this.ActivePlayerAS!.BlockPosition.key,
+    })}
       ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
-        this.ActivePlayerDS!.LastName
-      } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
-        x: this.ActivePlayerDS!.BlockPosition.x,
-        y: this.ActivePlayerDS!.BlockPosition.y,
-        key: this.ActivePlayerDS!.BlockPosition.key,
-      })}
+      this.ActivePlayerDS!.LastName
+    } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
+      x: this.ActivePlayerDS!.BlockPosition.x,
+      y: this.ActivePlayerDS!.BlockPosition.y,
+      key: this.ActivePlayerDS!.BlockPosition.key,
+    })}
       `);
   }
 
   public startHalf() {
+    createMatchEvent('Match Kick-Off', 'match');
     this.gamePlay();
   }
 
   private gamePlay() {
-    for (let i = 0; i < 90; i++) {
-      console.log(`------------Loop Position ${i + 1}---------`);
-      const anyWithBall = this.setPlayingSides();
+    this.gameLoop();
+    matchEvents.emit('half-end');
+    createMatchEvent('First Half Over', 'match');
+    matchEvents.emit('reset-formations');
+    console.log('------------------ Second Half Start ------------------');
+    this.gameLoop(90, 180);
+    matchEvents.emit('half-end');
+    createMatchEvent('Match Over', 'match');
+    console.log('------------------ Match Over --------------------');
+  }
 
-      this.Match.setCurrentTime(i);
+  private gameLoop(timestart: number = 0, timeend: number = 90) {
+    for (let i = timestart; i < timeend; i++) {
+      console.log(`------------Loop Position ${i + 1}---------`);
+      this.setPlayingSides();
+
+      this.Match.setCurrentTime(Math.round((i + 1) / 2));
 
       if (this.AS === undefined || this.DS === undefined) {
         this.moveTowardsBall();
@@ -237,12 +249,11 @@ class Game {
           this.ActivePlayerDS as IFieldPlayer
         );
         this.setPlayingSides();
+        this.Match.recordPossession(this.AS);
       }
 
       this.matchComments();
     }
-
-    matchEvents.emit('half-end');
   }
 }
 
@@ -254,7 +265,7 @@ const getClubs = async () => {
 
     const ball = new Ball('#ffffff', centerBlock);
 
-    const ref = new Referee('Anjus', 'Banjus', 'normal');
+    const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
 
     CurrentGame = new Game(result, homePost, awayPost, PlayingField, ball, ref);
 
@@ -266,7 +277,7 @@ const getClubs = async () => {
 
     // After here, the game should start!
   } catch (error) {
-    console.log('EErrro!', error);
+    console.log('Errro!', error);
   }
 };
 
