@@ -55,7 +55,7 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
       Points: 6,
       Passes: 0,
       Tackles: 0,
-      Dribbles: 0
+      Dribbles: 0,
     };
     this.BlockPosition = pos;
     this.setBlockOccupant(this, this.BlockPosition);
@@ -92,6 +92,9 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
 
   public increasePoints(pnts: number) {
     this.GameStats.Points += pnts;
+    if (this.GameStats.Points > 10) {
+      this.GameStats.Points = 10;
+    }
   }
 
   public move(pos: ICoordinate): void {

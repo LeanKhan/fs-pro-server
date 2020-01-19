@@ -446,12 +446,20 @@ export class Decider {
   private isNearPost(
     player: IFieldPlayer,
     attackingSide: MatchSide,
-    distance: number
+    distance: number,
+    ownPost: boolean = false
   ): boolean {
-    return (
-      co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <=
-      distance
-    );
+ if(ownPost) {
+  return (
+    co.calculateDistance(player.BlockPosition, attackingSide.KeepingSide) <=
+    distance
+  );
+ } else {
+  return (
+    co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <=
+    distance
+  );
+ }
   }
 
   /**
@@ -494,6 +502,14 @@ export class Decider {
         return { type: 'pass', detail: 'short' };
       } else {
         return { type: 'pass', detail: 'long' };
+      }
+    }
+
+    if(this.isNearPost(player, attackingSide, 3, true)) {
+      if (this.gimmeAChance() <= 50) {
+        return { type: 'pass', detail: 'pass to post' };
+      } else {
+        return { type: 'pass', detail: 'short' };
       }
     }
 

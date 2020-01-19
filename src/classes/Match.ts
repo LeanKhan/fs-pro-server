@@ -99,10 +99,10 @@ export class Match implements IMatch {
 
       data.shooter.increaseGoalTally();
 
-      data.shooter.increasePoints(1);
+      data.shooter.increasePoints(GamePoints.Goal);
 
       // subtract from keeper's points :3
-      data.keeper.GameStats.Points -= GamePoints.Goal / 2;
+      data.keeper.increasePoints(-GamePoints.Save / 2);
 
       if (data.shooter.ClubCode === this.Home.ClubCode) {
         this.Details.HomeTeamScore++;
@@ -126,22 +126,22 @@ export class Match implements IMatch {
 
     matchEvents.on('saved-shot', (data: IShot) => {
       data.keeper.GameStats.Saves++;
-      data.keeper.GameStats.Points += GamePoints.Save;
+      data.keeper.increasePoints(GamePoints.Save);
       console.log('Shot was saved yo');
     });
 
     matchEvents.on('missed-shot', (data: IShot) => {
-      data.shooter.GameStats.Points -= GamePoints.Goal;
+      data.shooter.increasePoints(-GamePoints.Goal / 2);
       console.log('Missed shot though :(');
     });
 
     matchEvents.on('pass-made', (data: IPass) => {
       this.Details.TotalPasses++;
       data.passer.GameStats.Passes++;
-      data.passer.GameStats.Points += GamePoints.Pass;
+      data.passer.increasePoints(GamePoints.Pass);
 
       // // give receiver some passes
-      data.receiver.GameStats.Points += GamePoints.Pass / 2;
+      data.receiver.increasePoints(-GamePoints.Pass / 2);
       this.Home.ClubCode === data.passer.Team.ClubCode
         ? this.Details.HomeTeamDetails.Passes++
         : this.Details.AwayTeamDetails.Passes++;
@@ -158,10 +158,10 @@ export class Match implements IMatch {
 
     matchEvents.on('dribble', (data: IDribble) => {
       data.dribbler.GameStats.Dribbles++;
-      data.dribbler.GameStats.Points += GamePoints.Dribble;
+      data.dribbler.increasePoints(GamePoints.Dribble);
 
       // Remove points from Dribbled :)
-      data.dribbled.GameStats.Points -= GamePoints.Dribble / 2;
+      data.dribbled.increasePoints(-GamePoints.Dribble / 2);
 
       console.log(`${data.dribbler.FirstName} ${data.dribbler.LastName} [${data.dribbler.ClubCode}] dribbled
       ${data.dribbled.FirstName} ${data.dribbled.LastName} [${data.dribbled.ClubCode}] successfully`);
@@ -172,7 +172,7 @@ export class Match implements IMatch {
 
       if (data.success) {
         data.tackler.GameStats.Tackles++;
-        data.tackler.GameStats.Points += GamePoints.Tackle;
+        data.tackler.increasePoints(GamePoints.Tackle);
 
         console.log(
           `${data.tackler.FirstName} ${
@@ -187,7 +187,7 @@ export class Match implements IMatch {
         );
       } else {
         // Subtract points hehe
-        data.tackler.GameStats.Points -= GamePoints.Tackle / 2;
+        data.tackler.increasePoints(-GamePoints.Tackle / 2);
 
         console.log(
           `Unsuccessful tackle attempt by ${data.tackler.FirstName} ${
@@ -283,6 +283,7 @@ export class Match implements IMatch {
     this.Details.FullTimeScore = `${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore}`;
     this.calculatePosession();
     this.getWinners();
+    this.getMOTM();
 
     console.log('Match Details =>', this.Details);
   }
@@ -318,6 +319,16 @@ export class Match implements IMatch {
       (this.Details.AwayTeamDetails.TimesWithBall / totalPossession) * 100
     );
   }
+
+  public getMOTM() {
+    let allSquads = this.Home.StartingSquad.concat(this.Away.StartingSquad);
+
+    allSquads = allSquads.sort((a, b) => a.GameStats.Points - b.GameStats.Points);
+
+    const motm = allSquads[allSquads.length - 1];
+
+    this.Details.MOTM = {playerID: motm.PlayerID, name: motm.FirstName + ' ' + motm.LastName, clubcode: motm.ClubCode, points: motm.GameStats.Points}
+  }
 }
 
 export interface IMatchData {
@@ -348,6 +359,7 @@ export interface IMatchDetails {
   AwayTeamScore: number;
   Winner: string | null;
   Loser: string | null;
+  MOTM: any;
   TotalPasses: number;
   Goals: number;
   HomeTeamDetails: IMatchSideDetails;
