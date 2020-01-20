@@ -5,8 +5,7 @@ export interface Competition extends Document {
     Title: string,
     League: boolean,
     Tournament: boolean,
-    NumberOfTeams: number,
-    Teams: [],
+    Clubs: [],
     Seasons: []
 }
 
@@ -18,8 +17,7 @@ const Competition: Schema = new Schema({
     Title: String,
     League: Boolean,
     Tournament: Boolean,
-    NumberOfTeams: Number,
-    Teams: [{type: mongoose.Schema.Types.ObjectId, ref: 'Club'}],
+    Clubs: [{type: mongoose.Schema.Types.ObjectId, ref: 'Club'}],
     Seasons: [{type: mongoose.Schema.Types.ObjectId, ref: 'Season'}],
 }, {timestamps: true});
 
