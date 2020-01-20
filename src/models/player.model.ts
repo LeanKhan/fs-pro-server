@@ -68,6 +68,7 @@ const Player: Schema = new Schema(
       RedCards: { type: Number, default: 0 },
       Assists: { type: Number, default: 0 },
       CleanSheets: { type: Number, default: 0 },
+      MOTM: {type: Number, default: 0}
     },
     GoalsScored: Number,
     ShirtNumber: String,

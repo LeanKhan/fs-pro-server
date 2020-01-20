@@ -7,6 +7,7 @@ import {
   addPlayerToClub,
 } from '../services/club.service';
 import { updatePlayerSigning } from '../middleware/player';
+import { addPlayerToClubMiddleware, calculateClubRating } from '../middleware/club';
 
 const router = express.Router();
 
@@ -53,14 +54,6 @@ router.get('/get/:id', async (req, res) => {
  * add Player to club
  */
 
-router.put('/:id/sign-player', updatePlayerSigning, async (req, res) => {
-  const response = await addPlayerToClub(req.params.id, req.body.playerId);
-
-  if (!response.error) {
-    respond.success(res, 200, 'Player signed successfully!', response.result);
-  } else {
-    respond.fail(res, 400, 'Error adding player to club', response.result);
-  }
-});
+router.put('/:id/sign-player', updatePlayerSigning, addPlayerToClubMiddleware, calculateClubRating);
 
 export default router;
