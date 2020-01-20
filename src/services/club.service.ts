@@ -61,6 +61,20 @@ export const addPlayerToClub = async (clubId: string, playerId: string) => {
 };
 
 /**
+ *
+ * @param clubId
+ */
+export const calculateClubsTotalRatings = async (clubId: string) => {
+  return clubModel
+    .aggregate([
+      { $match: { _id: clubId } },
+      { $addFields: { Rating: { $avg: '$Players.Rating' } } },
+    ])
+    .then(res => ({ error: false, result: '' }))
+    .catch(err => ({ error: true, result: err }));
+};
+
+/**
  * createNewClub mate
  *
  * @param c Club making data
