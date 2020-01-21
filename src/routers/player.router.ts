@@ -1,10 +1,10 @@
-import express from 'express';
+import { Router } from 'express';
 import respond from '../helpers/responseHandler';
 import { fetchAllPlayers, createNewPlayer } from '../services/player.service';
 import { getCurrentCounter } from '../middleware/player';
 import { incrementCounter } from '../utils/counter';
 
-const router = express.Router();
+const router = Router();
 
 /**
  * Fetch all players
