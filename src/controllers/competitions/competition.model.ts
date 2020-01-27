@@ -11,13 +11,12 @@ export interface CompetitionModel extends Document {
 
 const Competition: Schema = new Schema(
   {
-    Type: {
-      type: String,
-      required: true,
-    },
-    Title: String,
+    Name: String,
     League: Boolean,
     Tournament: Boolean,
+    Cup: Boolean,
+    CompCode: String,
+    Country: String,
     Clubs: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Club' }],
     Seasons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Season' }],
   },
