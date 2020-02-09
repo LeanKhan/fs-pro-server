@@ -1,7 +1,7 @@
 // Exposes functions that are used to interact with the DB directly
 
-import clubModel, { IClubModel } from '../models/club.model';
-import { IClub } from '../interfaces/Club';
+import clubModel, { IClubModel } from './club.model';
+import { IClub } from '../../interfaces/Club';
 
 /**
  * fetchAllClubs mate

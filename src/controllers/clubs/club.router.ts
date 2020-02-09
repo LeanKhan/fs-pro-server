@@ -1,13 +1,15 @@
 import express from 'express';
-import respond from '../helpers/responseHandler';
+import respond from '../../helpers/responseHandler';
 import {
   fetchAllClubs,
   createNewClub,
   fetchSingleClubById,
-  addPlayerToClub,
-} from '../services/club.service';
-import { updatePlayerSigning } from '../middleware/player';
-import { addPlayerToClubMiddleware, calculateClubRating } from '../middleware/club';
+} from './club.service';
+import { updatePlayerSigning } from '../../middleware/player';
+import {
+  addPlayerToClubMiddleware,
+  calculateClubRating,
+} from '../../middleware/club';
 
 const router = express.Router();
 
@@ -54,6 +56,11 @@ router.get('/get/:id', async (req, res) => {
  * add Player to club
  */
 
-router.put('/:id/sign-player', updatePlayerSigning, addPlayerToClubMiddleware, calculateClubRating);
+router.put(
+  '/:id/sign-player',
+  updatePlayerSigning,
+  addPlayerToClubMiddleware,
+  calculateClubRating
+);
 
 export default router;
