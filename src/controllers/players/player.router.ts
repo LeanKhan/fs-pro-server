@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import respond from '../helpers/responseHandler';
-import { fetchAllPlayers, createNewPlayer } from '../services/player.service';
-import { getCurrentCounter } from '../middleware/player';
-import { incrementCounter } from '../utils/counter';
+import respond from '../../helpers/responseHandler';
+import { fetchAllPlayers, createNewPlayer } from './player.service';
+import { getCurrentCounter } from '../../middleware/player';
+import { incrementCounter } from '../../utils/counter';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IPlayerAttributes, IPlayerStats } from '../interfaces/Player';
+import { IPlayerAttributes, IPlayerStats } from '../../interfaces/Player';
 
 export interface IPlayerModel extends Document {
   /** Name of the Player! */
