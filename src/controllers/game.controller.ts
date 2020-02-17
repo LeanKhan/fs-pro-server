@@ -8,7 +8,7 @@ import { MatchSide } from '../classes/MatchSide';
 import Referee, { IReferee } from '../classes/Referee';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { matchEvents, createMatchEvent } from '../utils/events';
-import { fetchClubs } from '../services/club.service';
+import { fetchClubs } from './clubs/club.service';
 import { IClub } from '../interfaces/Club';
 // import { EventEmitter } from 'events';
 

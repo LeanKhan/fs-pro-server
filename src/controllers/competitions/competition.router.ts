@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { fetchAll, fetchOneById, createNew } from './competition.service';
+import { addClubToCompetition} from '../../middleware/competition';
+import { addLeagueToClub} from '../../middleware/club';
 import respond from '../../helpers/responseHandler';
 
 const router = Router();
@@ -19,7 +21,7 @@ router.get('/all', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/competition/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   const response = await fetchOneById(req.params.id);
 
   if (!response.error) {
@@ -34,7 +36,7 @@ router.get('/competition/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/competition/new', async (req: Request, res: Response) => {
+router.post('/new', async (req: Request, res: Response) => {
   const response = await createNew(req.body);
 
   if (!response.error) {
@@ -49,12 +51,6 @@ router.post('/competition/new', async (req: Request, res: Response) => {
   }
 });
 
-// router.get('/competition/:id', async (req: Request, res: Response) => {
-//     const response = await fetchOneById(req.params.id);
+router.post('/:league_id/add-club', addClubToCompetition, addLeagueToClub);
 
-//     if (!response.error) {
-//       respond.success(res, 200, 'Competition fetched successfully', response.result);
-//     } else {
-//       respond.fail(res, 400, 'Error fetching competition', response.result);
-//     }
-// });
+export default router;

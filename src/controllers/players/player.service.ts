@@ -7,9 +7,9 @@ import { calculatePlayerValue } from '../../utils/players';
  *
  * return all the players in the game
  */
-export const fetchAllPlayers = async () => {
+export const fetchAllPlayers = async (options = {}) => {
   try {
-    const players = await playerModel.find({});
+    const players = await playerModel.find(options);
     return { error: false, result: players };
   } catch (err) {
     return { error: true, result: err };

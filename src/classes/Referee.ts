@@ -335,4 +335,5 @@ export const GamePoints = {
   Save: 1,
   Tackle: 0.25,
   Dribble: 0.5,
+  Assist: 0.5,
 };

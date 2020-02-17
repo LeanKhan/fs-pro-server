@@ -119,7 +119,6 @@ export class Actions {
           case 'long':
             this.pass(attackingPlayer, 'long', attackingSide, defendingSide);
             break;
-          // TODO: I am yet to handle passes to post...
           case 'pass to post':
             this.pass(
               attackingPlayer,

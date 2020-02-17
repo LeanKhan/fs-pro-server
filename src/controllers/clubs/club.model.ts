@@ -74,7 +74,7 @@ const ClubSchema: Schema = new Schema(
       unique: true,
     },
     LeagueCode: String,
-    League: { type: mongoose.Schema.Types.ObjectId, ref: 'League' },
+    League: { type: mongoose.Schema.Types.ObjectId, ref: 'Competition' },
     Players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Player' }],
   },
   { timestamps: true }

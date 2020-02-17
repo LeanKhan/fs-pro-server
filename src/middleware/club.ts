@@ -8,12 +8,13 @@ import {
 import {
   calculateClubsTotalRatings,
   addPlayerToClub,
-} from '../services/club.service';
+  updateClubLeague,
+} from '../controllers/clubs/club.service';
 import responseHandler from '../helpers/responseHandler';
 
 export const calculateClubRating: RequestHandler = async (
   req: Request,
-  res: Response,
+  res: Response, 
   next: NextFunction
 ) => {
   // tslint:disable-next-line: variable-name
@@ -31,6 +32,9 @@ export const calculateClubRating: RequestHandler = async (
   }
 };
 
+/**
+  ---- yo ----
+*/
 export const addPlayerToClubMiddleware: RequestHandler = async (
   req: Request,
   res: Response,
@@ -50,3 +54,24 @@ export const addPlayerToClubMiddleware: RequestHandler = async (
     );
   }
 };
+// TODO: use a uniform naming convention, ugh :)
+// TODO: change the name of this function <<thumbs>>
+export async function addLeagueToClub(req: Request, res: Response, next: NextFunction) {
+  const _response = await updateClubLeague(req.body.clubId, req.body.leagueCode, req.params.league_id);
+
+    if (!_response.error) {
+    responseHandler.success(
+      res,
+      200,
+      'Club added to competition successfully!',
+      _response.result
+    );
+     } else {
+    responseHandler.fail(
+      res,
+      400,
+      'Error adding player to club',
+      _response.result
+    );
+  }
+}

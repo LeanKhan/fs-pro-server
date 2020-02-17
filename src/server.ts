@@ -86,4 +86,4 @@ io.on('connection', socket => {
 });
 
 // tslint:disable-next-line: no-var-requires
-require('./controllers/game.controller');
+// require('./controllers/game.controller');
