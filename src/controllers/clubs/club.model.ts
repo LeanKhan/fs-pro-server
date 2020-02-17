@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IPlayer } from '../interfaces/Player';
+import { IPlayer } from '../../interfaces/Player';
 // import { Player } from '../models/player.model'; // Uncomment this after testing!
 
 export interface IClubModel extends Document {
@@ -74,7 +74,7 @@ const ClubSchema: Schema = new Schema(
       unique: true,
     },
     LeagueCode: String,
-    League: { type: mongoose.Schema.Types.ObjectId, ref: 'League' },
+    League: { type: mongoose.Schema.Types.ObjectId, ref: 'Competition' },
     Players: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Player' }],
   },
   { timestamps: true }

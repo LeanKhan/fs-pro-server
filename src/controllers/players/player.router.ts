@@ -1,16 +1,17 @@
-import express from 'express';
-import respond from '../helpers/responseHandler';
-import { fetchAllPlayers, createNewPlayer } from '../services/player.service';
-import { getCurrentCounter } from '../middleware/player';
-import { incrementCounter } from '../utils/counter';
+import { Router } from 'express';
+import respond from '../../helpers/responseHandler';
+import { fetchAllPlayers, createNewPlayer } from './player.service';
+import { getCurrentCounter } from '../../middleware/player';
+import { incrementCounter } from '../../utils/counter';
 
-const router = express.Router();
+const router = Router();
 
 /**
  * Fetch all players
  */
 router.get('/all', async (req, res) => {
-  const response = await fetchAllPlayers();
+  const options = JSON.parse(req.query.options);
+  const response = await fetchAllPlayers(options);
 
   if (!response.error) {
     respond.success(res, 200, 'Players fetched successfully', response.result);

@@ -1,12 +1,12 @@
 // Login, Signup & Logout
 
-import express from 'express';
+import { Router } from 'express';
 import { createNewUser } from '../services/user.service';
 import respond from '../helpers/responseHandler';
 import { checkUserExists, checkPassword } from '../middleware/validateUser';
 
 //
-const router = express.Router();
+const router = Router();
 
 //
 

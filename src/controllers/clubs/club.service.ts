@@ -1,7 +1,6 @@
 // Exposes functions that are used to interact with the DB directly
-
-import clubModel, { IClubModel } from '../models/club.model';
-import { IClub } from '../interfaces/Club';
+import clubModel, { IClubModel } from './club.model';
+import { IClub } from '../../interfaces/Club';
 
 /**
  * fetchAllClubs mate
@@ -9,7 +8,7 @@ import { IClub } from '../interfaces/Club';
  * Returns all the clubs in the game
  * @returns - {error: boolean, result: any | IClubModel}
  */
-export const fetchAllClubs = async () => {
+export async function fetchAllClubs () {
   try {
     const clubs = await clubModel.find({}).populate('Players');
     return { error: false, result: clubs };
@@ -21,7 +20,7 @@ export const fetchAllClubs = async () => {
 /**
  * fetchClubs
  */
-export const fetchClubs = async (condition: any) => {
+export async function fetchClubs (condition: any) {
   try {
     const clubs = await clubModel.find(condition).populate('Players');
     return { error: false, result: clubs } as IClubsResponse;
@@ -37,7 +36,7 @@ export const fetchClubs = async (condition: any) => {
  *
  * @param id Club id
  */
-export const fetchSingleClubById = async (id: any) => {
+export async function fetchSingleClubById (id: any) {
   try {
     const club = await clubModel.findById(id);
     return { error: false, result: club };
@@ -51,7 +50,7 @@ export const fetchSingleClubById = async (id: any) => {
  * @param clubId
  * @param playerId
  */
-export const addPlayerToClub = async (clubId: string, playerId: string) => {
+export async function addPlayerToClub (clubId: string, playerId: string) {
   return clubModel
     .findByIdAndUpdate(clubId, {
       $push: { Players: playerId },
@@ -64,7 +63,7 @@ export const addPlayerToClub = async (clubId: string, playerId: string) => {
  *
  * @param clubId
  */
-export const calculateClubsTotalRatings = async (clubId: string) => {
+export async function calculateClubsTotalRatings (clubId: string) {
   return clubModel
     .aggregate([
       { $match: { _id: clubId } },
@@ -80,12 +79,37 @@ export const calculateClubsTotalRatings = async (clubId: string) => {
  * @param c Club making data
  * @returns - {error: boolean, result: any | IClubModel}
  */
-export const createNewClub = (c: any) => {
+export function createNewClub (c: any) {
   const CLUB: IClubModel = new clubModel(c);
 
   return CLUB.save()
     .then((club: IClubModel) => ({ error: false, result: club }))
     .catch(error => ({ error: true, result: error }));
+};
+
+// Clubs _must_ always be in a league 
+// they may not necessarily be in a cup or tournament...
+
+/**
+ * Add LeagueCode to Club
+ * @param playerId
+ * @param value
+ */
+export const updateClubLeague = async (
+  clubId: string,
+  leagueCode: string,
+  leagueId: string
+) => {
+  return clubModel
+    .findByIdAndUpdate(clubId, {
+      $set: { LeagueCode: leagueCode, League: leagueId },
+    })
+    .then(res => ({
+      error: false,
+      message: 'Club league updated successfully!',
+      result: null,
+    }))
+    .catch(err => ({ error: true, result: err }));
 };
 
 interface IClubsResponse {

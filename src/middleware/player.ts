@@ -8,7 +8,7 @@ import {
   RequestHandler,
 } from 'express';
 import responseHandler from '../helpers/responseHandler';
-import { toggleSigned } from '../services/player.service';
+import { toggleSigned } from '../controllers/players/player.service';
 
 export const getCurrentCounter: RequestHandler = (
   req: Request,

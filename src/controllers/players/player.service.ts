@@ -1,15 +1,15 @@
-import playerModel from '../models/player.model';
-import { IPlayer } from '../interfaces/Player';
-import { calculatePlayerValue } from '../utils/players';
+import playerModel from './player.model';
+import { IPlayer } from '../../interfaces/Player';
+import { calculatePlayerValue } from '../../utils/players';
 
 /**
  * fetchAllPlayers
  *
  * return all the players in the game
  */
-export const fetchAllPlayers = async () => {
+export const fetchAllPlayers = async (options = {}) => {
   try {
-    const players = await playerModel.find({});
+    const players = await playerModel.find(options);
     return { error: false, result: players };
   } catch (err) {
     return { error: true, result: err };

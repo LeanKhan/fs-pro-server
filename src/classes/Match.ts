@@ -13,6 +13,7 @@ export class Match implements IMatch {
   public CenterBlock: IBlock;
   public Details!: IMatchDetails;
   public Events: IMatchEvent[];
+  public Actions: IMatchAction[] = [];
   private CurrentTime: number = 0;
 
   /**
@@ -97,9 +98,33 @@ export class Match implements IMatch {
     matchEvents.on('goal!', (data: IShot) => {
       console.log('GOAAAALLL!!!');
 
+      // add to match actions...
+      this.Actions.push({
+        type: 'goal',
+        playerID: data.shooter.PlayerID,
+        playerTeam: data.shooter.ClubCode!,
+        timestamp: this.getCurrentTime,
+      });
+
       data.shooter.increaseGoalTally();
 
       data.shooter.increasePoints(GamePoints.Goal);
+
+      // now determine if there was an assist!
+
+      const actionLength = this.Actions.length > 1 ? this.Actions.length : 2;
+
+      if (
+        this.Actions[actionLength - 2].type === 'pass' &&
+        this.Actions[actionLength - 2].playerTeam === data.shooter.ClubCode!
+      ) {
+        const playerID = this.Actions[actionLength - 2].playerID;
+
+        const assister = this.fetchPlayerById(playerID);
+
+        assister!.GameStats.Assists++;
+        assister!.increasePoints(GamePoints.Assist);
+      }
 
       // subtract from keeper's points :3
       data.keeper.increasePoints(-GamePoints.Save / 2);
@@ -139,6 +164,14 @@ export class Match implements IMatch {
       this.Details.TotalPasses++;
       data.passer.GameStats.Passes++;
       data.passer.increasePoints(GamePoints.Pass);
+
+      // add to match actions...
+      this.Actions.push({
+        type: 'pass',
+        playerID: data.passer.PlayerID,
+        playerTeam: data.passer.ClubCode!,
+        timestamp: this.getCurrentTime,
+      });
 
       // // give receiver some passes
       data.receiver.increasePoints(-GamePoints.Pass / 2);
@@ -220,13 +253,17 @@ export class Match implements IMatch {
 
       console.log('Home Team => ', this.Home.ClubCode);
       this.Home.StartingSquad.forEach(p => {
-        console.log(`[${p.FirstName} ${p.LastName}] - ${p.Position}`);
+        console.log(
+          `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
+        );
         console.table(p.GameStats);
       });
 
       console.log('Away Team => ', this.Away.ClubCode);
       this.Away.StartingSquad.forEach(p => {
-        console.log(`[${p.FirstName} ${p.LastName}] - ${p.Position}`);
+        console.log(
+          `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
+        );
         console.table(p.GameStats);
       });
 
@@ -306,6 +343,18 @@ export class Match implements IMatch {
     }
   }
 
+  public fetchPlayerById(id: string) {
+    const allPlayers = this.Home.StartingSquad.concat(this.Away.StartingSquad);
+
+    return allPlayers.find(player => {
+      return player.PlayerID === id;
+    });
+  }
+
+  public showActions() {
+    console.table(this.Actions);
+  }
+
   public calculatePosession() {
     const totalPossession =
       this.Details.HomeTeamDetails.TimesWithBall +
@@ -323,11 +372,18 @@ export class Match implements IMatch {
   public getMOTM() {
     let allSquads = this.Home.StartingSquad.concat(this.Away.StartingSquad);
 
-    allSquads = allSquads.sort((a, b) => a.GameStats.Points - b.GameStats.Points);
+    allSquads = allSquads.sort(
+      (a, b) => a.GameStats.Points - b.GameStats.Points
+    );
 
     const motm = allSquads[allSquads.length - 1];
 
-    this.Details.MOTM = {playerID: motm.PlayerID, name: motm.FirstName + ' ' + motm.LastName, clubcode: motm.ClubCode, points: motm.GameStats.Points}
+    this.Details.MOTM = {
+      playerID: motm.PlayerID,
+      name: motm.FirstName + ' ' + motm.LastName,
+      clubcode: motm.ClubCode,
+      points: motm.GameStats.Points,
+    };
   }
 }
 
@@ -390,4 +446,11 @@ export interface IMatchSideDetails {
   Passes: number;
   Events: IMatchEvent[];
   [key: string]: any;
+}
+
+interface IMatchAction {
+  type: 'pass' | 'goal';
+  playerID: string;
+  playerTeam: string;
+  timestamp: number;
 }

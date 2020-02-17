@@ -378,8 +378,11 @@ export class Decider {
       player.Attributes.LongPass > 30 &&
       player.Position !== 'ATT'
     ) {
-      // TODO: Add some randomness here...
-      return { type: 'pass', detail: 'long' };
+      if(this.gimmeAChance() < 50) {
+        return { type: 'pass', detail: 'long' };
+      } else {
+        return { type: 'pass', detail: 'short' };
+      }
     }
 
     const closest = this.isClosestToPost(player, attackingSide);
