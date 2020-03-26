@@ -1,15 +1,15 @@
-import express from 'express';
+import express, { Application } from 'express';
 import cors from 'cors';
-import mongoose from 'mongoose';
 import bodyparser from 'body-parser';
 import router from './routers';
-import stage from '../environment/environment';
 
-const app: express.Application = express();
+const app: Application = express();
 
-import h from 'http';
+import { Server } from 'http';
 
-const http = new h.Server(app);
+import DB from './db';
+
+const http = new Server(app);
 
 const port = process.env.PORT || 3000;
 
@@ -21,53 +21,14 @@ dotenv.config();
 
 const io = i(http);
 
+DB.start();
+
 app.use(cors());
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
 
 // MongoDB Database Connection
-
-mongoose
-  .connect(stage.dev.MONGO_URL, {
-    useNewUrlParser: true,
-  })
-  .then(client => {
-    app.locals.db = client.connection.db;
-    console.log(
-      `Connection to ${client.connection.db.databaseName} database successful!`
-    );
-  })
-
-  .catch(err => {
-    console.error(`Error in connecting to database: `, err);
-  });
-
-mongoose.connection.on('error', () => {
-  console.log('Error in connection to database');
-});
-
-// mongoose.connection.once('open', () => {
-//   console.log('Connection to database successful! :)');
-// });
-
-// mongoose
-//   .connect(process.env[stage + "_MONGO_URL"], connection_options)
-//   .then(client => {
-//     app.locals.db = client.connection.db;
-//     console.log(
-//       `Connection to ${client.connection.db.databaseName} database successful!`
-//     );
-//   })
-
-//   .catch(err => {
-//     console.error(`Error in connecting to database: `, err);
-//   });
-
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true);
-
-// Stuff
 
 app.get('/', (req, res) => {
   res

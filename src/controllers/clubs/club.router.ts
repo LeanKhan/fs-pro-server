@@ -46,9 +46,9 @@ router.get('/get/:id', async (req, res) => {
   const response = await fetchSingleClubById(req.params.id);
 
   if (!response.error) {
-    respond.success(res, 200, 'Club fetched successfully', response.result);
+    respond.success(res, 200, 'Club fetched successfully', response);
   } else {
-    respond.fail(res, 400, 'Error fetching club', response.result);
+    respond.fail(res, 400, 'Error fetching club', response!.result);
   }
 });
 

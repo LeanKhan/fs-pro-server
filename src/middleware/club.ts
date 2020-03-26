@@ -10,25 +10,20 @@ import {
   addPlayerToClub,
   updateClubLeague,
 } from '../controllers/clubs/club.service';
-import responseHandler from '../helpers/responseHandler';
+import respond from '../helpers/responseHandler';
 
 export const calculateClubRating: RequestHandler = async (
   req: Request,
-  res: Response, 
+  res: Response,
   next: NextFunction
 ) => {
   // tslint:disable-next-line: variable-name
   const _response = await calculateClubsTotalRatings(req.params.id);
 
   if (!_response.error) {
-    responseHandler.success(
-      res,
-      200,
-      'Player signed successfully!',
-      _response.result
-    );
+    respond.success(res, 200, 'Player signed successfully!', _response.result);
   } else {
-    responseHandler.fail(res, 400, 'Error calculating club ratings');
+    respond.fail(res, 400, 'Error calculating club ratings');
   }
 };
 
@@ -46,32 +41,30 @@ export const addPlayerToClubMiddleware: RequestHandler = async (
   if (!_response.error) {
     next();
   } else {
-    responseHandler.fail(
-      res,
-      400,
-      'Error adding player to club',
-      _response.result
-    );
+    respond.fail(res, 400, 'Error adding player to club', _response.result);
   }
 };
 // TODO: use a uniform naming convention, ugh :)
 // TODO: change the name of this function <<thumbs>>
-export async function addLeagueToClub(req: Request, res: Response, next: NextFunction) {
-  const _response = await updateClubLeague(req.body.clubId, req.body.leagueCode, req.params.league_id);
+export async function addLeagueToClub(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const _response = await updateClubLeague(
+    req.body.clubId,
+    req.body.leagueCode,
+    req.params.league_id
+  );
 
-    if (!_response.error) {
-    responseHandler.success(
+  if (!_response.error) {
+    respond.success(
       res,
       200,
       'Club added to competition successfully!',
       _response.result
     );
-     } else {
-    responseHandler.fail(
-      res,
-      400,
-      'Error adding player to club',
-      _response.result
-    );
+  } else {
+    respond.fail(res, 400, 'Error adding player to club', _response.result);
   }
 }

@@ -1,4 +1,4 @@
-import userModel, { IUser, IUserDocument } from '../models/user.model';
+import DB from '../db';
 
 /**
  * fetch one user by Id
@@ -7,7 +7,7 @@ import userModel, { IUser, IUserDocument } from '../models/user.model';
  */
 export const fetchOneUserById = async (id: string) => {
   try {
-    const user = await userModel.findById(id);
+    const user = await DB.Models.User.findById(id);
     return { error: false, result: user };
   } catch (err) {
     return { error: true, result: err };
@@ -20,7 +20,7 @@ export const fetchOneUserById = async (id: string) => {
  */
 export const fetchOneUser = async (query: {}) => {
   try {
-    const user = await userModel.findOne(query);
+    const user = await DB.Models.User.findOne(query);
     return { error: false, result: user };
   } catch (err) {
     return { error: true, result: err };
@@ -33,10 +33,9 @@ export const fetchOneUser = async (query: {}) => {
  * @param userData
  */
 export const createNewUser = async (userData: any) => {
-  const user = new userModel(userData);
+  const USER = new DB.Models.User(userData);
 
-  return user
-    .save()
-    .then(u => ({ error: false, result: u }))
+  return USER.save()
+    .then(user => ({ error: false, result: user }))
     .catch(err => ({ error: true, result: err }));
 };

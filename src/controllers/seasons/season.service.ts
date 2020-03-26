@@ -1,11 +1,11 @@
-import SeasonModel from './season.model';
+import DB from '../../db';
 
 /**
  * fetchAll
  */
 export function fetchAll() {
   try {
-    const seasons = SeasonModel.find({});
+    const seasons = DB.Models.Season.find({});
     return { error: false, result: seasons };
   } catch (error) {
     return { error: true, result: error };
@@ -20,7 +20,7 @@ export function fetchAll() {
  */
 export function fetchOneById(id: string) {
   try {
-    const season = SeasonModel.findById(id);
+    const season = DB.Models.Season.findById(id);
     return { error: false, result: season };
   } catch (error) {
     return { error: true, result: error };
@@ -32,7 +32,7 @@ export function fetchOneById(id: string) {
  */
 
 export function createNew(data: any) {
-  const SEASON = new SeasonModel(data);
+  const SEASON = new DB.Models.Season(data);
 
   return SEASON.save()
     .then(season => ({ error: false, result: season }))

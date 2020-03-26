@@ -7,7 +7,7 @@ import {
   response,
   RequestHandler,
 } from 'express';
-import responseHandler from '../helpers/responseHandler';
+import respond from '../helpers/responseHandler';
 import { toggleSigned } from '../controllers/players/player.service';
 
 export const getCurrentCounter: RequestHandler = (
@@ -23,12 +23,24 @@ export const getCurrentCounter: RequestHandler = (
       if (!err) {
         const id: string =
           counter.prefix + (1000000 + (await counter.sequence_value) + 1);
+        let idField;
+        switch (req.query.model) {
+          case 'player':
+            idField = 'PlayerID';
+            break;
+          case 'competition':
+            idField = 'CompetitionID';
+            break;
+          default:
+            idField = 'PlayerID';
+            break;
+        }
 
-        req.body.PlayerID = id.slice(0, 1) + id.slice(2);
+        req.body[idField] = id.slice(0, 1) + id.slice(2);
 
         next();
       } else {
-        responseHandler.fail(res, 404, 'Counter not found!');
+        respond.fail(res, 404, 'Counter not found!');
       }
     });
 };
@@ -47,6 +59,6 @@ export const updatePlayerSigning: RequestHandler = async (
   if (!resp.error) {
     next();
   } else {
-    responseHandler.fail(res, 400, 'Error adding player to club');
+    respond.fail(res, 400, 'Error adding player to club');
   }
 };

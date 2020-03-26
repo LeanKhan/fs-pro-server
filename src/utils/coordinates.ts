@@ -24,7 +24,7 @@ function XYToIndex(x: number, y: number, mapWidth: number): number {
 function indexToXY(index: number, mapWidth: number): ICoordinate {
   const i = { x: 0, y: 0 };
 
-  i.x = index / mapWidth;
+  i.x = index % mapWidth;
 
   i.y = Math.floor(index / mapWidth);
 

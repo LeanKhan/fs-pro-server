@@ -1,11 +1,10 @@
-import competitionModel from './competition.model';
-
+import DB from '../../db';
 /**
- * fetchAll
+ * fetchAll Competitions
  */
 export async function fetchAll() {
   try {
-    const competitions = await competitionModel.find({});
+    const competitions = await DB.Models.Competition.find({});
     return { error: false, result: competitions };
   } catch (error) {
     return { error: true, result: error };
@@ -20,7 +19,7 @@ export async function fetchAll() {
  */
 export async function fetchOneById(id: string) {
   try {
-    const competition = await competitionModel.findById(id);
+    const competition = await DB.Models.Competition.findById(id);
     return { error: false, result: competition };
   } catch (error) {
     return { error: true, result: error };
@@ -32,9 +31,11 @@ export async function fetchOneById(id: string) {
  */
 
 export function createNew(data: any) {
-  const COMP = new competitionModel(data);
+  // tslint:disable-next-line: variable-name
+  const _competition = new DB.Models.Competition(data);
 
-  return COMP.save()
+  return _competition
+    .save()
     .then(competition => ({ error: false, result: competition }))
     .catch(error => ({ error: true, result: error }));
 }
@@ -42,14 +43,12 @@ export function createNew(data: any) {
 // TODO: Yo! Add a limit or 'size' for the max number of clubs
 
 /**
-* Add Club to Competition
-*/
-export async function addClub (competitionId: string, clubId: string) {
-  return competitionModel
-    .findByIdAndUpdate(competitionId, {
-      $push: { Clubs: clubId },
-    })
+ * Add Club to Competition
+ */
+export async function addClub(competitionId: string, clubId: string) {
+  return DB.Models.Competition.findByIdAndUpdate(competitionId, {
+    $push: { Clubs: clubId },
+  })
     .then(res => ({ error: false, result: '' }))
     .catch(err => ({ error: true, result: err }));
-};
-
+}
