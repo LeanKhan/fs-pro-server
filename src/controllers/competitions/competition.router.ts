@@ -1,8 +1,10 @@
 import { Router, Request, Response } from 'express';
 import { fetchAll, fetchOneById, createNew } from './competition.service';
-import { addClubToCompetition} from '../../middleware/competition';
-import { addLeagueToClub} from '../../middleware/club';
+import { addClubToCompetition } from '../../middleware/competition';
+import { addLeagueToClub } from '../../middleware/club';
 import respond from '../../helpers/responseHandler';
+import { getCurrentCounter } from '../../middleware/player';
+import { incrementCounter } from '../../utils/counter';
 
 const router = Router();
 
@@ -36,7 +38,7 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/new', async (req: Request, res: Response) => {
+router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
   const response = await createNew(req.body);
 
   if (!response.error) {
@@ -46,6 +48,7 @@ router.post('/new', async (req: Request, res: Response) => {
       'Competition created successfully',
       response.result
     );
+    incrementCounter('competition_counter');
   } else {
     respond.fail(res, 400, 'Error creating competition', response.result);
   }

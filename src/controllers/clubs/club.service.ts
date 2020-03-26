@@ -1,5 +1,5 @@
 // Exposes functions that are used to interact with the DB directly
-import clubModel, { IClubModel } from './club.model';
+import DB from '../../db';
 import { IClub } from '../../interfaces/Club';
 
 /**
@@ -8,26 +8,26 @@ import { IClub } from '../../interfaces/Club';
  * Returns all the clubs in the game
  * @returns - {error: boolean, result: any | IClubModel}
  */
-export async function fetchAllClubs () {
+export async function fetchAllClubs() {
   try {
-    const clubs = await clubModel.find({}).populate('Players');
+    const clubs = await DB.Models.Club.find({}).populate('Players');
     return { error: false, result: clubs };
   } catch (err) {
     return { error: true, result: err };
   }
-};
+}
 
 /**
  * fetchClubs
  */
-export async function fetchClubs (condition: any) {
+export async function fetchClubs(condition: any) {
   try {
-    const clubs = await clubModel.find(condition).populate('Players');
+    const clubs = await DB.Models.Club.find(condition).populate('Players');
     return { error: false, result: clubs } as IClubsResponse;
   } catch (error) {
     return { error: true, result: error } as IClubsResponse;
   }
-};
+}
 
 /**
  * fecthSingleClubById
@@ -36,42 +36,40 @@ export async function fetchClubs (condition: any) {
  *
  * @param id Club id
  */
-export async function fetchSingleClubById (id: any) {
+export async function fetchSingleClubById(id: any) {
   try {
-    const club = await clubModel.findById(id);
+    const club = await DB.Models.Club.findById(id);
     return { error: false, result: club };
   } catch (err) {
     return { error: true, result: err };
   }
-};
+}
 
 /**
  * Add player to club
  * @param clubId
  * @param playerId
  */
-export async function addPlayerToClub (clubId: string, playerId: string) {
-  return clubModel
-    .findByIdAndUpdate(clubId, {
-      $push: { Players: playerId },
-    })
+export async function addPlayerToClub(clubId: string, playerId: string) {
+  return DB.Models.Club.findByIdAndUpdate(clubId, {
+    $push: { Players: playerId },
+  })
     .then(res => ({ error: false, result: '' }))
     .catch(err => ({ error: true, result: err }));
-};
+}
 
 /**
  *
  * @param clubId
  */
-export async function calculateClubsTotalRatings (clubId: string) {
-  return clubModel
-    .aggregate([
-      { $match: { _id: clubId } },
-      { $addFields: { Rating: { $avg: '$Players.Rating' } } },
-    ])
+export async function calculateClubsTotalRatings(clubId: string) {
+  return DB.Models.Club.aggregate([
+    { $match: { _id: clubId } },
+    { $addFields: { Rating: { $avg: '$Players.Rating' } } },
+  ])
     .then(res => ({ error: false, result: '' }))
     .catch(err => ({ error: true, result: err }));
-};
+}
 
 /**
  * createNewClub mate
@@ -79,15 +77,15 @@ export async function calculateClubsTotalRatings (clubId: string) {
  * @param c Club making data
  * @returns - {error: boolean, result: any | IClubModel}
  */
-export function createNewClub (c: any) {
-  const CLUB: IClubModel = new clubModel(c);
+export function createNewClub(_club: any) {
+  const CLUB = new DB.Models.Club(_club);
 
   return CLUB.save()
-    .then((club: IClubModel) => ({ error: false, result: club }))
+    .then(club => ({ error: false, result: club }))
     .catch(error => ({ error: true, result: error }));
-};
+}
 
-// Clubs _must_ always be in a league 
+// Clubs _must_ always be in a league
 // they may not necessarily be in a cup or tournament...
 
 /**
@@ -100,10 +98,9 @@ export const updateClubLeague = async (
   leagueCode: string,
   leagueId: string
 ) => {
-  return clubModel
-    .findByIdAndUpdate(clubId, {
-      $set: { LeagueCode: leagueCode, League: leagueId },
-    })
+  return DB.Models.Club.findByIdAndUpdate(clubId, {
+    $set: { LeagueCode: leagueCode, League: leagueId },
+  })
     .then(res => ({
       error: false,
       message: 'Club league updated successfully!',
@@ -117,3 +114,8 @@ interface IClubsResponse {
   message?: string;
   result: IClub[];
 }
+
+// interface ServiceResponse {
+//   error: boolean;
+//   message?
+// }
