@@ -1,26 +1,28 @@
 import DB from '../../db';
+import { incrementCounter } from '../../utils/counter';
 
 /**
  * fetchAll
  */
-export function fetchAll() {
+export async function fetchAll(query: {} = {}) {
   try {
-    const seasons = DB.Models.Season.find({});
+    const seasons = await DB.Models.Season.find(query);
     return { error: false, result: seasons };
   } catch (error) {
+  	console.log('Error!', error)
     return { error: true, result: error };
   }
 }
 
 /**
- * FetchOneById
+ * FetchOneById 
  *
  * Fetch a specific season by its id
  * @param id
  */
-export function fetchOneById(id: string) {
+export async function fetchOneById(id: string) {
   try {
-    const season = DB.Models.Season.findById(id);
+    const season = await DB.Models.Season.findById(id);
     return { error: false, result: season };
   } catch (error) {
     return { error: true, result: error };
@@ -35,6 +37,15 @@ export function createNew(data: any) {
   const SEASON = new DB.Models.Season(data);
 
   return SEASON.save()
-    .then(season => ({ error: false, result: season }))
+    .then(season => { incrementCounter('season_counter'); return {error: false, result: season} })
     .catch(error => ({ error: true, result: error }));
+}
+
+export async function deleteById(id: string) {
+  try {
+  await DB.Models.Season.findByIdAndDelete(id)
+    return { error: false };
+  } catch (error) {
+    return { error: true, result: error };
+  }
 }

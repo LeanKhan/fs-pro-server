@@ -23,6 +23,8 @@ export const getCurrentCounter: RequestHandler = (
       if (!err) {
         const id: string =
           counter.prefix + (1000000 + (await counter.sequence_value) + 1);
+
+          console.log('String => ', id);
         let idField;
         switch (req.query.model) {
           case 'player':
@@ -31,12 +33,15 @@ export const getCurrentCounter: RequestHandler = (
           case 'competition':
             idField = 'CompetitionID';
             break;
+          case 'season':
+            idField = 'SeasonID';
+            break;
           default:
             idField = 'PlayerID';
             break;
         }
 
-        req.body[idField] = id.slice(0, 1) + id.slice(2);
+        req.body.data[idField] = id.slice(0, 1) + id.slice(2);
 
         next();
       } else {

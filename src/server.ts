@@ -2,6 +2,7 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import bodyparser from 'body-parser';
 import router from './routers';
+import path from 'path';
 
 const app: Application = express();
 
@@ -27,6 +28,8 @@ app.use(cors());
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
+
+app.use(express.static(path.join(__dirname, "../assets")));
 
 // MongoDB Database Connection
 

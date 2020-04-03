@@ -1,5 +1,8 @@
 import { Router, Request, Response } from 'express';
-import { fetchAll, fetchOneById, createNew } from './season.service';
+import { fetchAll, fetchOneById, createNew, deleteById } from './season.service';
+import { createSeason } from '../../middleware/seasons';
+import { getCurrentCounter } from '../../middleware/player';
+import { addSeasonToCompetition } from '../../middleware/competition';
 import respond from '../../helpers/responseHandler';
 
 const router = Router();
@@ -19,7 +22,7 @@ router.get('/all', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/season/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response) => {
   const response = await fetchOneById(req.params.id);
 
   if (!response.error) {
@@ -34,21 +37,21 @@ router.get('/season/:id', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/season/new', async (req: Request, res: Response) => {
-  const response = await createNew(req.body);
+router.delete('/:id', async (req: Request, res: Response) => {
+  const response = await deleteById(req.params.id);
 
-  if (!response.error) {
+    if (!response.error) {
     respond.success(
       res,
       200,
-      'season created successfully',
-      response.result
+      'Season deleted successfully :)'
     );
   } else {
-    respond.fail(res, 400, 'Error creating season', response.result);
+    respond.fail(res, 400, 'Error deleting Season :/');
   }
 });
 
+router.post('/new', getCurrentCounter, createSeason, addSeasonToCompetition);
 // router.get('/season/:id', async (req: Request, res: Response) => {
 //     const response = await fetchOneById(req.params.id);
 
@@ -58,3 +61,5 @@ router.post('/season/new', async (req: Request, res: Response) => {
 //       respond.fail(res, 400, 'Error fetching season', response.result);
 //     }
 // });
+
+export default router;
