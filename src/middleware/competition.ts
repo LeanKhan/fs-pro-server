@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import respond from '../helpers/responseHandler';
-import { addClub } from '../controllers/competitions/competition.service';
+import { addClub, addSeason } from '../controllers/competitions/competition.service';
 
 export async function addClubToCompetition(
   req: Request,
@@ -21,3 +21,26 @@ export async function addClubToCompetition(
     );
   }
 }
+
+export async function addSeasonToCompetition(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const _response = await addSeason(
+    req.body.data.Competition,
+    req.body.seasonID,
+  );
+
+  if (!_response.error) {
+    respond.success(
+      res,
+      200,
+      'Season added to competition successfully!',
+      _response.result
+    );
+  } else {
+    respond.fail(res, 400, 'Error adding sesason to competition', _response.result);
+  }
+}
+

@@ -63,6 +63,7 @@ export async function addPlayerToClub(clubId: string, playerId: string) {
  * @param clubId
  */
 export async function calculateClubsTotalRatings(clubId: string) {
+  // TODO: Guy! Just do the calculation yourself!
   return DB.Models.Club.aggregate([
     { $match: { _id: clubId } },
     { $addFields: { Rating: { $avg: '$Players.Rating' } } },

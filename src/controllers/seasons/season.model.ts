@@ -4,9 +4,12 @@ import { IPlayerStats } from '../../interfaces/Player';
 declare interface ISeason extends Document {
   SeasonID: string;
   SeasonCode: string;
-  SeasonTitle: string;
+  Title: string;
   Competition: string;
   CompetitionCode: string;
+  Winner: string;
+  isFinished: boolean;
+  isStarted: boolean;
   Fixtures: [];
   Standings: [];
   PlayerStats: PlayerSeasonStats[];
@@ -27,9 +30,12 @@ export class Season {
     const SeasonSchema: Schema = new Schema(
       {
         SeasonID: { type: String, unique: true },
-        SeasonCode: { type: String },
-        SeasonTitle: { type: String },
+        SeasonCode: { type: String, unique: true },
+        Title: { type: String },
         StartDate: { type: String },
+        Winner: { type: String },
+        isFinished: { type: Boolean, default: false },
+        isStarted: { type: Boolean, default: false },
         EndDate: { type: String },
         Competition: { type: Schema.Types.ObjectId, ref: 'Competition' },
         CompetitionCode: { type: String },
@@ -50,7 +56,7 @@ export class Season {
     this._model = model<ISeason>('Season', SeasonSchema, 'Seasons');
   }
 
-  public get model(): Model<ISeason> {
+  public get model() {
     return this._model;
   }
 }

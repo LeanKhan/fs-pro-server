@@ -4,6 +4,7 @@
 *.js
 .env
 /environment
+/assets
 
 # For me (mostly embarrasing stuff I want to remember)
 OLDCHANGELOG.md

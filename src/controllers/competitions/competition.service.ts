@@ -19,7 +19,8 @@ export async function fetchAll() {
  */
 export async function fetchOneById(id: string) {
   try {
-    const competition = await DB.Models.Competition.findById(id);
+    const competition = await DB.Models.Competition.findById(id).populate('Clubs')
+    .populate('Seasons');
     return { error: false, result: competition };
   } catch (error) {
     return { error: true, result: error };
@@ -40,6 +41,24 @@ export function createNew(data: any) {
     .catch(error => ({ error: true, result: error }));
 }
 
+export async function update(id: string, data: any) {
+  try {
+  await DB.Models.Competition.findByIdAndUpdate(id, data)
+    return { error: false };
+  } catch (error) {
+    return { error: true, result: error };
+  }
+}
+
+export async function deleteById(id: string) {
+  try {
+  await DB.Models.Competition.findByIdAndDelete(id)
+    return { error: false };
+  } catch (error) {
+    return { error: true, result: error };
+  }
+}
+
 // TODO: Yo! Add a limit or 'size' for the max number of clubs
 
 /**
@@ -52,3 +71,23 @@ export async function addClub(competitionId: string, clubId: string) {
     .then(res => ({ error: false, result: '' }))
     .catch(err => ({ error: true, result: err }));
 }
+
+/**
+ * Add Season to Competition
+ * @param competitiionId
+ * @param seasonId
+ */
+export const addSeason = async (
+  competitionId: string,
+  seasonId: string
+) => {
+  return DB.Models.Competition.findByIdAndUpdate(competitionId, {
+    $push: { Seasons: seasonId },
+  })
+    .then(res => ({
+      error: false,
+      message: 'Season added successfully!',
+      result: null,
+    }))
+    .catch(err => ({ error: true, result: err }));
+};
