@@ -10,7 +10,15 @@ const router = Router();
  * Fetch all players
  */
 router.get('/all', async (req, res) => {
-  const options = JSON.parse(req.query.options);
+  let options;
+  // This prevents the app from crashing if there's
+  // an error parsing object :)
+  try {
+    options = JSON.parse(req.query.options) || {};
+  } catch (err) {
+    console.log('Error parsing JSON => ', err);
+  }
+
   const response = await fetchAllPlayers(options);
 
   if (!response.error) {
