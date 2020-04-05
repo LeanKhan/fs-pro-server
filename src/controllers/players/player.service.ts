@@ -28,8 +28,8 @@ export const createNewPlayer = async (_player: IPlayer) => {
   const PLAYER = new DB.Models.Player(_player);
 
   return PLAYER.save()
-    .then(player => ({ error: false, result: player }))
-    .catch(error => ({ error: true, result: error }));
+    .then((player) => ({ error: false, result: player }))
+    .catch((error) => ({ error: true, result: error }));
 };
 
 /**
@@ -37,18 +37,14 @@ export const createNewPlayer = async (_player: IPlayer) => {
  * @param playerId
  * @param value
  */
-export const toggleSigned = async (
+export function toggleSigned(
   playerId: string,
   value: boolean,
   clubCode: string
-) => {
+) {
   return DB.Models.Player.findByIdAndUpdate(playerId, {
     $set: { isSigned: value, ClubCode: clubCode },
   })
-    .then(res => ({
-      error: false,
-      message: 'Player signed status changed successfully',
-      result: null,
-    }))
-    .catch(err => ({ error: true, result: err }));
-};
+    .lean()
+    .exec();
+}

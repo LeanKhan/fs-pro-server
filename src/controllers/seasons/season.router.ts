@@ -1,6 +1,17 @@
 import { Router, Request, Response } from 'express';
-import { fetchAll, fetchOneById, createNew, deleteById } from './season.service';
-import { createSeason } from '../../middleware/seasons';
+import {
+  fetchAll,
+  fetchOneById,
+  deleteById,
+  findByIdAndUpdate,
+} from './season.service';
+import { fetchAll as fetchAllFixtures } from '../fixtures/fixture.service';
+import {
+  createSeason,
+  fetchCompetitionClubs,
+  generateFixtures,
+  setInitialStandings,
+} from '../../middleware/seasons';
 import { getCurrentCounter } from '../../middleware/player';
 import { addSeasonToCompetition } from '../../middleware/competition';
 import respond from '../../helpers/responseHandler';
@@ -8,58 +19,101 @@ import respond from '../../helpers/responseHandler';
 const router = Router();
 
 router.get('/all', async (req: Request, res: Response) => {
-  const response = await fetchAll();
+  const response = fetchAll();
 
-  if (!response.error) {
-    respond.success(
-      res,
-      200,
-      'Seasons fetched successfully',
-      response.result
-    );
-  } else {
-    respond.fail(res, 400, 'Error fetching Seasons', response.result);
-  }
+  response
+    .then((seasons) => {
+      respond.success(res, 200, 'Seasons fetched successfully', seasons);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching Seasons', err);
+    });
 });
 
-router.get('/:id', async (req: Request, res: Response) => {
-  const response = await fetchOneById(req.params.id);
+router.get('/:id', (req: Request, res: Response) => {
+  const response = fetchOneById(req.params.id);
 
-  if (!response.error) {
-    respond.success(
-      res,
-      200,
-      'season fetched successfully',
-      response.result
-    );
-  } else {
-    respond.fail(res, 400, 'Error fetching season', response.result);
-  }
+  response
+    .then((season) => {
+      respond.success(res, 200, 'Season fetched successfully', season);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching Season', err);
+    });
 });
 
-router.delete('/:id', async (req: Request, res: Response) => {
-  const response = await deleteById(req.params.id);
+router.delete('/:id', (req: Request, res: Response) => {
+  const response = deleteById(req.params.id);
 
-    if (!response.error) {
-    respond.success(
-      res,
-      200,
-      'Season deleted successfully :)'
-    );
-  } else {
-    respond.fail(res, 400, 'Error deleting Season :/');
-  }
+  response
+  .then((season) => {
+    respond.success(res, 200, 'Season deleted successfully', season);
+  })
+  .catch((err) => {
+    respond.fail(res, 400, 'Error deleting Season', err);
+  });
 });
 
 router.post('/new', getCurrentCounter, createSeason, addSeasonToCompetition);
-// router.get('/season/:id', async (req: Request, res: Response) => {
-//     const response = await fetchOneById(req.params.id);
 
-//     if (!response.error) {
-//       respond.success(res, 200, 'season fetched successfully', response.result);
-//     } else {
-//       respond.fail(res, 400, 'Error fetching season', response.result);
-//     }
-// });
+/**
+ * Generate Fixtures for the Season
+ */
+router.post(
+  '/:id/generate-fixtures',
+  fetchCompetitionClubs,
+  generateFixtures,
+  setInitialStandings,
+  (req, res) => {
+    const fixtureIds = req.body.fixtureIds;
+
+    const response = findByIdAndUpdate(req.params.id, { Fixtures: fixtureIds });
+
+    response
+      .then((season) => {
+        respond.success(
+          res,
+          200,
+          'Fixtures created in season successfully',
+          season!
+        );
+      })
+      .catch((err) => {
+        respond.fail(res, 400, 'Error setting fixtures in Season', err);
+      });
+  }
+);
+
+router.patch('/:id/start', (req, res) => {
+  const response = findByIdAndUpdate(req.params.id, {
+    isStarted: true,
+    StartDate: new Date(),
+  }).then();
+
+  response
+    .then((season) => {
+      respond.success(res, 200, 'Season started successfully', season!);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error starting Season', err);
+    });
+});
+
+router.get('/:id/fixtures/all', (req, res) => {
+  const response = fetchAllFixtures({ Season: req.params.id });
+
+  response
+    .then((fixtures) => {
+      respond.success(
+        res,
+        200,
+        'Seasons Fixtures fetched successfully',
+        fixtures
+      );
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching Season\' Fixtures', err);
+    });
+});
 
 export default router;

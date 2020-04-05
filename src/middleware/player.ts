@@ -24,7 +24,6 @@ export const getCurrentCounter: RequestHandler = (
         const id: string =
           counter.prefix + (1000000 + (await counter.sequence_value) + 1);
 
-          console.log('String => ', id);
         let idField;
         switch (req.query.model) {
           case 'player':

@@ -407,7 +407,6 @@ export interface IMatchDetails {
   LeagueName: string;
   Draw: boolean;
   Played: boolean;
-  Score: number;
   Time: Date;
   FirstHalfScore: string;
   FullTimeScore: string;

@@ -1,5 +1,6 @@
 // Exposes functions that are used to interact with the DB directly
 import DB from '../../db';
+import { Types } from 'mongoose';
 import { IClub } from '../../interfaces/Club';
 
 /**
@@ -8,25 +9,19 @@ import { IClub } from '../../interfaces/Club';
  * Returns all the clubs in the game
  * @returns - {error: boolean, result: any | IClubModel}
  */
-export async function fetchAllClubs() {
-  try {
-    const clubs = await DB.Models.Club.find({}).populate('Players');
-    return { error: false, result: clubs };
-  } catch (err) {
-    return { error: true, result: err };
-  }
+export function fetchAllClubs() {
+  return DB.Models.Club.find({}).populate('Players').lean().exec();
 }
 
 /**
  * fetchClubs
  */
-export async function fetchClubs(condition: any) {
-  try {
-    const clubs = await DB.Models.Club.find(condition).populate('Players');
-    return { error: false, result: clubs } as IClubsResponse;
-  } catch (error) {
-    return { error: true, result: error } as IClubsResponse;
-  }
+export function fetchClubs(condition: any) {
+  return DB.Models.Club.find(condition)
+    .populate('Players')
+
+    .lean()
+    .exec();
 }
 
 /**
@@ -36,40 +31,74 @@ export async function fetchClubs(condition: any) {
  *
  * @param id Club id
  */
-export async function fetchSingleClubById(id: any) {
-  try {
-    const club = await DB.Models.Club.findById(id);
-    return { error: false, result: club };
-  } catch (err) {
-    return { error: true, result: err };
-  }
+export function fetchSingleClubById(id: any) {
+  return DB.Models.Club.findById(id).lean().exec();
 }
 
+/**
+ * Fetch League Clubs doe...
+ * @param clubId
+ * @param playerId
+ */
+export function fetchLeagueClubs(_clubs: string[]) {
+  return DB.Models.Club.find({ _id: { $in: _clubs } })
+    .select('ClubCode Name Address Stadium')
+    .lean()
+    .exec();
+}
 /**
  * Add player to club
  * @param clubId
  * @param playerId
  */
-export async function addPlayerToClub(clubId: string, playerId: string) {
+export function addPlayerToClub(clubId: string, playerId: string) {
   return DB.Models.Club.findByIdAndUpdate(clubId, {
     $push: { Players: playerId },
   })
-    .then(res => ({ error: false, result: '' }))
-    .catch(err => ({ error: true, result: err }));
+    .lean()
+    .exec();
 }
 
 /**
+ * Calculate the clubs Average Rating...
  *
  * @param clubId
  */
-export async function calculateClubsTotalRatings(clubId: string) {
+export function calculateClubsTotalRatings(clubId: string) {
   // TODO: Guy! Just do the calculation yourself!
-  return DB.Models.Club.aggregate([
-    { $match: { _id: clubId } },
-    { $addFields: { Rating: { $avg: '$Players.Rating' } } },
-  ])
-    .then(res => ({ error: false, result: '' }))
-    .catch(err => ({ error: true, result: err }));
+  // Do first stage grouping...
+  return DB.Models.Club.aggregate(
+    [
+      { $match: { _id: Types.ObjectId(clubId) } },
+      {
+        $lookup: {
+          from: 'Players',
+          localField: 'Players',
+          foreignField: '_id',
+          as: 'players',
+        },
+      },
+      { $unwind: '$players' },
+      {
+        $group: {
+          _id: '$players.Position',
+          avg_rating: { $avg: '$players.Rating' },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          position: '$_id',
+          avg_rating: 1,
+          count: 1,
+        },
+      },
+    ],
+    () => {
+      console.log('Aggregate performed!');
+    }
+  );
 }
 
 /**
@@ -82,8 +111,8 @@ export function createNewClub(_club: any) {
   const CLUB = new DB.Models.Club(_club);
 
   return CLUB.save()
-    .then(club => ({ error: false, result: club }))
-    .catch(error => ({ error: true, result: error }));
+    .then((club) => ({ error: false, result: club }))
+    .catch((error) => ({ error: true, result: error }));
 }
 
 // Clubs _must_ always be in a league
@@ -94,21 +123,27 @@ export function createNewClub(_club: any) {
  * @param playerId
  * @param value
  */
-export const updateClubLeague = async (
+export function updateClubLeague(
   clubId: string,
   leagueCode: string,
   leagueId: string
-) => {
+) {
   return DB.Models.Club.findByIdAndUpdate(clubId, {
     $set: { LeagueCode: leagueCode, League: leagueId },
   })
-    .then(res => ({
-      error: false,
-      message: 'Club league updated successfully!',
-      result: null,
-    }))
-    .catch(err => ({ error: true, result: err }));
-};
+    .lean()
+    .exec();
+}
+
+/**
+ * update club
+ */
+
+export function updateClub(clubId: string, data: any = {}) {
+  return DB.Models.Club.findByIdAndUpdate(clubId, data, { new: true })
+    .lean()
+    .exec();
+}
 
 interface IClubsResponse {
   error: boolean;

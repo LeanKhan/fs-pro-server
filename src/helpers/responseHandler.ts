@@ -23,13 +23,16 @@ const respondWithSuccess = (
     ? [...additionalFields]
     : { ...additionalFields };
 
-  return res.status(statusCode).send(
-    JSON.stringify({
-      success: true,
-      message,
-      payload,
-    })
-  );
+  return res
+    .status(statusCode)
+    .contentType('json')
+    .send(
+      JSON.stringify({
+        success: true,
+        message,
+        payload,
+      })
+    );
 };
 
 /**
@@ -50,6 +53,7 @@ const respondWithError = (
     : { ...additionalFields };
   return res
     .status(statusCode)
+    .contentType('json')
     .send(JSON.stringify({ success: false, message, payload }));
 };
 
@@ -57,6 +61,6 @@ const respondWithError = (
 // -LeanKhan
 
 export default {
-    success: respondWithSuccess,
-    fail: respondWithError
-}
+  success: respondWithSuccess,
+  fail: respondWithError,
+};

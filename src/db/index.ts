@@ -8,6 +8,7 @@ import { Player, PlayerModel } from '../controllers/players/player.model';
 import { Season, SeasonModel } from '../controllers/seasons/season.model';
 import { Club, ClubModel } from '../controllers/clubs/club.model';
 import { User, UserModel } from '../models/user.model';
+import { Fixture, FixtureModel } from '../controllers/fixtures/fixture.model';
 
 declare interface IModels {
   Competition: CompetitionModel;
@@ -15,6 +16,7 @@ declare interface IModels {
   Season: SeasonModel;
   Club: ClubModel;
   User: UserModel;
+  Fixture: FixtureModel;
 }
 
 const MONGO_DEV_URL = 'mongodb://localhost:27017/fs-pro';
@@ -52,6 +54,7 @@ export default class DB {
       Season: new Season().model,
       Club: new Club().model,
       User: new User().model,
+      Fixture: new Fixture().model,
     };
 
     set('useFindAndModify', false);
