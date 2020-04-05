@@ -1,5 +1,20 @@
 // tslint:disable: variable-name
 import { Schema, model, Document, Model } from 'mongoose';
+import { Club } from '../clubs/club.model';
+
+export interface Competition {
+  Type: string;
+  Title: string;
+  CompetitionID: string;
+  CompetitionCode: string;
+  League: boolean;
+  Tournament: boolean;
+  Cup: boolean;
+  NumberOfTeams: number;
+  NumberOfWeeks: number;
+  Clubs: Club[];
+  Seasons: [];
+}
 
 declare interface ICompetition extends Document {
   Type: string;
@@ -28,8 +43,8 @@ export class Competition {
         Tournament: { type: Boolean, default: false },
         Cup: { type: Boolean, default: false },
         Type: String,
-        CompetitionCode: {type: String, unique: true},
-        CompetitionID: {type: String, unique: true },
+        CompetitionCode: { type: String, unique: true },
+        CompetitionID: { type: String, unique: true },
         NumberOfTeams: Number,
         NumberOfWeeks: Number,
         Country: String,

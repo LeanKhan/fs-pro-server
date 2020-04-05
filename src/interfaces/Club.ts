@@ -1,5 +1,5 @@
 import { IPlayer } from './Player';
-import { IMatchEvent } from '@/classes/Match';
+import { IMatchEvent } from '../classes/Match';
 
 export interface IClub {
   Name: string;
