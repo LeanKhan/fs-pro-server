@@ -261,7 +261,7 @@ let CurrentGame: Game;
 
 const getClubs = async () => {
   try {
-    const { result } = await fetchClubs({ ClubCode: { $in: ['IB', 'RP'] } });
+    const { result } = await fetchClubs({ ClubCode: { $in: ['RB', 'GU'] } });
 
     const ball = new Ball('#ffffff', centerBlock);
 

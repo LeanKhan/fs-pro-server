@@ -2,7 +2,7 @@ import { Router } from 'express';
 import mongoose from 'mongoose';
 import { multerUpload } from './multer.config';
 import fs from 'fs';
-import responseHandler from '../../helpers/responseHandler';
+import respond from '../../helpers/responseHandler';
 
 const router = Router();
 
@@ -25,15 +25,15 @@ router.post('/', multerUpload, (req, res) => {
       .insertOne(imageToSave)
       .then(doc => {
         console.log('Doc =>', doc);
-        responseHandler.success(res, 200, 'File uploaded successfully', doc);
+        respond.success(res, 200, 'File uploaded successfully', doc);
       })
       .catch(err => {
         console.log('Error!', err);
-        responseHandler.fail(res, 400, 'FaiL!');
+        respond.fail(res, 400, 'FaiL!');
       });
   } else {
     console.log('No file sent!');
-    responseHandler.fail(res, 400, 'No file sent!');
+    respond.fail(res, 400, 'No file sent!');
   }
 });
 

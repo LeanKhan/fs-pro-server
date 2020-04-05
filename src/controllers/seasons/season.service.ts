@@ -1,15 +1,11 @@
-import SeasonModel from './season.model';
+import DB from '../../db';
+import { incrementCounter } from '../../utils/counter';
 
 /**
  * fetchAll
  */
-export function fetchAll() {
-  try {
-    const seasons = SeasonModel.find({});
-    return { error: false, result: seasons };
-  } catch (error) {
-    return { error: true, result: error };
-  }
+export function fetchAll(query: {} = {}) {
+  return DB.Models.Season.find(query).lean().exec();
 }
 
 /**
@@ -19,22 +15,29 @@ export function fetchAll() {
  * @param id
  */
 export function fetchOneById(id: string) {
-  try {
-    const season = SeasonModel.findById(id);
-    return { error: false, result: season };
-  } catch (error) {
-    return { error: true, result: error };
-  }
+  return DB.Models.Season.findById(id).populate('Fixtures').lean().exec();
 }
 
+export function findByIdAndUpdate(id: string, update: any) {
+  return DB.Models.Season.findByIdAndUpdate(id, update, { new: true })
+    .lean()
+    .exec();
+}
 /**
  * create new season
  */
 
 export function createNew(data: any) {
-  const SEASON = new SeasonModel(data);
+  const SEASON = new DB.Models.Season(data);
 
   return SEASON.save()
-    .then(season => ({ error: false, result: season }))
-    .catch(error => ({ error: true, result: error }));
+    .then((season) => {
+      incrementCounter('season_counter');
+      return { error: false, result: season };
+    })
+    .catch((error) => ({ error: true, result: error }));
+}
+
+export async function deleteById(id: string) {
+  return DB.Models.Season.findByIdAndDelete(id).lean().exec();
 }

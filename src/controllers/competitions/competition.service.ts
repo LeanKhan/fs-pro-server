@@ -1,15 +1,9 @@
-import competitionModel from './competition.model';
-
+import DB from '../../db';
 /**
- * fetchAll
+ * fetchAll Competitions
  */
-export async function fetchAll() {
-  try {
-    const competitions = await competitionModel.find({});
-    return { error: false, result: competitions };
-  } catch (error) {
-    return { error: true, result: error };
-  }
+export function fetchAll() {
+  return DB.Models.Competition.find({}).lean().exec();
 }
 
 /**
@@ -18,13 +12,19 @@ export async function fetchAll() {
  * Fetch a specific competition by its id
  * @param {string} id
  */
-export async function fetchOneById(id: string) {
-  try {
-    const competition = await competitionModel.findById(id);
-    return { error: false, result: competition };
-  } catch (error) {
-    return { error: true, result: error };
-  }
+export function fetchOneById(id: string) {
+  return DB.Models.Competition.findById(id)
+    .populate('Clubs')
+    .populate('Seasons')
+    .lean();
+}
+
+export function fetchCompetition(id: string) {
+  return DB.Models.Competition.findById(id)
+    .select('-Seasons')
+    .populate('Clubs', 'ClubCode Name Address Stadium')
+    .lean()
+    .exec();
 }
 
 /**
@@ -32,24 +32,55 @@ export async function fetchOneById(id: string) {
  */
 
 export function createNew(data: any) {
-  const COMP = new competitionModel(data);
+  // tslint:disable-next-line: variable-name
+  const _competition = new DB.Models.Competition(data);
 
-  return COMP.save()
-    .then(competition => ({ error: false, result: competition }))
-    .catch(error => ({ error: true, result: error }));
+  return _competition
+    .save()
+    .then((competition) => ({ error: false, result: competition }))
+    .catch((error) => ({ error: true, result: error }));
+}
+
+export function update(id: string, data: any) {
+  return DB.Models.Competition.findByIdAndUpdate(id, data, { new: true })
+    .lean()
+    .exec();
+}
+
+export function deleteById(id: string) {
+  return DB.Models.Competition.findByIdAndDelete(id).lean().exec();
 }
 
 // TODO: Yo! Add a limit or 'size' for the max number of clubs
 
 /**
-* Add Club to Competition
-*/
-export async function addClub (competitionId: string, clubId: string) {
-  return competitionModel
-    .findByIdAndUpdate(competitionId, {
+ * Add Club to Competition
+ */
+export function addClub(competitionId: string, clubId: string) {
+  return DB.Models.Competition.findByIdAndUpdate(
+    competitionId,
+    {
       $push: { Clubs: clubId },
-    })
-    .then(res => ({ error: false, result: '' }))
-    .catch(err => ({ error: true, result: err }));
-};
+    },
+    { new: true }
+  )
+    .lean()
+    .exec();
+}
 
+/**
+ * Add Season to Competition
+ * @param competitiionId
+ * @param seasonId
+ */
+export function addSeason(competitionId: string, seasonId: string) {
+  return DB.Models.Competition.findByIdAndUpdate(
+    competitionId,
+    {
+      $push: { Seasons: seasonId },
+    },
+    { new: true }
+  )
+    .lean()
+    .exec();
+}
