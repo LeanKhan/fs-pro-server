@@ -54,11 +54,20 @@ export const updatePlayerSigning: RequestHandler = async (
   res: Response,
   next: NextFunction
 ) => {
-  const resp = await toggleSigned(
-    req.body.playerId,
-    req.query.player_is_signed,
-    req.query.club_code
-  );
+  let resp;
+  if (req.query.remove) {
+    resp = await toggleSigned(
+      req.body.data.playerId,
+      req.body.data.isSigned,
+      null
+    );
+  } else {
+    resp = await toggleSigned(
+      req.body.data.playerId,
+      req.body.data.isSigned,
+      req.body.data.clubCode
+    );
+  }
 
   if (!resp.error) {
     next();

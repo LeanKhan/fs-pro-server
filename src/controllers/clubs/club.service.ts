@@ -24,6 +24,10 @@ export function fetchClubs(condition: any) {
     .exec();
 }
 
+export function deleteById(id: string) {
+  return DB.Models.Club.findByIdAndDelete(id).lean().exec();
+}
+
 /**
  * fecthSingleClubById
  *
@@ -31,8 +35,12 @@ export function fetchClubs(condition: any) {
  *
  * @param id Club id
  */
-export function fetchSingleClubById(id: any) {
-  return DB.Models.Club.findById(id).lean().exec();
+export function fetchSingleClubById(id: any, populate: string) {
+  if(populate){
+  return DB.Models.Club.findById(id).populate(populate).lean().exec();    
+  } else {
+      return DB.Models.Club.findById(id).lean().exec();
+  }
 }
 
 /**

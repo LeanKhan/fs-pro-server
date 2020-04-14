@@ -44,7 +44,6 @@ export class User {
           required: true,
           unique: true,
           minlength: 3,
-          index: { unique: true },
         },
         Avatar: {
           type: String,
@@ -59,24 +58,24 @@ export class User {
       { timestamps: true }
     );
 
-    UserSchema.pre('save', function(this: IUser, next) {
+    UserSchema.pre('save', function (this: IUser, next) {
       if (!this.isModified('Password')) {
         return next();
       }
 
       bcrypt
         .hash(this.Password, 10)
-        .then(hash => {
+        .then((hash) => {
           this.Password = hash;
           next();
         })
-        .catch(err => {
+        .catch((err) => {
           console.log('Error while hashing password => ', err);
         });
     });
 
     // compare passwords function
-    UserSchema.methods.comparePassword = function(password: string, cb: any) {
+    UserSchema.methods.comparePassword = function (password: string, cb: any) {
       bcrypt.compare(password, this.Password, (err, isMatch) => {
         if (err) {
           return cb(err);

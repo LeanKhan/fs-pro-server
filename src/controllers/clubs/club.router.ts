@@ -5,6 +5,7 @@ import {
   createNewClub,
   fetchSingleClubById,
   updateClub,
+  deleteById,
 } from './club.service';
 import { updatePlayerSigning } from '../../middleware/player';
 import {
@@ -31,12 +32,12 @@ router.get('/all', async (req, res) => {
  * Create a new club bross
  */
 router.post('/new', async (req, res) => {
-  const response = await createNewClub(req.body);
+  const response = await createNewClub(req.body.data);
 
   if (!response.error) {
     respond.success(res, 200, 'Club created successfully', response.result);
   } else {
-    respond.fail(res, 500, 'Error creating club', response.result);
+    respond.fail(res, 400, 'Error creating club', response.result);
   }
 });
 
@@ -54,13 +55,25 @@ router.post('/:id/update', (req, res) => {
     });
 });
 
+router.delete('/:id', (req, res) => {
+  const response = deleteById(req.params.id);
+
+  response
+    .then((data) => {
+      respond.success(res, 200, 'Club deleted successfully', data);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error deleting Club', err);
+    });
+});
+
 /**
  * fetchSingleClubById
  *
  * fetch a single club by it's id brozay
  */
 router.get('/:id', async (req, res) => {
-  const response = fetchSingleClubById(req.params.id);
+  const response = fetchSingleClubById(req.params.id, req.query.populate);
 
   response
     .then((club) => {
@@ -76,7 +89,14 @@ router.get('/:id', async (req, res) => {
  */
 
 router.put(
-  '/:id/sign-player',
+  '/:id/add-player',
+  updatePlayerSigning,
+  addPlayerToClubMiddleware,
+  calculateClubRating
+);
+
+router.put(
+  '/:id/remove-player',
   updatePlayerSigning,
   addPlayerToClubMiddleware,
   calculateClubRating

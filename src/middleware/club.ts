@@ -17,11 +17,15 @@ export const calculateClubRating: RequestHandler = async (
   _response
     .then((ratings) => {
       // Now calculate the total Average rating...
-      const total_rating = ratings.reduce((sum, { avg_rating }) => {
-        return (sum += avg_rating);
-      }, 0);
+      let total_rating;
 
-      const avg_total_rating = total_rating / ratings.length;
+      if (ratings.length !== 0) {
+        total_rating = ratings.reduce((sum, { avg_rating }) => {
+          return (sum += avg_rating);
+        }, 0);
+      }
+
+      const avg_total_rating = total_rating ? total_rating / ratings.length : 0;
 
       const data: ClubRating = {
         Rating: avg_total_rating,
@@ -33,9 +37,21 @@ export const calculateClubRating: RequestHandler = async (
 
       // Now update club...
 
-      updateClub(req.params.id, data).then((club) => {
-        respond.success(res, 200, 'Player added to Club successfully', club);
-      });
+      updateClub(req.params.id, data)
+        .then((club) => {
+          respond.success(
+            res,
+            200,
+            req.query.remove
+              ? 'Player removed from Club successfully'
+              : 'Player added to Club successfully',
+            club
+          );
+        })
+        .catch((err) => {
+          console.log('Error updating Club Rating =>', err);
+          respond.fail(res, 400, 'Error updating Club Rating', err);
+        });
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error fetching Club', err);
@@ -53,10 +69,19 @@ export function addPlayerToClubMiddleware(
   next: NextFunction
 ) {
   // tslint:disable-next-line: variable-name
-  const { playerId } = req.body;
-  const _response = updateClub(req.params.id, {
-    $push: { Players: playerId },
-  });
+  const { playerId } = req.body.data;
+
+  let _response;
+
+  if (req.query.remove) {
+    _response = updateClub(req.params.id, {
+      $pull: { Players: playerId },
+    });
+  } else {
+    _response = updateClub(req.params.id, {
+      $push: { Players: playerId },
+    });
+  }
 
   _response
     .then((club) => {
