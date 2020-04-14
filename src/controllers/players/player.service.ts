@@ -40,10 +40,10 @@ export const createNewPlayer = async (_player: IPlayer) => {
 export function toggleSigned(
   playerId: string,
   value: boolean,
-  clubCode: string
+  clubCode: string | null
 ) {
   return DB.Models.Player.findByIdAndUpdate(playerId, {
-    $set: { isSigned: value, ClubCode: clubCode },
+    $set: { isSigned: !value, ClubCode: clubCode },
   })
     .lean()
     .exec();

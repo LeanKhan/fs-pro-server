@@ -24,6 +24,59 @@ declare interface IPlayer extends Document {
 
 export interface PlayerModel extends Model<IPlayer> {}
 
+const PlayerTransferHistorySchema: Schema = new Schema({
+  message: String,
+  type: String,
+  amount: Number,
+  from: String,
+  to: String,
+  date: String,
+});
+
+const PlayerRatingsHistory: Schema = new Schema({
+  date: String,
+  season: String,
+  rating: Number,
+  value: Number,
+});
+
+const PlayerAppearanceSchema: Schema = new Schema({
+  head: {
+    type: Object,
+    variant: { type: String, default: 'default' },
+    style: { type: String, default: 'light' },
+  },
+  complexion: {
+    type: String,
+    default: 'light',
+  },
+  hair: {
+    type: Object,
+    variant: { type: String, default: 'default' },
+    style: { type: String, default: 'brown' },
+  },
+  eyebrows: {
+    type: Object,
+    variant: { type: String, default: 'default' },
+    style: { type: String, default: 'brown' },
+  },
+  eyes: {
+    type: Object,
+    variant: { type: String, default: 'default' },
+    style: { type: String, default: 'black' },
+  },
+  nose: {
+    type: Object,
+    variant: { type: String, default: 'default' },
+    style: { type: String, default: 'light' },
+  },
+  mouth: {
+    type: Object,
+    variant: { type: String, default: 'default' },
+    style: { type: String, default: 'light' },
+  },
+});
+
 export class Player {
   private _model: Model<IPlayer>;
 
@@ -43,26 +96,27 @@ export class Player {
           type: Number,
         },
         PlayerID: String,
-        /** Default position */
         Position: {
           type: String,
         },
         PositionNumber: Number,
         Attributes: {
           type: Object,
-          Speed: Number,
-          Shooting: Number,
-          LongPass: Number,
-          ShortPass: Number,
-          Mental: Number,
-          Control: Number,
-          Tackling: Number,
-          Strength: Number,
-          Stamina: Number,
+          Speed: { type: Number, default: 0 },
+          Shooting: { type: Number, default: 0 },
+          LongPass: { type: Number, default: 0 },
+          ShortPass: { type: Number, default: 0 },
+          Mental: { type: Number, default: 0 },
+          Control: { type: Number, default: 0 },
+          Tackling: { type: Number, default: 0 },
+          Dribbling: { type: Number, default: 0 },
+          Setpiece: { type: Number, default: 0 },
+          Strength: { type: Number, default: 0 },
+          Stamina: { type: Number, default: 0 },
           PreferredFoot: String,
-          Keeping: Number,
-          AttackingMindset: Boolean,
-          DefensiveMindset: Boolean,
+          Keeping: { type: Number, default: 0 },
+          AttackingMindset: { type: Number, default: false },
+          DefensiveMindset: { type: Number, default: false },
         },
         /** overall Player rating over 100 - e.g 88 */
         Rating: Number,
@@ -76,11 +130,13 @@ export class Player {
           CleanSheets: { type: Number, default: 0 },
           MOTM: { type: Number, default: 0 },
         },
-        GoalsScored: Number,
         ShirtNumber: String,
         Value: {
           type: Number,
         },
+        Appearance: PlayerAppearanceSchema,
+        TransferHistory: [PlayerTransferHistorySchema],
+        RatingsHistory: [PlayerRatingsHistory],
         isSigned: {
           type: Boolean,
           default: false,
