@@ -23,7 +23,11 @@ export const fetchAllPlayers = async (options = {}) => {
  * @returns - {error: boolean, result: any}
  */
 export const createNewPlayer = async (_player: IPlayer) => {
-  _player.Value = calculatePlayerValue(_player.Rating, _player.Age);
+  _player.Value = calculatePlayerValue(
+    _player.Position,
+    _player.Rating,
+    _player.Age
+  );
 
   const PLAYER = new DB.Models.Player(_player);
 

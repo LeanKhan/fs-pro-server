@@ -2,6 +2,7 @@ import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as co from './coordinates';
 import { IPositions, IFieldPlayer } from '../interfaces/Player';
+import { ratingFactors, postitionFactors, ageFactors } from './player_factors';
 
 /**
  * Get attackers and midfielders that are not with the ball
@@ -9,7 +10,7 @@ import { IPositions, IFieldPlayer } from '../interfaces/Player';
  * @param team
  */
 function getATTMID(team: MatchSide) {
-  return team.StartingSquad.filter(player => {
+  return team.StartingSquad.filter((player) => {
     if (
       (player.Position === 'ATT' && !player.WithBall) ||
       (player.Position === 'MID' && !player.WithBall)
@@ -26,7 +27,7 @@ function getATTMID(team: MatchSide) {
  * @param team
  */
 function getATTMIDNoFilter(team: MatchSide) {
-  return team.StartingSquad.filter(player => {
+  return team.StartingSquad.filter((player) => {
     if (player.Position === 'ATT' || player.Position === 'MID') {
       return true;
     } else {
@@ -75,14 +76,14 @@ function getRandomATTMID(team: MatchSide): IFieldPlayer {
  * Get the goalkeeper from the given list of players
  */
 function getGK(squad: IFieldPlayer[]) {
-  return squad.find(player => {
+  return squad.find((player) => {
     // tslint:disable-next-line: triple-equals
     return player.Position === 'GK';
   });
 }
 
 function getRandomDEF(team: MatchSide) {
-  return team.StartingSquad.find(player => {
+  return team.StartingSquad.find((player) => {
     return player.Position === 'ATT' || player.Position === 'MID';
   });
 }
@@ -124,113 +125,178 @@ function findFreeBlock(around: IPositions) {
 //       });
 // }
 
-function calculatePlayerValue(rating: number, age: number) {
-  let value;
+// function calculatePlayerValue(rating: number, age: number) {
+//   let value;
 
-  if (age >= 17 && age < 20) {
-    if (rating < 60) {
-      value = 1000000;
-    } else if (rating >= 60 && rating < 70) {
-      value = 2000000;
-    } else if (rating >= 70 && rating < 75) {
-      value = 4000000;
-    } else if (rating >= 75 && rating < 80) {
-      value = 12000000;
-    } else if (rating >= 80 && rating < 85) {
-      value = 40000000;
-    } else if (rating >= 85 && rating < 90) {
-      value = 100000000;
-    } else if (rating >= 90 && rating < 95) {
-      value = 160000000;
-    } else if (rating >= 95 && rating <= 100) {
-      value = 200000000;
-    } else {
-      value = 0;
-    }
-  } else if (age >= 20 && age < 24) {
-    if (rating < 60) {
-      value = 500000;
-    } else if (rating >= 60 && rating < 70) {
-      value = 4000000;
-    } else if (rating >= 70 && rating < 75) {
-      value = 6000000;
-    } else if (rating >= 75 && rating < 80) {
-      value = 15000000;
-    } else if (rating >= 80 && rating < 85) {
-      value = 44000000;
-    } else if (rating >= 85 && rating < 90) {
-      value = value = 90000000;
-    } else if (rating >= 90 && rating < 95) {
-      value = 180000000;
-    } else if (rating >= 95 && rating <= 100) {
-      value = 240000000;
-    } else {
-      value = 0;
-    }
-  } else if (age >= 24 && age < 26) {
-    if (rating < 60) {
-      value = 400000;
-    } else if (rating >= 60 && rating < 70) {
-      value = 3000000;
-    } else if (rating >= 70 && rating < 75) {
-      value = 18000000;
-    } else if (rating >= 75 && rating < 80) {
-      value = 30000000;
-    } else if (rating >= 80 && rating < 85) {
-      value = 48000000;
-    } else if (rating >= 85 && rating < 90) {
-      value = 120000000;
-    } else if (rating >= 90 && rating < 95) {
-      value = 200000000;
-    } else if (rating >= 95 && rating <= 100) {
-      value = 250000000;
-    } else {
-      value = 0;
-    }
-  } else if (age >= 26 && age < 30) {
-    if (rating < 60) {
-      value = 350000;
-    } else if (rating >= 60 && rating < 70) {
-      value = 2500000;
-    } else if (rating >= 70 && rating < 75) {
-      value = 15000000;
-    } else if (rating >= 75 && rating < 80) {
-      value = 34000000;
-    } else if (rating >= 80 && rating < 85) {
-      value = 8000000;
-    } else if (rating >= 85 && rating < 90) {
-      value = 120000000;
-    } else if (rating >= 90 && rating < 95) {
-      value = 140000000;
-    } else if (rating >= 95 && rating <= 100) {
-      value = 240000000;
-    } else {
-      value = 0;
-    }
-  } else if (age >= 30 && age < 42) {
-    if (rating < 60) {
-      value = 350000;
-    } else if (rating >= 60 && rating < 70) {
-      value = 2000000;
-    } else if (rating >= 70 && rating < 75) {
-      value = 12000000;
-    } else if (rating >= 75 && rating < 80) {
-      value = 28000000;
-    } else if (rating >= 80 && rating < 85) {
-      value = 46000000;
-    } else if (rating >= 85 && rating < 90) {
-      value = 90000000;
-    } else if (rating >= 90 && rating < 95) {
-      value = 130000000;
-    } else if (rating >= 95 && rating <= 100) {
-      value = 220000000;
-    } else {
-      value = 0;
-    }
-  } else {
-    value = 0;
+//   if (age >= 17 && age < 20) {
+//     if(rating > 40) {
+//       value = 500000;
+//     }
+//     else if (rating < 60) {
+//       value = 1000000;
+//     } else if (rating >= 60 && rating < 70) {
+//       value = 2000000;
+//     } else if (rating >= 70 && rating < 75) {
+//       value = 4000000;
+//     } else if (rating >= 75 && rating < 80) {
+//       value = 12000000;
+//     } else if (rating >= 80 && rating < 85) {
+//       value = 40000000;
+//     } else if (rating >= 85 && rating < 90) {
+//       value = 100000000;
+//     } else if (rating >= 90 && rating < 95) {
+//       value = 160000000;
+//     } else if (rating >= 95 && rating <= 100) {
+//       value = 200000000;
+//     } else {
+//       value = 0;
+//     }
+//   } else if (age >= 20 && age < 24) {
+//     if (rating < 60) {
+//       value = 500000;
+//     } else if (rating >= 60 && rating < 70) {
+//       value = 4000000;
+//     } else if (rating >= 70 && rating < 75) {
+//       value = 6000000;
+//     } else if (rating >= 75 && rating < 80) {
+//       value = 15000000;
+//     } else if (rating >= 80 && rating < 85) {
+//       value = 44000000;
+//     } else if (rating >= 85 && rating < 90) {
+//       value = value = 90000000;
+//     } else if (rating >= 90 && rating < 95) {
+//       value = 180000000;
+//     } else if (rating >= 95 && rating <= 100) {
+//       value = 240000000;
+//     } else {
+//       value = 0;
+//     }
+//   } else if (age >= 24 && age < 26) {
+//     if (rating < 60) {
+//       value = 400000;
+//     } else if (rating >= 60 && rating < 70) {
+//       value = 3000000;
+//     } else if (rating >= 70 && rating < 75) {
+//       value = 18000000;
+//     } else if (rating >= 75 && rating < 80) {
+//       value = 30000000;
+//     } else if (rating >= 80 && rating < 85) {
+//       value = 48000000;
+//     } else if (rating >= 85 && rating < 90) {
+//       value = 120000000;
+//     } else if (rating >= 90 && rating < 95) {
+//       value = 200000000;
+//     } else if (rating >= 95 && rating <= 100) {
+//       value = 250000000;
+//     } else {
+//       value = 0;
+//     }
+//   } else if (age >= 26 && age < 30) {
+//     if (rating < 60) {
+//       value = 350000;
+//     } else if (rating >= 60 && rating < 70) {
+//       value = 2500000;
+//     } else if (rating >= 70 && rating < 75) {
+//       value = 15000000;
+//     } else if (rating >= 75 && rating < 80) {
+//       value = 34000000;
+//     } else if (rating >= 80 && rating < 85) {
+//       value = 8000000;
+//     } else if (rating >= 85 && rating < 90) {
+//       value = 120000000;
+//     } else if (rating >= 90 && rating < 95) {
+//       value = 140000000;
+//     } else if (rating >= 95 && rating <= 100) {
+//       value = 240000000;
+//     } else {
+//       value = 0;
+//     }
+//   } else if (age >= 30 && age < 42) {
+//     if (rating < 60) {
+//       value = 350000;
+//     } else if (rating >= 60 && rating < 70) {
+//       value = 2000000;
+//     } else if (rating >= 70 && rating < 75) {
+//       value = 12000000;
+//     } else if (rating >= 75 && rating < 80) {
+//       value = 28000000;
+//     } else if (rating >= 80 && rating < 85) {
+//       value = 46000000;
+//     } else if (rating >= 85 && rating < 90) {
+//       value = 90000000;
+//     } else if (rating >= 90 && rating < 95) {
+//       value = 130000000;
+//     } else if (rating >= 95 && rating <= 100) {
+//       value = 220000000;
+//     } else {
+//       value = 0;
+//     }
+//   } else {
+//     value = 0;
+//   }
+//   return value;
+// }
+
+function calculatePlayerValue(pos: string, rating: number, age: number) {
+  // 1. Get basevalue from overall...
+  // 2. get position multiplier...
+  // 3. get potential multiplier...
+  // 4. get age multiplier...
+
+  const basevalue = getBasevalue(Math.round(rating));
+
+  console.log('Basevalue =>', basevalue);
+
+  const position_multiplier = basevalue * getPositionMultiplier(pos);
+
+  console.log('Position mu =>', position_multiplier);
+
+  const age_multiplier = basevalue * getAgeMultiplier(pos, age);
+
+  console.log('Age mu =>', age_multiplier);
+
+  return Math.round(basevalue + position_multiplier + age_multiplier);
+}
+
+function getBasevalue(rating: number): number {
+  return ratingFactors[rating];
+}
+
+function getPositionMultiplier(pos: string): number {
+  let position = -1;
+  switch (pos) {
+    case 'GK':
+      position = 0;
+      break;
+    case 'DEF':
+      position = 1 + Math.round(Math.random() * 10);
+      break;
+    case 'MID':
+      position = randomBetween(12, 20);
+      break;
+    case 'ATT':
+      position = randomBetween(20, 26);
+      break;
+    default:
+      break;
   }
-  return value;
+
+  return postitionFactors[position] / 100;
+}
+
+function getAgeMultiplier(pos: string, age: number): number {
+  let multiplier = 0;
+  if (pos == 'GK') {
+    multiplier = -2;
+  } else {
+    multiplier = ageFactors[age];
+  }
+
+  return multiplier / 100;
+}
+
+function randomBetween(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min) + min);
 }
 
 export {
