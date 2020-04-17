@@ -102,3 +102,50 @@ export function generateFixtureObject(
     Week: Math.ceil((index + 1) / matchesPerWeek),
   };
 }
+
+export class RoundRobin {
+  private teams: number[];
+  private rounds: Array<{ home: number; away: number }> = [];
+
+  constructor(teamsLength: number) {
+    this.teams = Array.apply(null, Array(teamsLength)).map((_, i) => i);
+  }
+
+  public generateFixtures() {
+    for (let i = 0; i < this.teams.length - 1; i++) {
+      this.rounds = this.rounds.concat(this.generateRoundFixtures());
+      this.nextRound();
+    }
+
+    this.rounds = this.rounds.concat(this.reverseFixtures(this.rounds));
+
+    return this.rounds;
+  }  
+
+  private nextRound() {
+    const next = this.teams.pop() as number;
+
+    this.teams.splice(1, 0, next);
+  }
+
+  private generateRoundFixtures() {
+    const round = [];
+    for (let y = 0; y < this.teams.length / 2; y++) {
+      const home = progression(y + 1, 0, 1);
+      const away = progression(y + 1, this.teams.length - 1, -1);
+      round.push({ home: this.teams[home], away: this.teams[away] });
+    }
+
+    return round;
+  }
+
+  private reverseFixtures(fixtures: Array<{ home: number; away: number }>) {
+    return fixtures.map((f) => {
+      return { home: f.away, away: f.home };
+    });
+  }
+}
+
+function progression(n: number, a: number, d: number) {
+  return a + (n - 1) * d;
+}

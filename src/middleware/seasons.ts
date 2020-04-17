@@ -11,6 +11,7 @@ import {
   monthFromIndex,
   generateWeekTable,
   generateFixtureObject,
+  RoundRobin,
 } from '../utils/seasons';
 
 export async function createSeason(
@@ -95,30 +96,34 @@ export async function generateFixtures(
 
   const seasonId = req.params.id;
 
-  const matchesPerWeek = Math.round(competition.Clubs.length / 2);
+  const matchesPerWeek = competition.Clubs.length / 2;
 
   // Round Robin fixtures algorithm
   // h -> Home team , a -> Away team
   // the numbers are the Club numbers
 
-  const roundrobin = [
-    { h: 1, a: 4 },
-    { h: 2, a: 3 },
-    { h: 1, a: 3 },
-    { h: 4, a: 2 },
-    { h: 1, a: 2 },
-    { h: 3, a: 4 },
-    { h: 4, a: 1 },
-    { h: 3, a: 2 },
-    { h: 3, a: 1 },
-    { h: 2, a: 4 },
-    { h: 2, a: 1 },
-    { h: 4, a: 3 },
-  ];
+  // const roundrobin = [
+  //   { h: 1, a: 4 },
+  //   { h: 2, a: 3 },
+  //   { h: 1, a: 3 },
+  //   { h: 4, a: 2 },
+  //   { h: 1, a: 2 },
+  //   { h: 3, a: 4 },
+  //   { h: 4, a: 1 },
+  //   { h: 3, a: 2 },
+  //   { h: 3, a: 1 },
+  //   { h: 2, a: 4 },
+  //   { h: 2, a: 1 },
+  //   { h: 4, a: 3 },
+  // ];
 
-  const fixtureObjects = roundrobin.map((fixture, index) => {
-    const home = competition.Clubs[fixture.h - 1];
-    const away = competition.Clubs[fixture.a - 1];
+  const roundrobin = new RoundRobin(competition.Clubs.length);
+
+  const rounds = roundrobin.generateFixtures();
+
+  const fixtureObjects = rounds.map((fixture, index) => {
+    const home = competition.Clubs[fixture.home];
+    const away = competition.Clubs[fixture.away];
     return generateFixtureObject(
       home._id,
       away._id,
