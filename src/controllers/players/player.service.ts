@@ -5,16 +5,35 @@ import { calculatePlayerValue } from '../../utils/players';
 /**
  * fetchAllPlayers
  *
- * return all the players in the game
+ * fetch multiple Players based on query
+ * default behaviour is to send all players in the db
  */
-export const fetchAllPlayers = async (options = {}) => {
-  try {
-    const players = await DB.Models.Player.find(options);
-    return { error: false, result: players };
-  } catch (err) {
-    return { error: true, result: err };
-  }
-};
+export function fetchAll(query: {} = {}) {
+  return DB.Models.Player.find(query).lean().exec();
+}
+
+/**
+ * FetchOneById
+ *
+ * Fetch a specific Player by id
+ * @param id
+ */
+export function fetchOneById(id: string) {
+  return DB.Models.Player.findById(id).lean().exec();
+}
+
+export function updateById(id: string, update: any) {
+  return DB.Models.Player.findByIdAndUpdate(id, update, { new: true })
+    .lean()
+    .exec();
+}
+/**
+ * delete Player by id
+ * @param id
+ */
+export function deletePlayer(id: string) {
+  return DB.Models.Player.findByIdAndDelete(id).lean().exec();
+}
 
 /**
  * Create new player broooooo
