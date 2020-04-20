@@ -7,7 +7,7 @@ import {
 import { Player, PlayerModel } from '../controllers/players/player.model';
 import { Season, SeasonModel } from '../controllers/seasons/season.model';
 import { Club, ClubModel } from '../controllers/clubs/club.model';
-import { User, UserModel } from '../models/user.model';
+import { User, UserModel } from '../controllers/user/user.model';
 import { Fixture, FixtureModel } from '../controllers/fixtures/fixture.model';
 
 declare interface IModels {
@@ -35,13 +35,13 @@ export default class DB {
 
   private constructor() {
     connect(MONGO_DEV_URL, { useNewUrlParser: true })
-      .then(client => {
+      .then((client) => {
         console.log(
           `Connection to ${client.connection.db.databaseName} database successful!`
         );
       })
 
-      .catch(err => {
+      .catch((err) => {
         console.error(`Error in connecting to database: `, err);
       });
     this._db = connection;
