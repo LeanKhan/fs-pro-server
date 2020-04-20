@@ -102,7 +102,7 @@ export function generateFixtureObject(
     Week: Math.ceil((index + 1) / matchesPerWeek),
   };
 }
-
+// TODO: Record the reverse or first-leg fixture...
 export class RoundRobin {
   private teams: number[];
   private rounds: Array<{ home: number; away: number }> = [];
@@ -120,7 +120,7 @@ export class RoundRobin {
     this.rounds = this.rounds.concat(this.reverseFixtures(this.rounds));
 
     return this.rounds;
-  }  
+  }
 
   private nextRound() {
     const next = this.teams.pop() as number;

@@ -96,6 +96,11 @@ export class Fixture {
         Season: { type: Schema.Types.ObjectId, ref: 'Season' },
         Stadium: String,
         Played: { type: Boolean, default: false },
+        Type: {
+          type: String,
+          enum: ['Friendly', 'League', 'First Leg', 'Second Leg'],
+        },
+        ReverseFixture: { type: Schema.Types.ObjectId, ref: 'Fixture' },
         PlayedAt: Date,
         Home: String,
         Away: String,

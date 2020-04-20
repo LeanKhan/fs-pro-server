@@ -1,7 +1,7 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-declare interface IUser extends Document {
+export declare interface IUser extends Document {
   FirstName: string;
   LastName: string;
   Email: string;
@@ -11,7 +11,7 @@ declare interface IUser extends Document {
   Password: string;
   Clubs: [];
   isAdmin: boolean;
-  comparePasswords(password: string, callback: any): void;
+  comparePassword(password: string, callback: any): void;
 }
 
 export interface UserModel extends Model<IUser> {}
@@ -22,11 +22,7 @@ export class User {
   constructor() {
     const UserSchema: Schema = new Schema(
       {
-        FirstName: {
-          type: String,
-          required: true,
-        },
-        LastName: {
+        FullName: {
           type: String,
           required: true,
         },
@@ -45,6 +41,7 @@ export class User {
           unique: true,
           minlength: 3,
         },
+        Stats: { type: Object, Wins: 0, Losses: 0, Draws: 0 },
         Avatar: {
           type: String,
           default: 'default-avatar.png',

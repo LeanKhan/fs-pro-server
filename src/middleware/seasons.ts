@@ -80,6 +80,7 @@ export async function fetchCompetitionClubs(
 interface GenerateFixturesBody {
   seasonCode: string;
   leagueCode: string;
+  competitionType: string;
   competitionId: string;
 }
 
@@ -90,9 +91,14 @@ export async function generateFixtures(
 ) {
   const competition: Competition = req.body.competition;
 
-  const { seasonCode } = req.body.data as GenerateFixturesBody;
+  const { leagueCode, seasonCode, competitionType } = req.body
+    .data as GenerateFixturesBody;
 
-  const { leagueCode } = req.body.data as GenerateFixturesBody;
+  /**
+   * Things are slightly different for a Cup than for a League...
+   * - A cup doesn't have all the matches before hand...
+   * - A cup may have a mix of more than one type of match, e.g with revers fixtures and straigh tuo knockout!
+   */
 
   const seasonId = req.params.id;
 

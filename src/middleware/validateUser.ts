@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { fetchOneUser } from '../services/user.service';
+import { fetchOneUser } from '../controllers/user/user.service';
 import { IUserLogin } from '../interfaces/Response';
 import respond from '../helpers/responseHandler';
-import { IUser } from '../models/user.model';
+import { IUser } from '../controllers/user/user.model';
 
 /**
  * Check if user actually exists fam :)
@@ -15,18 +15,30 @@ export const checkUserExists = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { Username }: IUserLogin = req.body.data;
+  const { Username, Password }: IUserLogin = req.body.data;
 
-  const response = await fetchOneUser({ Username });
+  const response = fetchOneUser({ Username }, true);
 
-  if (response.error) {
-    return respond.fail(res, 400, 'Error logging in', response.result);
-  } else if (!response.result) {
-    return respond.fail(res, 404, 'Username does not exist');
-  } else {
-    req.body.u = response.result;
-    return next();
-  }
+  response
+    .then((result: any) => {
+      if (!result) {
+        return respond.fail(res, 404, 'Username does not exist');
+      } else {
+        // User exists... check password
+        result!.comparePassword(Password, (error: any, isMatch: boolean) => {
+          if (error) {
+            throw error;
+          }
+          if (isMatch) {
+            req.body.u = result;
+            return next();
+          }
+        });
+      }
+    })
+    .catch((error: any) => {
+      return respond.fail(res, 400, 'Error logging in', error);
+    });
 };
 
 /**
@@ -34,14 +46,20 @@ export const checkUserExists = async (
  * @param req
  * @param res
  */
-export const checkPassword = async (req: Request, res: Response) => {
+export const checkPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { Password }: IUserLogin = req.body.data;
   const u: IUser = req.body.u;
 
-  u.comparePasswords(Password, (err: any, isMatch: boolean) => {
+  u.comparePassword(Password, (err: any, isMatch: boolean) => {
     if (!isMatch || err) {
       return respond.fail(res, 400, 'Password is incorrect');
     }
-    return respond.success(res, 200, 'User login successful');
+
+    return next();
+    // return respond.success(res, 200, 'User login successful');
   });
 };
