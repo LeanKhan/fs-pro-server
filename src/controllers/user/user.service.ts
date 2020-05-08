@@ -3,7 +3,8 @@ import DB from '../../db';
 /**
  * fetch one user by Id
  *
- * @param id
+ * @param id,
+ * @param populate default false
  */
 export function fetchUser(id: string, populate = false) {
   if (populate) {

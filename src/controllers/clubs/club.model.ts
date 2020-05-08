@@ -116,6 +116,7 @@ export class Club {
         LeagueCode: String,
         League: { type: Schema.Types.ObjectId, ref: 'Competition' },
         Players: [{ type: Schema.Types.ObjectId, ref: 'Player' }],
+        User: { type: Schema.Types.ObjectId, ref: 'User' },
       },
       { timestamps: true }
     );

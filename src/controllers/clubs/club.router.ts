@@ -1,9 +1,10 @@
-import express from 'express';
+import { Router } from 'express';
 import respond from '../../helpers/responseHandler';
 import {
   fetchAllClubs,
   createNewClub,
   fetchSingleClubById,
+  fetchClubs,
   updateClub,
   deleteById,
 } from './club.service';
@@ -13,7 +14,7 @@ import {
   calculateClubRating,
 } from '../../middleware/club';
 
-const router = express.Router();
+const router = Router();
 
 // Get all clubs bro
 router.get('/all', async (req, res) => {
@@ -21,10 +22,26 @@ router.get('/all', async (req, res) => {
 
   response
     .then((clubs) => {
-      respond.success(res, 200, 'Competition deleted successfully', clubs);
+      respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
     .catch((err) => {
-      respond.fail(res, 400, 'Error deleting Competition', err);
+      respond.fail(res, 400, 'Error fetching Clubs', err);
+    });
+});
+
+router.get('/fetch', async (req, res) => {
+  // fetch clubs with query and all
+  const query = JSON.parse(req.query.q) || {};
+  const select = JSON.parse(req.query.select);
+
+  const response = fetchClubs(query, select);
+
+  response
+    .then((clubs) => {
+      respond.success(res, 200, 'Clubs fetched successfully', clubs);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching Clubs', err);
     });
 });
 

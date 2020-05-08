@@ -1,5 +1,6 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { store } from '../../server';
 
 export declare interface IUser extends Document {
   FirstName: string;
@@ -11,7 +12,10 @@ export declare interface IUser extends Document {
   Password: string;
   Clubs: [];
   isAdmin: boolean;
+  /** The Session ID associated with this user */
+  Session: string;
   comparePassword(password: string, callback: any): void;
+  findSession(session: string, callback: any): void;
 }
 
 export interface UserModel extends Model<IUser> {}
@@ -51,6 +55,7 @@ export class User {
           type: Boolean,
           default: false,
         },
+        Session: String,
       },
       { timestamps: true }
     );
@@ -79,6 +84,18 @@ export class User {
         }
 
         cb(null, isMatch);
+      });
+    };
+
+    // tslint:disable-next-line: only-arrow-functions
+    UserSchema.methods.findSession = function (sessionID: string, cb: any) {
+      store.get(sessionID, (err, sess) => {
+        // if the session found is the same one the user has
+        if (!err && this.Session === sessionID) {
+          return cb(null, sess);
+        } else {
+          throw err;
+        }
       });
     };
 

@@ -2,8 +2,8 @@ import { Response } from 'express';
 
 /**
  * Handles all http responses
- * @exports respondWithSuccess
- * @exports respondWithWarning
+ * @exports success
+ * @exports fail
  */
 
 /**
@@ -13,12 +13,12 @@ import { Response } from 'express';
  * @param {Object} additionalFields
  * @returns {Object} null
  */
-const respondWithSuccess = (
+export function success(
   res: Response,
   statusCode: number = 200,
   message: string,
   additionalFields: object = {}
-): object => {
+): object {
   const payload = Array.isArray(additionalFields)
     ? [...additionalFields]
     : { ...additionalFields };
@@ -33,7 +33,7 @@ const respondWithSuccess = (
         payload,
       })
     );
-};
+}
 
 /**
  * @param  {Object} res
@@ -42,12 +42,12 @@ const respondWithSuccess = (
  * @param {Object} additionalFields
  * @returns {Object} null
  */
-const respondWithError = (
+export function fail(
   res: Response,
   statusCode: number = 500,
   message: string,
   additionalFields: object = {}
-): object => {
+): object {
   const payload = Array.isArray(additionalFields)
     ? [...additionalFields]
     : { ...additionalFields };
@@ -55,12 +55,12 @@ const respondWithError = (
     .status(statusCode)
     .contentType('json')
     .send(JSON.stringify({ success: false, message, payload }));
-};
+}
 
 //   'Borrowed' from isthisarealjob code :)
 // -LeanKhan
 
 export default {
-  success: respondWithSuccess,
-  fail: respondWithError,
+  success,
+  fail,
 };

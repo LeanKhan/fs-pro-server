@@ -63,7 +63,7 @@ export class MatchSide extends Club implements IClub {
   }
 
   public resetFormation() {
-    this.StartingSquad.forEach(player => {
+    this.StartingSquad.forEach((player) => {
       player.changePosition(player.StartingPosition);
     });
   }
@@ -72,7 +72,7 @@ export class MatchSide extends Club implements IClub {
     console.log('------ ======== -----');
 
     console.table(
-      this.StartingSquad.map(p => ({
+      this.StartingSquad.map((p) => ({
         Name: p.FirstName + ' ' + p.LastName,
         Club: p.ClubCode,
         Position: p.Position,
@@ -107,6 +107,11 @@ export class MatchSide extends Club implements IClub {
       index = id;
       return pick.positions.includes(p.Position);
     });
+
+    console.log('Formation block =>', formationBlock);
+    console.log('Formation =>', formation);
+
+    console.log('player =>', p);
 
     return { block: fp[formationBlock!.block], index };
   }

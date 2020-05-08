@@ -9,7 +9,12 @@ import {
 } from './user.service';
 import respond from '../../helpers/responseHandler';
 import { checkUserExists, checkPassword } from '../../middleware/validateUser';
-import { IUserLogin } from '@/interfaces/Response';
+import { IUserLogin } from '../../interfaces/Response';
+import { initializeSession, findSession } from '../../middleware/user';
+import { updateClubs } from '../../middleware/club';
+import { IUser } from './user.model';
+import { store } from '../../server';
+import { updateClub } from '../clubs/club.service';
 
 //
 const router = Router();
@@ -29,53 +34,70 @@ const router = Router();
  * }
  *
  */
-router.post('/join', async (req, res) => {
-  const response = await createNewUser(req.body.data);
+router.post(
+  '/join',
+  async (req, res, next) => {
+    const response = await createNewUser(req.body.data);
 
-  if (!response.error) {
-    respond.success(res, 200, 'User created successfully', response.result);
-  } else {
-    if (response.result.code === 11000) {
-      respond.fail(res, 400, 'Username already exists!', response.result);
+    if (!response.error) {
+      req.body.userID = response.result._doc._id;
+      req.body.clubs = response.result._doc.Clubs;
+
+      next();
+
+      // respond.success(res, 200, 'User created successfully', response.result);
     } else {
-      respond.fail(res, 400, 'Error creating user', response.result);
-    }
-  }
-});
-
-router.post('/login', (req, res) => {
-  const { Username, Password }: IUserLogin = req.body.data;
-
-  const response = fetchOneUser({ Username }, true);
-
-  response
-    .then((result: any) => {
-      if (!result) {
-        return respond.fail(res, 404, 'Username does not exist');
+      if (response.result.code === 11000) {
+        respond.fail(res, 400, 'Username already exists!', response.result);
       } else {
-        // User exists... check password
-        result!.comparePassword(Password, (error: any, isMatch: boolean) => {
-          if (error) {
-            throw error;
-          }
-          if (isMatch) {
-            req.body.u = result;
-            return respond.success(
-              res,
-              200,
-              'User logged in successfully',
-              result.toObject()
-            );
-          } else {
-            respond.fail(res, 400, 'Password is incorrect!', { errorCode: 1 });
-          }
-        });
+        respond.fail(res, 400, 'Error creating user', response.result);
       }
-    })
-    .catch((error: any) => {
-      return respond.fail(res, 400, 'Error logging in', error);
-    });
-});
+    }
+  },
+  updateClubs,
+  initializeSession
+);
+
+router.post(
+  '/login',
+  (req, res, next) => {
+    const { Username, Password }: IUserLogin = req.body.data;
+
+    const response = fetchOneUser({ Username }, true);
+
+    response
+      .then((result: any) => {
+        if (!result) {
+          return respond.fail(res, 404, 'Username does not exist');
+        } else {
+          // User exists... check password
+          result!.comparePassword(Password, (error: any, isMatch: boolean) => {
+            if (error) {
+              throw error;
+            }
+            if (isMatch) {
+              req.body.userID = result.toObject()._id;
+              // return respond.success(
+              //   res,
+              //   200,
+              //   'User logged in successfully',
+              //   result.toObject()
+              // );
+              next();
+            } else {
+              respond.fail(res, 400, 'Password is incorrect!', {
+                errorCode: 1,
+              });
+            }
+          });
+        }
+      })
+      .catch((error: any) => {
+        return respond.fail(res, 400, 'Error logging in', error);
+      });
+  },
+  initializeSession
+);
 
 router.get('/:id', (req, res) => {
   const id = req.params.id;
@@ -89,6 +111,45 @@ router.get('/:id', (req, res) => {
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error fetching User', err);
+    });
+});
+
+router.delete('/:id/logout', (req, res) => {
+  // delete user's session
+  const userID = req.params.id;
+  console.log('User ID', userID);
+  const response = fetchOneUser({ _id: userID }, true);
+
+  response
+    .then((user: IUser) => {
+      if (!user) {
+        return respond.fail(res, 404, 'Username does not exist');
+      } else {
+        // User exists... check password
+        user!.findSession(user!.Session, function (
+          err: any,
+          sess: Express.SessionData
+        ) {
+          if (sess) {
+            // If you find the session it means it's an old one so do this...
+            // set a new one, create a new cookie and send session data to client
+            store.destroy(user!.Session, (err: any) => {
+              if (err) {
+                throw new Error('Error in destroying Session');
+              } else {
+                return respond.success(
+                  res,
+                  200,
+                  'Client logged out successfully'
+                );
+              }
+            });
+          }
+        });
+      }
+    })
+    .catch((error: any) => {
+      return respond.fail(res, 400, 'Error logging in', error);
     });
 });
 
