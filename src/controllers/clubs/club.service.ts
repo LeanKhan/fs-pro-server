@@ -16,12 +16,12 @@ export function fetchAllClubs() {
 /**
  * fetchClubs
  */
-export function fetchClubs(condition: any) {
-  return DB.Models.Club.find(condition)
-    .populate('Players')
-
-    .lean()
-    .exec();
+export function fetchClubs(condition: any, select?: string) {
+  // TODO: check if you can send all these options as an object....
+  if (select) {
+    return DB.Models.Club.find(condition).select(select).lean().exec();
+  }
+  return DB.Models.Club.find(condition).populate('Players').lean().exec();
 }
 
 export function deleteById(id: string) {
@@ -36,10 +36,10 @@ export function deleteById(id: string) {
  * @param id Club id
  */
 export function fetchSingleClubById(id: any, populate: string) {
-  if(populate){
-  return DB.Models.Club.findById(id).populate(populate).lean().exec();    
+  if (populate) {
+    return DB.Models.Club.findById(id).populate(populate).lean().exec();
   } else {
-      return DB.Models.Club.findById(id).lean().exec();
+    return DB.Models.Club.findById(id).lean().exec();
   }
 }
 
@@ -149,6 +149,14 @@ export function updateClubLeague(
 
 export function updateClub(clubId: string, data: any = {}) {
   return DB.Models.Club.findByIdAndUpdate(clubId, data, { new: true })
+    .lean()
+    .exec();
+}
+
+export function updateClubsById(clubIds: string[], data: any = {}) {
+  return DB.Models.Club.updateMany({ _id: { $in: clubIds } }, data, {
+    new: true,
+  })
     .lean()
     .exec();
 }

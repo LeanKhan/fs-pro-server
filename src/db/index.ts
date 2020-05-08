@@ -19,7 +19,7 @@ declare interface IModels {
   Fixture: FixtureModel;
 }
 
-const MONGO_DEV_URL = 'mongodb://localhost:27017/fs-pro';
+export const MONGO_DEV_URL = 'mongodb://localhost:27017/fs-pro';
 
 export default class DB {
   public static start() {

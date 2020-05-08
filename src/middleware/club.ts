@@ -4,6 +4,7 @@ import {
   addPlayerToClub,
   updateClubLeague,
   updateClub,
+  updateClubsById,
 } from '../controllers/clubs/club.service';
 import respond from '../helpers/responseHandler';
 
@@ -116,4 +117,21 @@ export async function addLeagueToClub(
   } else {
     respond.fail(res, 400, 'Error adding player to club', _response.result);
   }
+}
+
+export async function updateClubs(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { clubs, userID } = req.body;
+  const response = updateClubsById(clubs, { User: userID });
+
+  response
+    .then((cl) => {
+      next();
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error adding User to club', err);
+    });
 }

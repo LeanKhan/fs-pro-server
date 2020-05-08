@@ -28,7 +28,7 @@ const centerBlock = PlayingField[82];
 const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
 const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
 
-class Game {
+export class Game {
   public homePost: IBlock;
   public awayPost: IBlock;
   public Referee: Referee;
@@ -88,9 +88,13 @@ class Game {
     );
   }
 
+  public getMatch() {
+    return this.Match;
+  }
+
   public setPlayingSides() {
     if (
-      this.Match.Home.StartingSquad.find(p => {
+      this.Match.Home.StartingSquad.find((p) => {
         return p.WithBall;
       })
     ) {
@@ -98,7 +102,7 @@ class Game {
 
       // Set the activePlayer in the attacking team to be the player with
       // the ball
-      this.ActivePlayerAS = this.Match.Home.StartingSquad.find(p => {
+      this.ActivePlayerAS = this.Match.Home.StartingSquad.find((p) => {
         return p.WithBall;
       }) as IFieldPlayer;
 
@@ -122,7 +126,7 @@ class Game {
         DS: this.DS,
       };
     } else if (
-      this.Match.Away.StartingSquad.find(p => {
+      this.Match.Away.StartingSquad.find((p) => {
         return p.WithBall;
       })
     ) {
@@ -130,7 +134,7 @@ class Game {
 
       // Set the activePlayer in the attacking team to be the player with
       // the ball
-      this.ActivePlayerAS = this.Match.Away.StartingSquad.find(p => {
+      this.ActivePlayerAS = this.Match.Away.StartingSquad.find((p) => {
         return p.WithBall;
       }) as IFieldPlayer;
 
@@ -259,9 +263,9 @@ class Game {
 
 let CurrentGame: Game;
 
-const getClubs = async () => {
+export const getClubs = async () => {
   try {
-    const { result } = await fetchClubs({ ClubCode: { $in: ['RB', 'GU'] } });
+    const result = await fetchClubs({ ClubCode: { $in: ['RP', 'IB'] } });
 
     const ball = new Ball('#ffffff', centerBlock);
 
@@ -275,6 +279,8 @@ const getClubs = async () => {
 
     CurrentGame.startHalf();
 
+    return CurrentGame;
+
     // After here, the game should start!
   } catch (error) {
     console.log('Errro!', error);
@@ -282,7 +288,7 @@ const getClubs = async () => {
 };
 
 // Getting clubs
-getClubs();
+// getClubs();
 
 function listenForMatchEvents() {
   matchEvents.on('set-playing-sides', () => {
