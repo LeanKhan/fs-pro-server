@@ -31,17 +31,29 @@ router.get('/all', async (req, res) => {
 
 router.get('/fetch', async (req, res) => {
   // fetch clubs with query and all
-  const query = JSON.parse(req.query.q) || {};
-  const select = JSON.parse(req.query.select);
+  let query;
+  let select;
+  try {
+    query = req.query.q || {};
+    query = JSON.parse(req.query.q);
+    select = req.query.select || {};
+    select = JSON.parse(select);
+  } catch (err) {
+    return respond.fail(res, 400, 'Error parsing JSON for Clubs query => ', {
+      error: err,
+      query,
+      select,
+    });
+  }
 
   const response = fetchClubs(query, select);
 
   response
     .then((clubs) => {
-      respond.success(res, 200, 'Clubs fetched successfully', clubs);
+      return respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
     .catch((err) => {
-      respond.fail(res, 400, 'Error fetching Clubs', err);
+      return respond.fail(res, 400, 'Error fetching Clubs', err);
     });
 });
 

@@ -5,11 +5,13 @@ import {
   IMatchSideDetails,
 } from '../../classes/Match';
 
-declare interface IFixture extends Document {
+export interface Fixture {
+  _id: string;
   Title: string;
   FixtureID: string;
   SeasonCode: string;
   LeagueCode: string;
+  Season: string;
   Played: boolean;
   MatchDate: string;
   PlayedAt: Date;
@@ -17,6 +19,29 @@ declare interface IFixture extends Document {
   Home: string;
   Away: string;
   Stadium: string;
+  Type: 'league' | 'cup' | 'tournament' | 'friendly';
+  Status: string;
+  Details: IMatchDetails;
+  HomeSideDetails: IMatchSideDetails;
+  AwaySideDetails: IMatchSideDetails;
+  Events: IMatchEvent[];
+}
+
+declare interface IFixture extends Document {
+  Title: string;
+  FixtureID: string;
+  SeasonCode: string;
+  LeagueCode: string;
+  Season: string;
+  Played: boolean;
+  MatchDate: string;
+  PlayedAt: Date;
+  Week: number;
+  Home: string;
+  Away: string;
+  Stadium: string;
+  Type: 'league' | 'cup' | 'tournament' | 'friendly';
+  Status: string;
   Details: IMatchDetails;
   HomeSideDetails: IMatchSideDetails;
   AwaySideDetails: IMatchSideDetails;
@@ -89,16 +114,17 @@ export class Fixture {
     const FixtureSchema: Schema = new Schema(
       {
         Title: String,
-        FixtureID: String,
+        FixtureCode: String,
         SeasonCode: String,
         LeagueCode: String,
         Week: { type: Number },
         Season: { type: Schema.Types.ObjectId, ref: 'Season' },
         Stadium: String,
         Played: { type: Boolean, default: false },
-        Type: {
+        Status: {
           type: String,
-          enum: ['Friendly', 'League', 'First Leg', 'Second Leg'],
+          default: 'regular',
+          enum: ['friendly', 'first-leg', 'second-leg', 'regular'],
         },
         ReverseFixture: { type: Schema.Types.ObjectId, ref: 'Fixture' },
         PlayedAt: Date,
@@ -108,6 +134,9 @@ export class Fixture {
         AwayTeam: { type: Schema.Types.ObjectId, ref: 'Club' },
         Details: MatchDetailsSchema,
         Events: [MatchEventSchema],
+        Type: {
+          type: String,
+        },
         HomeSideDetails: MatchSideDetailsSchema,
         AwaySideDetails: MatchSideDetailsSchema,
       },

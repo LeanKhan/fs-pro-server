@@ -29,6 +29,25 @@ export function monthFromIndex(index: number): string {
     case 5:
       month = 'JUN';
       break;
+    case 6:
+      month = 'JUL';
+      break;
+    case 7:
+      month = 'AUG';
+      break;
+    case 8:
+      month = 'SEP';
+      break;
+    case 9:
+      // code...
+      month = 'OCT';
+      break;
+    case 10:
+      month = 'NOV';
+      break;
+    case 11:
+      month = 'DEC';
+      break;
     default:
       // code...
       break;
@@ -45,6 +64,7 @@ export function generateWeekTable(clubs: Club[]) {
   const table = clubs.map((club) => {
     return {
       ClubCode: club.ClubCode,
+      ClubID: club._id,
       Points: 0,
       Played: 0,
       Wins: 0,
@@ -57,6 +77,22 @@ export function generateWeekTable(clubs: Club[]) {
   });
 
   return table;
+}
+
+export interface fixtureInterface {
+  homeId: string;
+  awayId: string;
+  homeCode: string;
+  awayCode: string;
+  homeName: string;
+  awayName: string;
+  seasonCode: string;
+  seasonId: string;
+  leagueCode: string;
+  stadium: string;
+  index: number;
+  matchesPerWeek: number;
+  type: 'league' | 'cup' | 'tournament' | 'friendly';
 }
 
 /**
@@ -74,32 +110,20 @@ export function generateWeekTable(clubs: Club[]) {
  * @param index
  * @param matchesPerWeek
  */
-export function generateFixtureObject(
-  homeId: string,
-  awayId: string,
-  homeCode: string,
-  awayCode: string,
-  homeName: string,
-  awayName: string,
-  seasonCode: string,
-  seasonId: string,
-  leagueCode: string,
-  stadium: string,
-  index: number,
-  matchesPerWeek: number
-) {
+export function generateFixtureObject(data: fixtureInterface) {
   return {
-    FixtureID: `M${index + 1}|${seasonCode}`,
-    Title: `${homeName} vs ${awayName}`,
-    SeasonCode: seasonCode,
-    LeagueCode: leagueCode,
-    Season: seasonId,
-    Home: homeCode,
-    Away: awayCode,
-    HomeTeam: homeId,
-    AwayTeam: awayId,
-    Stadium: stadium,
-    Week: Math.ceil((index + 1) / matchesPerWeek),
+    FixtureCode: `${data.seasonCode}|match-${data.index + 1}`,
+    Title: `${data.homeName} vs ${data.awayName}`,
+    SeasonCode: data.seasonCode,
+    LeagueCode: data.leagueCode,
+    Season: data.seasonId,
+    Home: data.homeCode,
+    Away: data.awayCode,
+    HomeTeam: data.homeId,
+    AwayTeam: data.awayId,
+    Stadium: data.stadium,
+    Type: data.type,
+    Week: Math.ceil((data.index + 1) / data.matchesPerWeek),
   };
 }
 // TODO: Record the reverse or first-leg fixture...

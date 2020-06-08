@@ -4,7 +4,23 @@ import { incrementCounter } from '../../utils/counter';
 /**
  * fetchAll
  */
-export function fetchAll(query: {} = {}) {
+export function fetchAll(
+  query: {} = {},
+  populate: Boolean | String = false,
+  select: Boolean | String = false
+) {
+  if (populate && select) {
+    return DB.Models.Season.find(query)
+      .populate(populate)
+      .select(select)
+      .lean()
+      .exec();
+  }
+
+  if (populate) {
+    return DB.Models.Season.find(query).populate(populate).lean().exec();
+  }
+
   return DB.Models.Season.find(query).lean().exec();
 }
 

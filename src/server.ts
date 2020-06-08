@@ -44,7 +44,11 @@ const store = new MongoStore(
 
 app.use(
   cors({
-    origin: 'http://localhost:8080',
+    origin: [
+      'http://localhost:8080',
+      'http://192.168.43.163:8080',
+      'http://192.168.43.33:8080',
+    ],
     credentials: true,
   })
 );
@@ -55,7 +59,6 @@ const Session = session({
   cookie: {
     maxAge: 60000 * 60 * 24 * 30,
     httpOnly: true,
-    domain: 'localhost',
   },
   store,
   saveUninitialized: false,
@@ -93,6 +96,7 @@ app.get('/', (req, res) => {
 
 app.use('/api', router);
 
+// Attach socket
 app.use((req, res, next) => {
   req.io = io;
   next();

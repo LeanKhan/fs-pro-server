@@ -23,9 +23,7 @@ export function initializeSession(
       response
         .then((user: any) => {
           responseHandler.success(res, 200, 'User authenticated successfully', {
-            userID: id,
-            sessionID: req.sessionID,
-            user,
+            ...user,
           });
         })
         .catch((error) => {
