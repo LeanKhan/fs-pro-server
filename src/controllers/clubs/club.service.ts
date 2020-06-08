@@ -16,7 +16,7 @@ export function fetchAllClubs() {
 /**
  * fetchClubs
  */
-export function fetchClubs(condition: any, select?: string) {
+export function fetchClubs(condition: any, select?: string | boolean) {
   // TODO: check if you can send all these options as an object....
   if (select) {
     return DB.Models.Club.find(condition).select(select).lean().exec();

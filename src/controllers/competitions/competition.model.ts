@@ -17,7 +17,7 @@ export interface Competition {
 }
 
 declare interface ICompetition extends Document {
-  Type: string;
+  Type: 'league' | 'cup' | 'tournament';
   Title: string;
   CompetitionID: string;
   CompetitionCode: string;
@@ -48,6 +48,11 @@ export class Competition {
         NumberOfTeams: Number,
         NumberOfWeeks: Number,
         Country: String,
+        Division: {
+          type: String,
+          default: 'none',
+          enum: ['first', 'second', 'third', 'none'],
+        },
         Clubs: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
         Seasons: [{ type: Schema.Types.ObjectId, ref: 'Season' }],
       },

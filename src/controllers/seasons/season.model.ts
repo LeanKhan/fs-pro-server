@@ -60,6 +60,7 @@ export class Season {
         Winner: { type: String },
         isFinished: { type: Boolean, default: false },
         isStarted: { type: Boolean, default: false },
+        Year: String,
         EndDate: { type: Date },
         Competition: { type: Schema.Types.ObjectId, ref: 'Competition' },
         CompetitionCode: { type: String },

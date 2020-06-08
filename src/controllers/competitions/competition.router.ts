@@ -96,6 +96,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 });
 
 router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
+  // TODO: make sure you are getting the Division type from the client abeg :)
   const response = await createNew(req.body.data);
 
   if (!response.error) {

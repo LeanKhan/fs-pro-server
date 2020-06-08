@@ -5,6 +5,7 @@ import competitionRouter from '../controllers/competitions/competition.router';
 import seasonRouter from '../controllers/seasons/season.router';
 import userRouter from '../controllers/user/user.router';
 import gameRouter from '../controllers/game/game.router';
+import calendarRouter from '../controllers/calendar/calendar.router';
 import { fileRouter } from '../services/file/file.service';
 
 const router = express.Router();
@@ -18,6 +19,8 @@ router.use('/competitions', competitionRouter);
 router.use('/users', userRouter);
 
 router.use('/seasons', seasonRouter);
+
+router.use('/calendar', calendarRouter);
 
 router.use('/files', fileRouter);
 

@@ -46,12 +46,12 @@ router.delete('/:id', (req: Request, res: Response) => {
   const response = deleteById(req.params.id);
 
   response
-  .then((season) => {
-    respond.success(res, 200, 'Season deleted successfully', season);
-  })
-  .catch((err) => {
-    respond.fail(res, 400, 'Error deleting Season', err);
-  });
+    .then((season) => {
+      respond.success(res, 200, 'Season deleted successfully', season);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error deleting Season', err);
+    });
 });
 
 router.post('/new', getCurrentCounter, createSeason, addSeasonToCompetition);
@@ -60,7 +60,7 @@ router.post('/new', getCurrentCounter, createSeason, addSeasonToCompetition);
  * Generate Fixtures for the Season
  */
 router.post(
-  '/:id/generate-fixtures',
+  '/:id/:code/generate-fixtures',
   fetchCompetitionClubs,
   generateFixtures,
   setInitialStandings,
@@ -112,7 +112,7 @@ router.get('/:id/fixtures/all', (req, res) => {
       );
     })
     .catch((err) => {
-      respond.fail(res, 400, 'Error fetching Season\' Fixtures', err);
+      respond.fail(res, 400, "Error fetching Season' Fixtures", err);
     });
 });
 

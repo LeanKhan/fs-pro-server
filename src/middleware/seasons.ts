@@ -12,6 +12,7 @@ import {
   generateWeekTable,
   generateFixtureObject,
   RoundRobin,
+  fixtureInterface,
 } from '../utils/seasons';
 
 export async function createSeason(
@@ -20,23 +21,21 @@ export async function createSeason(
   next: NextFunction
 ) {
   // tslint:disable-next-line: variable-name
-  const monthNumber = new Date(req.body.data.StartDate).getMonth();
+  const startDate = new Date(req.body.data.StartDate);
+  const monthNumber = startDate.getMonth();
+  const year = startDate.getFullYear();
 
   const month = monthFromIndex(monthNumber);
 
   req.body.data.CompetitionCode = req.body.data.CompetitionCode.toUpperCase();
 
-  const { SeasonID } = req.body.data;
+  // No two seasons of the same competition and same month and year should exist at the same time...
 
-  const seasonCode =
-    req.body.data.CompetitionCode +
-    '-' +
-    month +
-    '-' +
-    SeasonID.charAt(SeasonID.length - 1);
+  const seasonCode = req.body.data.CompetitionCode + '-' + month + '-' + year;
+  // SeasonID.charAt(SeasonID.length - 1);
 
   req.body.data.SeasonCode = seasonCode;
-
+  req.body.data.Year = `${month.toUpperCase()}-${year}`;
   const _response = await createNew(req.body.data);
 
   if (!_response.error) {
@@ -91,8 +90,7 @@ export async function generateFixtures(
 ) {
   const competition: Competition = req.body.competition;
 
-  const { leagueCode, seasonCode, competitionType } = req.body
-    .data as GenerateFixturesBody;
+  const { leagueCode } = req.body.data as GenerateFixturesBody;
 
   /**
    * Things are slightly different for a Cup than for a League...
@@ -100,7 +98,7 @@ export async function generateFixtures(
    * - A cup may have a mix of more than one type of match, e.g with revers fixtures and straigh tuo knockout!
    */
 
-  const seasonId = req.params.id;
+  const { id: seasonId, code: seasonCode } = req.params;
 
   const matchesPerWeek = competition.Clubs.length / 2;
 
@@ -130,20 +128,22 @@ export async function generateFixtures(
   const fixtureObjects = rounds.map((fixture, index) => {
     const home = competition.Clubs[fixture.home];
     const away = competition.Clubs[fixture.away];
-    return generateFixtureObject(
-      home._id,
-      away._id,
-      home.ClubCode,
-      away.ClubCode,
-      home.Name,
-      away.Name,
+    const data = {
+      homeId: home._id,
+      awayId: away._id,
+      homeCode: home.ClubCode,
+      awayCode: away.ClubCode,
+      homeName: home.Name,
+      awayName: away.Name,
       seasonCode,
       seasonId,
-      leagueCode,
-      home.Stadium.Name,
+      leagueCode: leagueCode.toUpperCase(),
+      stadium: home.Stadium.Name,
       index,
-      matchesPerWeek
-    );
+      matchesPerWeek,
+      type: competition.Type.toLowerCase(),
+    } as fixtureInterface;
+    return generateFixtureObject(data);
   });
 
   // respond.success(res, 200, 'Success creating Fixtures', fixtureObjects);

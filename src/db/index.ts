@@ -9,6 +9,10 @@ import { Season, SeasonModel } from '../controllers/seasons/season.model';
 import { Club, ClubModel } from '../controllers/clubs/club.model';
 import { User, UserModel } from '../controllers/user/user.model';
 import { Fixture, FixtureModel } from '../controllers/fixtures/fixture.model';
+import {
+  Calendar,
+  CalendarModel,
+} from '../controllers/calendar/calendar.model';
 
 declare interface IModels {
   Competition: CompetitionModel;
@@ -17,6 +21,7 @@ declare interface IModels {
   Club: ClubModel;
   User: UserModel;
   Fixture: FixtureModel;
+  Calendar: CalendarModel;
 }
 
 export const MONGO_DEV_URL = 'mongodb://localhost:27017/fs-pro';
@@ -55,6 +60,7 @@ export default class DB {
       Club: new Club().model,
       User: new User().model,
       Fixture: new Fixture().model,
+      Calendar: new Calendar().model,
     };
 
     set('useFindAndModify', false);
