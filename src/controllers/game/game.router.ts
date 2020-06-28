@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { getClubs, Game } from '../game.controller';
 import respond from '../../helpers/responseHandler';
 import { io } from '../../server';
+import { initiateGame } from './game.controller';
 
 const router = Router();
 
@@ -24,5 +25,7 @@ router.post('/play', async (req, res) => {
 
   respond.success(res, 200, 'Match played');
 });
+
+router.post('/new-game', initiateGame);
 
 export default router;
