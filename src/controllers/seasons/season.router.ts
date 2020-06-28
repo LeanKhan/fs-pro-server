@@ -14,6 +14,7 @@ import {
 } from '../../middleware/seasons';
 import { getCurrentCounter } from '../../middleware/player';
 import { addSeasonToCompetition } from '../../middleware/competition';
+import { getCurrentSeasons } from './season.controller';
 import respond from '../../helpers/responseHandler';
 
 const router = Router();
@@ -30,7 +31,7 @@ router.get('/all', async (req: Request, res: Response) => {
     });
 });
 
-router.get('/:id', (req: Request, res: Response) => {
+router.get('/season/:id', (req: Request, res: Response) => {
   const response = fetchOneById(req.params.id);
 
   response
@@ -42,7 +43,7 @@ router.get('/:id', (req: Request, res: Response) => {
     });
 });
 
-router.delete('/:id', (req: Request, res: Response) => {
+router.delete('/season/:id', (req: Request, res: Response) => {
   const response = deleteById(req.params.id);
 
   response
@@ -115,5 +116,7 @@ router.get('/:id/fixtures/all', (req, res) => {
       respond.fail(res, 400, "Error fetching Season' Fixtures", err);
     });
 });
+
+router.get('/current', getCurrentSeasons);
 
 export default router;
