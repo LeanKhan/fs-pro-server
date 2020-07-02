@@ -9,7 +9,7 @@ import {
   CalendarInterface,
 } from './calendar.model';
 import { monthFromIndex } from '../../utils/seasons';
-import { createNew } from './calendar.service';
+import { createNew, fetchOne } from './calendar.service';
 
 export async function getSeasons(
   req: Request,
@@ -139,7 +139,7 @@ export async function generateCalendar(
   // Here add like 20 free days?
   let completeDays: CalendarDay[] = [];
   firstDivisionDays.forEach((day, i) => {
-    if (i + (1 % 4) === 0 || i + (1 % 5) === 0) {
+    if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
       const emptyDay: CalendarDay = {
         Matches: [],
         isFree: true,
@@ -156,6 +156,13 @@ export async function generateCalendar(
   });
 
   completeDays = [...completeDays, ...freeDays];
+
+  // counts the number of days...
+  completeDays.forEach((day, i) => {
+    // So that every day will have a number,
+    // we can easily query 'get me the matches in day 34'
+    day.Day = i + 1;
+  });
 
   req.body.days = completeDays;
 
@@ -179,8 +186,8 @@ export async function saveCalendar(
 
   const calendar: CalendarInterface = {
     Name: now.toLocaleDateString(),
-    YearString: `${monthFromIndex(now.getMonth() + 1)}-${now.getFullYear()}`,
-    YearDigits: `${now.getMonth()}-${now.getFullYear()}`,
+    YearString: `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`,
+    YearDigits: `${now.getMonth() + 1}-${now.getFullYear()}`,
     CurrentDay: 0,
     Days: calendarDays,
   };
@@ -202,4 +209,46 @@ export async function saveCalendar(
       response.result
     );
   }
+}
+
+export async function getCurrentCalendar(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  // Get the current year calendar...
+  // ERR! Use the month and year passed from the front end
+
+  const year = req.query.year;
+
+  // const now = new Date();
+  // const currentYear = `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`;
+
+  const skip = getSkip(parseInt(req.query.page || 1), 14);
+  const limit = parseInt(req.query.limit || 14);
+  let response;
+
+  try {
+    response = await fetchOne({ YearString: year }, true, {
+      skip,
+      limit,
+    });
+  } catch (error) {
+    return respond.fail(res, 400, 'Failed to fetch current calendar', error);
+  }
+
+  if (response) {
+    return respond.success(
+      res,
+      200,
+      'Fetched current calendar successfully! :)',
+      response
+    );
+  } else {
+    return respond.success(res, 200, 'Found none :/', {});
+  }
+}
+
+function getSkip(page: number, length: number) {
+  return --page * length;
 }

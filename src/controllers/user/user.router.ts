@@ -99,6 +99,35 @@ router.post(
   initializeSession
 );
 
+router.post(
+  '/change-password',
+  (req, res, next) => {
+    const { Username, NewPassword } = req.body;
+
+    const response = fetchOneUser({ Username }, true);
+
+    response
+      .then((result: IUser) => {
+        if (!result) {
+          return respond.fail(res, 404, 'Username does not exist');
+        } else {
+          // User exists... check password
+
+           result.Password = NewPassword;
+
+           result.save()
+           .then(user => {
+return respond.success(res, 200, 'Password changed successfully', user.toObject());
+           })
+           .catch(error => {
+return respond.fail(res, 400, 'Error changing password', error);
+           });
+
+  }});
+  initializeSession
+});
+
+
 router.get('/:id', (req, res) => {
   const id = req.params.id;
   const populate = req.query.populate || false;

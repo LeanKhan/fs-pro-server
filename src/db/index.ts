@@ -24,7 +24,7 @@ declare interface IModels {
   Calendar: CalendarModel;
 }
 
-export const MONGO_DEV_URL = 'mongodb://localhost:27017/fs-pro';
+export const MONGO_DEV_URL = 'mongodb://localhost:27017/fspro-gameplay-test';
 
 export default class DB {
   public static start() {
