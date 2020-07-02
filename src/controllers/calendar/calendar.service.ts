@@ -17,6 +17,23 @@ export function fetchOneById(id: string) {
   return DB.Models.Calendar.findById(id).lean().exec();
 }
 
+/**
+  paginate!
+*/
+export function fetchOne(query: {}, populate: Boolean | string = false, paginate: {skip: number, limit: number} = {skip: 0, limit: 14}) {
+  if(populate && paginate) {
+    // Use $slice: [skip, limit] to 'paginate' array in a way...
+      return DB.Models.Calendar.findOne(query, { Days: {$slice: [paginate.skip, paginate.limit]} }).populate({
+        path: 'Days.Matches.Fixture',
+        model: 'Fixture'
+      }).lean().exec();
+  }
+  if(populate) {
+  return DB.Models.Calendar.findOne(query).lean().exec();    
+  }
+  return DB.Models.Calendar.findOne(query).lean().exec();
+}
+
 export function createCalendars(Calendars: any[]) {
   return DB.Models.Calendar.insertMany(Calendars, { ordered: true });
 }

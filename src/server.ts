@@ -10,6 +10,8 @@ import cookie from 'cookie';
 import router from './routers';
 import path from 'path';
 
+import { sockets as gameSockets } from './controllers/game/game.controller';
+
 const app: Application = express();
 
 import { Server } from 'http';
@@ -48,6 +50,7 @@ app.use(
       'http://localhost:8080',
       'http://192.168.43.163:8080',
       'http://192.168.43.33:8080',
+      'http://192.168.10.2:8080',
     ],
     credentials: true,
   })
@@ -196,6 +199,9 @@ io.on('connection', (socket: i.Socket) => {
     console.log('yeet');
   });
 });
+
+// Game Socket connection
+io.on('connection', gameSockets);
 
 export { store, io };
 

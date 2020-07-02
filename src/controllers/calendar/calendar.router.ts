@@ -5,11 +5,12 @@ import {
   getSeasons,
   generateCalendar,
   saveCalendar,
+  getCurrentCalendar
 } from './calendar.controller';
 
 const router = Router();
 
-router.get('/:id', (req, res) => {
+router.get('/calendars/:id', (req, res) => {
   const response = fetchOneById(req.params.id);
 
   response
@@ -20,6 +21,8 @@ router.get('/:id', (req, res) => {
       respond.fail(res, 400, 'Error fetching Fixture', err);
     });
 });
+
+router.get('/current', getCurrentCalendar);
 
 // interface NewCalendarYearBody {
 //     competitions:

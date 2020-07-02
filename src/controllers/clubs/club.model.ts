@@ -1,5 +1,6 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import { IPlayer } from '../../interfaces/Player';
+import { IUser } from '../user/user.model';
 // import { Player } from '../models/player.model'; // Uncomment this after testing!
 
 declare interface IClub extends Document {
@@ -26,6 +27,8 @@ export interface Club {
   _id: string;
   Name: string;
   ClubCode: string;
+  LeagueCode: string;
+  League: string;
   AttackingClass: number;
   DefensiveClass: number;
   Players: IPlayer[];
@@ -35,7 +38,10 @@ export interface Club {
     Stadium: string;
   };
   Rating: number;
-  Address: {};
+  GK_Rating: number;
+  ATT_Rating: number;
+  DEF_Rating: number;
+  MID_Rating: number;
   Manager: string;
   Stadium: {
     Name: string;
@@ -43,9 +49,21 @@ export interface Club {
     YearOccupied: string;
     Location: string;
   };
-  Stats: {};
-  LeagueCode: string;
-  League: string;
+  Stats: {
+    LeagueTitles: number;
+    Cups: number;
+    MatchesWon: number;
+    MatchesLost: number;
+    MatchesDrawn: number;
+  };
+  Address: {
+    Section: string;
+    City: string;
+    Country: string;
+  };
+  User: string | IUser;
+  Budget: number;
+  Transactions: {};
 }
 
 export interface ClubModel extends Model<IClub> {}

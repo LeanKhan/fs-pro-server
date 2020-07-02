@@ -1,5 +1,6 @@
 import DB from '../../db';
 import { incrementCounter } from '../../utils/counter';
+import { Fixture } from './fixture.model';
 
 /**
  * fetchAll
@@ -14,7 +15,14 @@ export function fetchAll(query: {} = {}) {
  * Fetch a specific season by its id
  * @param id
  */
-export function fetchOneById(id: string) {
+export function fetchOneById(
+  id: string,
+  populate: string | boolean
+): Promise<Fixture> {
+  if (populate) {
+    return DB.Models.Fixture.findById(id).populate(populate).lean().exec();
+  }
+
   return DB.Models.Fixture.findById(id).lean().exec();
 }
 

@@ -93,6 +93,9 @@ export class User {
         // if the session found is the same one the user has
         if (!err && this.Session === sessionID) {
           return cb(null, sess);
+        } else if (this.Session != sessionID) {
+          // Return current session
+          return cb(null, this.Session);
         } else {
           throw err;
         }

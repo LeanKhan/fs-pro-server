@@ -11,6 +11,7 @@ export interface CalendarMatch {
 export interface CalendarDay {
   Matches: CalendarMatch[];
   isFree: boolean;
+  Day?: number;
 }
 
 export interface CalendarInterface {
@@ -40,6 +41,7 @@ const CalendarMatchSchema: Schema = new Schema({
 const CalendarDaySchema: Schema = new Schema({
   Matches: [CalendarMatchSchema],
   isFree: Boolean,
+  Day: Number,
 });
 
 export interface CalendarModel extends Model<ICalendar> {}

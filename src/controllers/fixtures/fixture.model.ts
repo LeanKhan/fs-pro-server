@@ -4,6 +4,7 @@ import {
   IMatchEvent,
   IMatchSideDetails,
 } from '../../classes/Match';
+import { Club } from '../clubs/club.model';
 
 export interface Fixture {
   _id: string;
@@ -18,9 +19,12 @@ export interface Fixture {
   Week: number;
   Home: string;
   Away: string;
+  HomeTeam: string | Club;
+  AwayTeam: string | Club;
   Stadium: string;
   Type: 'league' | 'cup' | 'tournament' | 'friendly';
-  Status: string;
+  Status: 'friendly' | 'first-leg' | 'second-leg' | 'regular';
+  ReverseFixture: string;
   Details: IMatchDetails;
   HomeSideDetails: IMatchSideDetails;
   AwaySideDetails: IMatchSideDetails;
@@ -39,9 +43,12 @@ declare interface IFixture extends Document {
   Week: number;
   Home: string;
   Away: string;
+  HomeTeam: string | Club;
+  AwayTeam: string | Club;
   Stadium: string;
   Type: 'league' | 'cup' | 'tournament' | 'friendly';
-  Status: string;
+  Status: 'friendly' | 'first-leg' | 'second-leg' | 'regular';
+  ReverseFixture: { type: Schema.Types.ObjectId; ref: 'Fixture' };
   Details: IMatchDetails;
   HomeSideDetails: IMatchSideDetails;
   AwaySideDetails: IMatchSideDetails;

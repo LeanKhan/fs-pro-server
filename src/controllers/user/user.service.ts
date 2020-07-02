@@ -14,6 +14,18 @@ export function fetchUser(id: string, populate = false) {
   }
 }
 
+/** fetch User session */
+export function getUserSession(id: string, session: string) {
+  return DB.Models.User.findById(id).then((user) => {
+    user!.findSession(session, (a: any, sess: any) => {
+      if (sess) {
+        console.log('Session =>', sess);
+        return sess;
+      }
+    });
+  });
+}
+
 /**
  * fetch a user by a query
  * @param query

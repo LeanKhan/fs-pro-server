@@ -1,7 +1,7 @@
 // Exposes functions that are used to interact with the DB directly
 import DB from '../../db';
 import { Types } from 'mongoose';
-import { IClub } from '../../interfaces/Club';
+import { Club } from './club.model';
 
 /**
  * fetchAllClubs mate
@@ -35,7 +35,10 @@ export function deleteById(id: string) {
  *
  * @param id Club id
  */
-export function fetchSingleClubById(id: any, populate: string) {
+export function fetchSingleClubById(
+  id: any,
+  populate: string | boolean
+): Promise<Club> {
   if (populate) {
     return DB.Models.Club.findById(id).populate(populate).lean().exec();
   } else {
@@ -164,7 +167,7 @@ export function updateClubsById(clubIds: string[], data: any = {}) {
 interface IClubsResponse {
   error: boolean;
   message?: string;
-  result: IClub[];
+  result: Club[];
 }
 
 // interface ServiceResponse {
