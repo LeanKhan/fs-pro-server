@@ -107,6 +107,7 @@ export class Club {
           Kit: String,
           Logo: String,
           Stadium: String,
+          MainColor: String,
         },
         Stats: {
           type: Object,
