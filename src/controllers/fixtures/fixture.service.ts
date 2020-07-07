@@ -17,7 +17,7 @@ export function fetchAll(query: {} = {}) {
  */
 export function fetchOneById(
   id: string,
-  populate: string | boolean
+  populate: string | object | boolean
 ): Promise<Fixture> {
   if (populate) {
     return DB.Models.Fixture.findById(id).populate(populate).lean().exec();

@@ -11,6 +11,7 @@ interface GameUser {
   id: string;
   session?: string;
   connected: boolean;
+  ready: boolean;
 }
 
 const currentMatch: {
@@ -24,7 +25,7 @@ const currentMatch: {
   fixture: '',
   fixtureCode: '',
   sameUser: false,
-  status: 'not-initiated'
+  status: 'not-initiated',
 };
 
 export function sockets(socket: Socket) {
@@ -32,50 +33,72 @@ export function sockets(socket: Socket) {
     console.log('User =>', user);
     console.log('Pending match => ', currentMatch.fixtureCode);
 
-    socket.join(currentMatch.fixtureCode, function(err) {
-      if(!err) {
+    socket.join(currentMatch.fixtureCode, (err) => {
+      if (!err) {
         // do the remaining stuff...
-     const index = currentMatch.users.findIndex((u) => u.id === user);
+        const index = currentMatch.users.findIndex((u) => u.id === user);
 
-    const userSession = socket.handshake.sessionID as string;
+        const userSession = socket.handshake.sessionID as string;
 
-    currentMatch.users[index].connected = true;
-    // Set session id too!
-    currentMatch.users[index].session = userSession;
+        currentMatch.users[index].connected = true;
+        // Set session id too!
+        currentMatch.users[index].session = userSession;
 
-    console.log(socket.rooms);
+        socket.server
+          .to(currentMatch.fixtureCode)
+          .emit('match-room-joined', currentMatch);
 
-    socket.to(currentMatch.fixtureCode).emit('match-room-joined', currentMatch);
-
-    socket.server.to(currentMatch.fixtureCode).emit('match-room-joined', currentMatch);
-
-    const yeet = getUserSession(user, userSession);
-
-    console.log('Session from function: ', yeet);
-
-    if (currentMatch.users.every((u) => !u.connected)) {
-      socket.emit('starting-match', 'remaining one user');
-    }
+        if (currentMatch.users.every((u) => !u.connected)) {
+          socket.emit('starting-match', 'remaining one user');
+        }
       }
     });
   });
 
-  socket.on('check-for-games', ({user, match}) => {
-    if(currentMatch.fixture.toString() == match){
+  socket.on('check-for-games', ({ user, match }) => {
+    if (currentMatch.fixture.toString() === match) {
       // same match so check if it has started...
 
-      if(currentMatch.status == 'waiting' && currentMatch.users.find(u => u.id.toString() == user.toString())) {
+      if (
+        currentMatch.status === 'waiting' &&
+        currentMatch.users.find((u) => u.id.toString() === user.toString())
+      ) {
         console.log('Same match and is waiting');
 
         // Now check if we are waiting for them...fixture
 
-        if(currentMatch.users.find( u => u.id == user && u.connected)) {
+        if (currentMatch.users.find((u) => u.id === user && u.connected)) {
           // gottem!
-          console.log('gottem!')
+          console.log('gottem!');
         }
       }
     }
   });
+
+  // Player is ready to play...  thank you Jesus!
+  socket.on('ready', ({ user }) => {
+      // same match so check if it has started...
+
+      const u = currentMatch.users.find((u: any) => u.id.toString() === user.toString());
+
+      if (
+        currentMatch.status === 'waiting' &&
+        u
+      ) {
+
+        console.log(`${u.id} is ready!`);
+
+      // User is here, now set them to ready...user
+
+          u.ready = true;
+
+          // Tell the others that this user is ready...
+           socket.server
+          .to(currentMatch.fixtureCode)
+          .emit('player-ready', currentMatch);
+      }
+    }
+  );
 }
 
 export async function initiateGame(req: Request, res: Response) {
@@ -85,29 +108,39 @@ export async function initiateGame(req: Request, res: Response) {
   const day = req.body.day;
   const user = req.body.user;
 
-
   // maybe fetch fixture and go from there?
-  const fixture = await fetchOneById(fixture_id, 'HomeTeam AwayTeam');
+  // populate can be an array...
+  const populate = {
+    path: 'HomeTeam AwayTeam',
+    populate: {
+      path: 'Players',
+      model: 'Player'
+    }
+  }
+  const fixture = await fetchOneById(fixture_id, populate);
 
-    if(currentMatch.fixture.toString() == fixture_id){
-      // same match so check if it has started...
-      console.log('Same fixture', req.session);
+  if (currentMatch.fixture.toString() === fixture_id) {
+    // same match so check if it has started...
+    console.log('Same fixture', req.session);
 
-      if(currentMatch.status == 'waiting' && currentMatch.users.find(u => u.id.toString() == user.toString())) {
-        console.log('Same match and is waiting');
+    if (
+      currentMatch.status === 'waiting' &&
+      currentMatch.users.find((u) => u.id.toString() === user.toString())
+    ) {
+      console.log('Same match and is waiting');
 
-        // Now check if we are waiting for them...fixture
-        // user must be there but disconnected, thank you Jesus!
-        if(currentMatch.users.find( u => u.id == user && !u.connected)) {
-          // gottem!
-          console.log('gottem! ready to join match! thank you Jesus!');
-            return res.send({
-    message: 'Match Joined successfully :), thank you Jesus',
-    fixture,
-  });
-        }
+      // Now check if we are waiting for them...fixture
+      // user must be there but disconnected, thank you Jesus!
+      if (currentMatch.users.find((u) => u.id === user && !u.connected)) {
+        // gottem!
+        console.log('gottem! ready to join match! thank you Jesus!');
+        return res.send({
+          message: 'Match Joined successfully :), thank you Jesus',
+          fixture,
+        });
       }
     }
+  }
 
   /**
    * 1. Initiate game by getting the participants...
@@ -157,11 +190,13 @@ function differentUserFixture(req: Request, res: Response) {
       id: req.body.home_user_id,
       session: undefined,
       connected: false,
+      ready: false,
     },
     {
       id: req.body.away_user_id,
       session: undefined,
       connected: false,
+      ready: false
     },
   ];
 

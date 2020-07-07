@@ -74,7 +74,7 @@ export function findSession(req: Request, res: Response, next: NextFunction) {
 
   // This is if the cookie was not sent back, if not find the session and create a new one with the same data...
 
-  fetchOneUser(userID)
+  fetchOneUser({_id: userID}, true, false)
     .then((user: IUser) => {
       // here find an accompanying session...
       user!.findSession(user!.Session, function (
@@ -86,11 +86,13 @@ export function findSession(req: Request, res: Response, next: NextFunction) {
           // set a new one, create a new cookie and send session data to client
           store.set(sessionID, sess, (err: any) => {
             if (err) {
-              throw new Error('Error in setting Session');
+              throw new Error('Error in setting Session'+ `${err}`);
             } else {
-              store.createSession(req, sess);
+              // store.createSession(req, sess);
 
-              user!.Session = sess._id;
+              user!.Session = req.sessionID as string;
+
+              // Maybe here delete that old session?...
 
               user!.save();
 
@@ -98,7 +100,7 @@ export function findSession(req: Request, res: Response, next: NextFunction) {
                 res,
                 200,
                 'Client Authenticated successfully',
-                { userID: user!._id, sessionID: sess._id }
+                { userID: user!._id, sessionID: req.sessionID }
               );
             }
           });
@@ -108,7 +110,7 @@ export function findSession(req: Request, res: Response, next: NextFunction) {
 
           req.session!.save((err: any) => {
             if (err) {
-              throw new Error('Error in authenticating User');
+              throw new Error('Error in saving new user session' + `${err}`);
             } else {
               user!.Session = req.sessionID as string;
               user!.save();
@@ -125,6 +127,7 @@ export function findSession(req: Request, res: Response, next: NextFunction) {
       });
     })
     .catch((err) => {
+      console.log('eero in entering => ', err);
       responseHandler.fail(res, 400, 'Error in authentication', err);
     });
 }

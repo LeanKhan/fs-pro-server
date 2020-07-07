@@ -248,6 +248,8 @@ router.delete('/:id/clubs/:id', (req, res) => {
     });
 });
 
+router.post('/enter', findSession);
+
 //
 
 /**

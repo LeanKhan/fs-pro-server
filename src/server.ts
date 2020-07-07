@@ -121,8 +121,7 @@ io.use((socket: any, next: any) => {
           if (!err) {
             if (sess) {
               if (process.env.NODE_ENV!.trim() === 'dev') {
-                console.log('Client connected!');
-                console.log('info', 'Client Connected!');
+                console.log('Client authenticated successfully!');
               }
               console.log('Cookie found');
               next();
