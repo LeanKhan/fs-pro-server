@@ -1,10 +1,11 @@
 import { Club } from './Club';
-import { IClub } from '../interfaces/Club';
 import { IFieldPlayer, IPlayer } from '../interfaces/Player';
 import FieldPlayer from './FieldPlayer';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import Ball from './Ball';
 import { formations, FormationItem } from '../state/PersistentState/Formations';
+import Player from './Player';
+import { ClubInterface } from '../controllers/clubs/club.model';
 
 /** MatchSide
  *
@@ -12,13 +13,13 @@ import { formations, FormationItem } from '../state/PersistentState/Formations';
  * @extends Club
  */
 
-export class MatchSide extends Club implements IClub {
+export class MatchSide extends Club {
   public AttackingForm: number = 0;
   public DefensiveForm: number = 0;
   public GoalsScored: number = 0;
   public StartingSquad: IFieldPlayer[] = [];
   public Substitutes: IFieldPlayer[] = [];
-  public MatchSquad: IFieldPlayer[] = [];
+  public MatchSquad: IPlayer[] = [];
   public Formation: FormationItem[] = [];
   /**
    * ScoringSide is where this team will be scoring
@@ -33,10 +34,16 @@ export class MatchSide extends Club implements IClub {
    * @param KeepingSide
    */
 
-  constructor(club: Club, scoringSide: IBlock, keepingSide: IBlock) {
+  constructor(club: ClubInterface, scoringSide: IBlock, keepingSide: IBlock) {
     super(club);
     this.ScoringSide = scoringSide;
     this.KeepingSide = keepingSide;
+  }
+
+  public setPlayers() {
+    this.MatchSquad = this.Players.map((p: IPlayer, i) => {
+      return new Player(p);
+    });
   }
 
   public setFormation(formation: string, ball: Ball, fieldPlay: IBlock[]) {
@@ -44,7 +51,7 @@ export class MatchSide extends Club implements IClub {
 
     const currentFormation = formations[formation];
 
-    this.StartingSquad = this.Players.map((p: IPlayer, i) => {
+    this.StartingSquad = this.MatchSquad.map((p: IPlayer, i) => {
       // const startingBlock = fieldPlay[this.Formation[i]];
       // Find the first starting block that is for this player's position
       // const startingBlock = fieldPlay.find(())
@@ -57,8 +64,7 @@ export class MatchSide extends Club implements IClub {
 
       currentFormation.splice(foundIndex, 1);
 
-      const player = new FieldPlayer(p, true, startingBlock, ball, this);
-      return player;
+      return new FieldPlayer(p, true, startingBlock, ball);
     });
   }
 
@@ -87,6 +93,10 @@ export class MatchSide extends Club implements IClub {
     this.StartingSquad = starting;
   }
 
+  public getPlayerStats() {
+    return this.StartingSquad.map((p) => ({ ...p.GameStats, _id: p._id }));
+  }
+
   public setSubstitutes(subs: any[]) {
     this.Substitutes = subs;
   }
@@ -108,10 +118,7 @@ export class MatchSide extends Club implements IClub {
       return pick.positions.includes(p.Position);
     });
 
-    console.log('Formation block =>', formationBlock);
-    console.log('Formation =>', formation);
-
-    console.log('player =>', p);
+    console.log('player =>', p.PlayerID, formationBlock, p.Position);
 
     return { block: fp[formationBlock!.block], index };
   }

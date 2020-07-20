@@ -50,7 +50,7 @@ export async function getSeasons(
     const seasons = await fetchAll(
       query,
       'Fixtures',
-      'Fixtures CompetitionCode'
+      'Fixtures Standings CompetitionCode'
     );
     if (seasons.length === 0) {
       return respond.fail(res, 404, 'No Seasons found!', seasons);
@@ -93,7 +93,21 @@ export async function generateCalendar(
     (s: any) => s.CompetitionCode === secondDivisionLeague!.code
   ).Fixtures;
 
+  const firstDivisionMatchesPerWeek =
+    firstDivisionFixtures.length /
+    req.body.seasons.find(
+      (s: any) => s.CompetitionCode === firstDivisionLeague!.code
+    ).Standings.length;
+
+  const secondDivisionMatchesPerWeek =
+    secondDivisionFixtures.length /
+    req.body.seasons.find(
+      (s: any) => s.CompetitionCode === secondDivisionLeague!.code
+    ).Standings.length;
+
   let firstDivisionDays: CalendarDay[] = [];
+
+  // Use the number of matches in the season to get the one that
 
   try {
     firstDivisionDays = firstDivisionFixtures.map(
@@ -105,6 +119,7 @@ export async function generateCalendar(
             MatchType: fixture.Type,
             Played: false,
             Time: `${1}`,
+            Week: Math.ceil((index + 1) / firstDivisionMatchesPerWeek),
           },
         ];
         return { Matches: Match, isFree: false };
@@ -123,6 +138,7 @@ export async function generateCalendar(
           MatchType: secondDivisionFixtures[index].Type,
           Played: false,
           Time: `${2}`,
+          Week: Math.ceil((index + 1) / secondDivisionMatchesPerWeek),
         };
         return { Matches: [...day.Matches, Match], isFree: false };
       }

@@ -4,15 +4,13 @@ import { MatchSide } from '../classes/MatchSide';
 
 export interface IFieldPlayer extends IPlayer {
   Points: number;
-  Starting: boolean;
   Substitute: boolean;
   BlockPosition: IBlock;
   /** Where the player starts the match */
   StartingPosition: IBlock;
   WithBall: boolean;
   Ball: IBall;
-  GameStats: IGameStats;
-  Team: MatchSide;
+  // Team: MatchSide;
   move(pos: any): void;
   changePosition(pos: IBlock): void;
   pass(pos: any): void;
@@ -33,6 +31,9 @@ export interface IPlayer {
   Rating: number;
   GoalsScored: number;
   ShirtNumber: string;
+  isStarting: boolean;
+  isSubstituted?: boolean;
+  GameStats: IGameStats;
   Position: string;
   Attributes: IPlayerAttributes;
   Stats?: IPlayerStats;
@@ -71,6 +72,7 @@ export interface IPlayerAttributes {
 }
 
 export interface IPlayerStats {
+  _id?: string;
   Goals: number;
   Saves: number;
   YellowCards: number;

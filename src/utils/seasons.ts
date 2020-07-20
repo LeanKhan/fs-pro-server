@@ -1,11 +1,10 @@
-import { Club } from '../controllers/clubs/club.model';
+import { ClubInterface as IClub } from '../controllers/clubs/club.model';
 
 /**
  * Returns the short name of the month based on its index
  * @param index
  */
 export function monthFromIndex(index: number): string {
-  // TODO: Add the remaining months!
   let month = 'NAN';
 
   switch (index) {
@@ -60,7 +59,7 @@ export function monthFromIndex(index: number): string {
  * Generate the Week Table
  * @param clubs
  */
-export function generateWeekTable(clubs: Club[]) {
+export function generateWeekTable(clubs: IClub[]) {
   const table = clubs.map((club) => {
     return {
       ClubCode: club.ClubCode,
@@ -126,7 +125,11 @@ export function generateFixtureObject(data: fixtureInterface) {
     Week: Math.ceil((data.index + 1) / data.matchesPerWeek),
   };
 }
-// TODO: Record the reverse or first-leg fixture...
+
+// DONE: Record the reverse or first-leg fixture...
+// For this we just need to look for another fixture where the roles are reversed...
+// So find a fixture where current HOME is AWAY and AWAY is HOME...
+
 export class RoundRobin {
   private teams: number[];
   private rounds: Array<{ home: number; away: number }> = [];

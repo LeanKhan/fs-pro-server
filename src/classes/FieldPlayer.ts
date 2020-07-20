@@ -9,19 +9,16 @@ import Ball, { IBall } from './Ball';
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { coordinateToBlock } from '../utils/coordinates';
 import { ballMove } from '../utils/events';
-import { MatchSide } from './MatchSide';
 
 export default class FieldPlayer extends Player implements IFieldPlayer {
   public Points: number = 0;
-  public Starting: boolean;
   public Substitute: boolean;
   public BlockPosition: IBlock;
   public StartingPosition: IBlock;
   public BallPosition: ICoordinate;
   public WithBall: boolean;
   public Ball: Ball;
-  public Team: MatchSide;
-  public GameStats: IGameStats;
+  // public Team: MatchSide;
 
   /**
    *
@@ -35,28 +32,17 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     player: IPlayer,
     starting: boolean,
     pos: IBlock,
-    ball: Ball,
-    team: MatchSide
+    ball: Ball
+    // team: MatchSide
   ) {
     super(player);
-    this.Starting = starting;
     this.Ball = ball;
     this.BallPosition = this.Ball.Position;
-    this.Substitute = !this.Starting;
+    this.isStarting = starting;
+    this.Substitute = !this.isStarting;
     this.StartingPosition = pos;
-    this.Team = team;
-    this.GameStats = {
-      Goals: 0,
-      Saves: 0,
-      YellowCards: 0,
-      RedCards: 0,
-      Assists: 0,
-      CleanSheets: 0,
-      Points: 6,
-      Passes: 0,
-      Tackles: 0,
-      Dribbles: 0,
-    };
+    // this.Team = team;
+
     this.BlockPosition = pos;
     this.setBlockOccupant(this, this.BlockPosition);
     this.WithBall =
@@ -64,7 +50,7 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
       this.BlockPosition.y === this.BallPosition.y
         ? true
         : false;
-    ballMove.on('ball-moved', p => {
+    ballMove.on('ball-moved', (p) => {
       this.updateBallPosition(p);
     });
   }
@@ -125,11 +111,11 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
   }
 
   public substitute() {
-    this.Starting = false;
+    this.isSubstituted = false;
   }
 
   public start() {
-    this.Starting = true;
+    this.isStarting = true;
   }
 
   /**

@@ -5,7 +5,13 @@ import * as co from '../../../utils/coordinates';
 // Thank you Jesus!
 
 export class Decider {
+  public teams: MatchSide[];
+
   public strategy: IStrategy = { type: 'move', detail: 'normal' };
+
+  constructor(teams: MatchSide[]) {
+    this.teams = teams;
+  }
 
   /**
    * MakeDecision
@@ -341,7 +347,13 @@ export class Decider {
     // if distance from post is near post...
     const chance = Math.round(Math.random() * 100);
 
-    if (this.isNearPost(shooter, shooter.Team, 2)) {
+    // Get shooter's team shey? THANK YOU JESUS!
+
+    const teamIndex = this.teams.findIndex(
+      (t) => t.ClubCode === shooter.ClubCode
+    );
+
+    if (this.isNearPost(shooter, this.teams[teamIndex], 2)) {
       // here player is 80% likely to shoot on target
       return chance <= shooter.Attributes.Shooting;
     } else {
@@ -378,7 +390,7 @@ export class Decider {
       player.Attributes.LongPass > 30 &&
       player.Position !== 'ATT'
     ) {
-      if(this.gimmeAChance() < 50) {
+      if (this.gimmeAChance() < 50) {
         return { type: 'pass', detail: 'long' };
       } else {
         return { type: 'pass', detail: 'short' };
@@ -452,17 +464,17 @@ export class Decider {
     distance: number,
     ownPost: boolean = false
   ): boolean {
- if(ownPost) {
-  return (
-    co.calculateDistance(player.BlockPosition, attackingSide.KeepingSide) <=
-    distance
-  );
- } else {
-  return (
-    co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <=
-    distance
-  );
- }
+    if (ownPost) {
+      return (
+        co.calculateDistance(player.BlockPosition, attackingSide.KeepingSide) <=
+        distance
+      );
+    } else {
+      return (
+        co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <=
+        distance
+      );
+    }
   }
 
   /**
@@ -508,7 +520,7 @@ export class Decider {
       }
     }
 
-    if(this.isNearPost(player, attackingSide, 5, true)) {
+    if (this.isNearPost(player, attackingSide, 5, true)) {
       if (this.gimmeAChance() <= 50) {
         return { type: 'pass', detail: 'pass to post' };
       } else {

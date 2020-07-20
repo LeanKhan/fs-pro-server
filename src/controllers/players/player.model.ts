@@ -120,6 +120,7 @@ export class Player {
         },
         /** overall Player rating over 100 - e.g 88 */
         Rating: Number,
+        /** We may not need to record this though... We can use an aggregate function to calculate all this. */
         Stats: {
           type: Object,
           Goals: { type: Number, default: 0 },
@@ -136,6 +137,7 @@ export class Player {
         },
         Appearance: PlayerAppearanceSchema,
         TransferHistory: [PlayerTransferHistorySchema],
+        /** Maybe this should be updated at the end of every season... */
         RatingsHistory: [PlayerRatingsHistory],
         isSigned: {
           type: Boolean,

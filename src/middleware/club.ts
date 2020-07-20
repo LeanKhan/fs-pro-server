@@ -94,8 +94,7 @@ export function addPlayerToClubMiddleware(
       respond.fail(res, 400, 'Error fetching Club', err);
     });
 }
-// TODO: use a uniform naming convention, ugh :)
-// TODO: change the name of this function <<thumbs>>
+
 export async function addLeagueToClub(
   req: Request,
   res: Response,

@@ -24,23 +24,29 @@ export class Actions {
   public activePlayerDS: IFieldPlayer | undefined;
   public attackingSide: MatchSide | undefined;
   public defendingSide: MatchSide | undefined;
+  public teams: MatchSide[];
 
   constructor(
     ref: IReferee,
+    teams: MatchSide[],
     as?: MatchSide,
     ds?: MatchSide,
     activePlayerAS?: IFieldPlayer,
     activePlayerDS?: IFieldPlayer
   ) {
     this.referee = ref;
-    this.decider = new Decider();
     this.interruption = false;
     this.activePlayerAS = activePlayerAS;
     this.activePlayerDS = activePlayerDS;
     this.attackingSide = as;
     this.defendingSide = ds;
+    this.teams = teams;
 
-    matchEvents.on('game halt', data => {
+    console.log('Teams => ', this.teams[0].Name);
+
+    this.decider = new Decider(this.teams);
+
+    matchEvents.on('game halt', (data) => {
       this.interruption = true;
     });
 
@@ -64,8 +70,9 @@ export class Actions {
     return data as IMatchData;
   }
 
-  // TODO:
-  // MAYBE CONSIDER TAKING ACTION FOR ALL PLAYERS!
+  // TODO TAKE ACTION FOR ALL PLAYERS!
+  // Well... the 'action' taken by the other players is to move forward lol
+  // But actually I should consider this.
 
   public takeAction(
     attackingPlayer: IFieldPlayer,
@@ -428,7 +435,11 @@ export class Actions {
   public shoot(player: IFieldPlayer, post: IBlock, reason: string) {
     // matchEvents.emit('shot', { subject: player });
 
-    const keeper = player.Team.ScoringSide.occupant;
+    // Use a reference to the player's team... thank you Jesus!
+    const teamIndex = this.teams.findIndex(
+      (t) => t.ClubCode === player.ClubCode
+    );
+    const keeper = this.teams[teamIndex].ScoringSide.occupant;
 
     const result = this.decider.getShotResult(player, keeper as IFieldPlayer);
 
@@ -547,7 +558,7 @@ export class Actions {
         }
       }
     }
-    return arr.find(p => {
+    return arr.find((p) => {
       return p.ClubCode !== player.ClubCode;
     });
   }
@@ -641,7 +652,8 @@ export class Actions {
       `${player.FirstName} ${player.LastName} [${player.ClubCode}] 
       dribbled ${dribbled.FirstName} ${dribbled.LastName}`,
       'dribble',
-      player.PlayerID
+      player.PlayerID,
+      player.ClubCode
     );
   }
 
@@ -663,7 +675,8 @@ export class Actions {
         `${tackler.FirstName} ${tackler.LastName} [${tackler.ClubCode}] 
         tackled the ball from ${player.FirstName} ${player.LastName}`,
         'tackle',
-        tackler.PlayerID
+        tackler.PlayerID,
+        tackler.ClubCode
       );
       return true;
     } else {
@@ -686,7 +699,7 @@ export class Actions {
 
     const attackingPlayers = playerFunc.getATTMID(team);
 
-    attackingPlayers.forEach(p => {
+    attackingPlayers.forEach((p) => {
       this.movePlayersForward(p, team);
     });
   }
@@ -697,7 +710,7 @@ export class Actions {
     // Find midfielders and attackers
     const defendingPlayers = playerFunc.getATTMID(team);
 
-    defendingPlayers.forEach(p => {
+    defendingPlayers.forEach((p) => {
       this.markBall(p);
     });
   }

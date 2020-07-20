@@ -4,7 +4,7 @@ import {
   IMatchEvent,
   IMatchSideDetails,
 } from '../../classes/Match';
-import { Club } from '../clubs/club.model';
+import { ClubInterface } from '../clubs/club.model';
 
 export interface Fixture {
   _id: string;
@@ -19,8 +19,8 @@ export interface Fixture {
   Week: number;
   Home: string;
   Away: string;
-  HomeTeam: string | Club;
-  AwayTeam: string | Club;
+  HomeTeam: string | ClubInterface;
+  AwayTeam: string | ClubInterface;
   Stadium: string;
   Type: 'league' | 'cup' | 'tournament' | 'friendly';
   Status: 'friendly' | 'first-leg' | 'second-leg' | 'regular';
@@ -43,8 +43,8 @@ declare interface IFixture extends Document {
   Week: number;
   Home: string;
   Away: string;
-  HomeTeam: string | Club;
-  AwayTeam: string | Club;
+  HomeTeam: string | ClubInterface;
+  AwayTeam: string | ClubInterface;
   Stadium: string;
   Type: 'league' | 'cup' | 'tournament' | 'friendly';
   Status: 'friendly' | 'first-leg' | 'second-leg' | 'regular';
@@ -62,13 +62,13 @@ const MatchEventSchema: Schema = new Schema({
   },
   message: String,
   time: String,
-  PlayerID: String,
-  Player: { type: Schema.Types.ObjectId, ref: 'Player' },
+  playerID: String,
+  playerTeamID: String,
   data: {},
 });
 
 const PlayerMatchStatsSchema: Schema = new Schema({
-  Player: { type: Schema.Types.ObjectId, ref: 'Player' },
+  _id: { type: Schema.Types.ObjectId, ref: 'Player' },
   Goals: Number,
   Saves: Number,
   YellowCards: Number,
@@ -107,8 +107,8 @@ const MatchDetailsSchema: Schema = new Schema({
   FullTimeScore: String,
   HomeTeamScore: Number,
   AwayTeamScore: Number,
-  Winner: String,
-  Loser: String,
+  Winner: { type: Schema.Types.ObjectId, ref: 'Club' },
+  Loser: { type: Schema.Types.ObjectId, ref: 'Club' },
   MOTM: { type: Schema.Types.ObjectId, ref: 'Player' },
 });
 

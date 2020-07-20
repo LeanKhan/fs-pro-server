@@ -1,8 +1,8 @@
-import { Club } from './Club';
+import { ClubInterface as Club } from '../controllers/clubs/club.model';
 import { MatchSide } from './MatchSide';
 import { matchEvents, createMatchEvent } from '../utils/events';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
-import { IFieldPlayer } from '../interfaces/Player';
+import { IFieldPlayer, IPlayerStats } from '../interfaces/Player';
 import { IShot, IPass, GamePoints, ITackle, IDribble } from './Referee';
 /**
  * The Match Class gan gan
@@ -15,6 +15,7 @@ export class Match implements IMatch {
   public Events: IMatchEvent[];
   public Actions: IMatchAction[] = [];
   private CurrentTime: number = 0;
+  private Teams: MatchSide[];
 
   /**
    * Create a new match bro
@@ -34,6 +35,7 @@ export class Match implements IMatch {
   ) {
     this.Home = new MatchSide(home, awayPost, homePost);
     this.Away = new MatchSide(away, homePost, awayPost);
+    this.Teams = [this.Home, this.Away];
     this.CenterBlock = centerBlock;
     this.Events = [];
     this.Details = {
@@ -70,7 +72,10 @@ export class Match implements IMatch {
     } as IMatchDetails;
 
     matchEvents.on('shot', (data: IShot) => {
-      if (this.Home.ClubCode === data.shooter.Team.ClubCode) {
+      // const teamIndex = this.Teams!.findIndex(
+      //   (t) => t.ClubCode === data.shooter.ClubCode
+      // );
+      if (this.Home.ClubCode === data.shooter.ClubCode) {
         this.Details.HomeTeamDetails.TotalShots++;
         switch (data.result) {
           case 'goal':
@@ -175,7 +180,7 @@ export class Match implements IMatch {
 
       // // give receiver some passes
       data.receiver.increasePoints(-GamePoints.Pass / 2);
-      this.Home.ClubCode === data.passer.Team.ClubCode
+      this.Home.ClubCode === data.passer.ClubCode
         ? this.Details.HomeTeamDetails.Passes++
         : this.Details.AwayTeamDetails.Passes++;
       console.log(
@@ -183,7 +188,7 @@ export class Match implements IMatch {
       );
     });
 
-    matchEvents.on('pass intercepted', data => {
+    matchEvents.on('pass intercepted', (data) => {
       console.log(
         `Attempted Pass from ${data.passer} intercepted by ${data.interceptor}`
       );
@@ -252,7 +257,7 @@ export class Match implements IMatch {
       console.table(this.Events);
 
       console.log('Home Team => ', this.Home.ClubCode);
-      this.Home.StartingSquad.forEach(p => {
+      this.Home.StartingSquad.forEach((p) => {
         console.log(
           `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
         );
@@ -260,7 +265,7 @@ export class Match implements IMatch {
       });
 
       console.log('Away Team => ', this.Away.ClubCode);
-      this.Away.StartingSquad.forEach(p => {
+      this.Away.StartingSquad.forEach((p) => {
         console.log(
           `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
         );
@@ -284,11 +289,11 @@ export class Match implements IMatch {
       this.Details.Loser = null;
       this.Details.Draw = true;
     } else if (this.Home.GoalsScored > this.Away.GoalsScored) {
-      this.Details.Winner = this.Home.Name;
-      this.Details.Loser = this.Away.Name;
+      this.Details.Winner = { code: this.Home.ClubCode, id: this.Home._id };
+      this.Details.Loser = { code: this.Away.ClubCode, id: this.Away._id };
     } else {
-      this.Details.Winner = this.Away.Name;
-      this.Details.Loser = this.Home.Name;
+      this.Details.Winner = { code: this.Away.ClubCode, id: this.Away._id };
+      this.Details.Loser = { code: this.Home.ClubCode, id: this.Home._id };
     }
     this.Details.Time = new Date();
     this.Details.Title = `${this.Home.Name} vs ${this.Away.Name} <-> ${this.Details.Time}`;
@@ -301,24 +306,30 @@ export class Match implements IMatch {
 
   public getWinners() {
     if (this.Details.HomeTeamScore > this.Details.AwayTeamScore) {
-      this.Details.Winner = this.Home.ClubCode;
-      this.Details.Loser = this.Away.ClubCode;
+      this.Details.Winner = { code: this.Home.ClubCode, id: this.Home._id };
+      this.Details.Loser = { code: this.Away.ClubCode, id: this.Away._id };
       this.Details.Draw = false;
     } else if (this.Details.HomeTeamScore === this.Details.AwayTeamScore) {
       this.Details.Draw = true;
       this.Details.Winner = null;
       this.Details.Loser = null;
     } else {
-      this.Details.Winner = this.Away.ClubCode;
-      this.Details.Loser = this.Home.ClubCode;
+      this.Details.Winner = { code: this.Away.ClubCode, id: this.Away._id };
+      this.Details.Loser = { code: this.Home.ClubCode, id: this.Home._id };
       this.Details.Draw = false;
     }
+  }
+
+  public setPlayerStats() {
+    this.Details.HomeTeamDetails.PlayerStats = this.Home.getPlayerStats();
+    this.Details.AwayTeamDetails.PlayerStats = this.Away.getPlayerStats();
   }
 
   public endMatch() {
     this.Details.Played = true;
     this.Details.FullTimeScore = `${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore}`;
     this.calculatePosession();
+    this.setPlayerStats();
     this.getWinners();
     this.getMOTM();
 
@@ -346,7 +357,7 @@ export class Match implements IMatch {
   public fetchPlayerById(id: string) {
     const allPlayers = this.Home.StartingSquad.concat(this.Away.StartingSquad);
 
-    return allPlayers.find(player => {
+    return allPlayers.find((player) => {
       return player.PlayerID === id;
     });
   }
@@ -377,9 +388,11 @@ export class Match implements IMatch {
     );
 
     const motm = allSquads[allSquads.length - 1];
+    console.log('MOTM =>', motm);
 
     this.Details.MOTM = {
       playerID: motm.PlayerID,
+      id: motm._id,
       name: motm.FirstName + ' ' + motm.LastName,
       clubcode: motm.ClubCode,
       points: motm.GameStats.Points,
@@ -399,6 +412,7 @@ export interface IMatchEvent {
   message: string;
   time?: string;
   playerID?: string;
+  playerTeamID?: string;
   data?: any;
 }
 
@@ -412,8 +426,8 @@ export interface IMatchDetails {
   FullTimeScore: string;
   HomeTeamScore: number;
   AwayTeamScore: number;
-  Winner: string | null;
-  Loser: string | null;
+  Winner: { code: string; id: string } | null;
+  Loser: { code: string; id: string } | null;
   MOTM: any;
   TotalPasses: number;
   Goals: number;
@@ -444,6 +458,9 @@ export interface IMatchSideDetails {
   RedCards: number;
   Passes: number;
   Events: IMatchEvent[];
+  PlayerStats: IPlayerStats[];
+  Won: boolean;
+  Drew: boolean;
   [key: string]: any;
 }
 

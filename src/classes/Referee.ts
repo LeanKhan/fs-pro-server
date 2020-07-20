@@ -14,6 +14,7 @@ export default class Referee {
   public MatchBall: IBall;
   public Difficulty: string;
   public Match?: Match;
+  private Teams?: MatchSide[];
 
   constructor(
     fname: string,
@@ -35,6 +36,10 @@ export default class Referee {
 
   public assignMatch(match: Match) {
     this.Match = match;
+    this.Teams! = [
+      this.Match!.Home as MatchSide,
+      this.Match!.Away as MatchSide,
+    ];
   }
 
   /**
@@ -106,16 +111,20 @@ export default class Referee {
   }
 
   public setUpSetPiece(foulData: IFoul, where: IBlock) {
-    //  Get distance from ScoringSide
-    const distance = co.calculateDistance(
-      foulData.object.Team.ScoringSide,
-      where
+    const i = this.Teams!.findIndex(
+      (t) => t.ClubCode === foulData.object.ClubCode
     );
+
+    //  Get distance from ScoringSide
+    const distance = co.calculateDistance(this.Teams![i].ScoringSide, where);
     if (distance < 2) {
       console.log('<== Penalty Kick ==>');
 
       // Get an attacker or midfielder to take the PK
-      const taker = playerFunc.getRandomATTMID(foulData.object.Team);
+      const teamIndex = this.Teams!.findIndex(
+        (t) => t.ClubCode === foulData.object.ClubCode
+      );
+      const taker = playerFunc.getRandomATTMID(this.Teams![teamIndex]);
 
       // Move involved players away
       // Move tackled
@@ -135,8 +144,10 @@ export default class Referee {
       console.log('<== Set Piece Free Kick! ==>');
 
       // Move freekick taker to spot
-
-      const taker = playerFunc.getRandomATTMID(foulData.object.Team);
+      const teamIndex = this.Teams!.findIndex(
+        (t) => t.ClubCode === foulData.object.ClubCode
+      );
+      const taker = playerFunc.getRandomATTMID(this.Teams![teamIndex]);
 
       const takerPath = co.calculateDifference(
         foulData.where,
@@ -172,7 +183,10 @@ export default class Referee {
 
       // Move freekick taker to spot
 
-      const taker = playerFunc.getRandomATTMID(foulData.object.Team);
+      const teamIndex = this.Teams!.findIndex(
+        (t) => t.ClubCode === foulData.object.ClubCode
+      );
+      const taker = playerFunc.getRandomATTMID(this.Teams![teamIndex]);
 
       const takerPath = co.calculateDifference(
         foulData.where,
@@ -236,7 +250,8 @@ export default class Referee {
         createMatchEvent(
           `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] scored`,
           'goal',
-          data.shooter.PlayerID
+          data.shooter.PlayerID,
+          data.shooter.ClubCode
         );
 
         matchEvents.emit('reset-formations');
@@ -249,7 +264,8 @@ export default class Referee {
         createMatchEvent(
           `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] missed a shot`,
           'miss',
-          data.shooter.PlayerID
+          data.shooter.PlayerID,
+          data.shooter.ClubCode
         );
         matchEvents.emit('missed-shot', data);
         break;
@@ -258,7 +274,8 @@ export default class Referee {
         createMatchEvent(
           `${data.keeper.FirstName} ${data.keeper.LastName} [${data.keeper.ClubCode}] saved a shot from ${data.shooter.FirstName} ${data.shooter.LastName}`,
           'save',
-          data.keeper.PlayerID
+          data.keeper.PlayerID,
+          data.keeper.ClubCode
         );
         matchEvents.emit('saved-shot', data);
         break;

@@ -14,6 +14,18 @@ declare interface ISeason extends Document {
   PlayerStats: any[];
 }
 
+export interface ClubStandings {
+  ClubCode: string;
+  Points: number;
+  Played: number;
+  Wins: number;
+  Losses: number;
+  Draws: number;
+  GF: number;
+  GA: number;
+  GD: number;
+}
+
 export interface SeasonModel extends Model<ISeason> {}
 
 const PlayerSeasonStats: Schema = new Schema({

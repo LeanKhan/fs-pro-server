@@ -109,5 +109,3 @@ export class User {
     return this._model;
   }
 }
-
-// TODO: password not hashing.

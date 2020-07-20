@@ -52,10 +52,16 @@ export class Game {
     ref: Referee
   ) {
     // Get the club that is meant to be home
-    const homeIndex = clubs.findIndex((club) => club.ClubCode == sides.home);
+    const homeIndex = clubs.findIndex(
+      (club) => club._id!.toString() === sides.home
+    );
+
+    console.log('home club =>', homeIndex);
 
     // Get the club that is meant to be away
-    const awayIndex = clubs.findIndex((club) => club.ClubCode == sides.away);
+    const awayIndex = clubs.findIndex(
+      (club) => club._id!.toString() === sides.away
+    );
 
     this.Match = new Match(
       clubs[homeIndex],
@@ -289,6 +295,8 @@ export const setupGame = async (
 ) => {
   try {
     const teams = await fetchClubs({ _id: { $in: clubs } });
+
+    console.log('Temas => ', teams[0]._id);
 
     const ball = new Ball('#ffffff', centerBlock);
 

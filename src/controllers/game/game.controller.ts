@@ -347,8 +347,8 @@ export async function restPlayGame(
 
   let { HomeTeam: home, AwayTeam: away } = fixture;
 
-  home = home as string;
-  away = away as string;
+  home = home.toString() as string;
+  away = away.toString() as string;
 
   currentGame = (await setupGame([home as string, away as string], {
     home,

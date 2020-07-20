@@ -1,7 +1,6 @@
 import { IPlayer } from './Player';
-import { IMatchEvent } from '../classes/Match';
-
 export interface IClub {
+  _id?: string;
   Name: string;
   /** Club's overall Attacking rating */
   AttackingClass: number;

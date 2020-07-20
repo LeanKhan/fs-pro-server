@@ -6,6 +6,7 @@ export interface CalendarMatch {
   Time: string;
   Competition: string;
   Played: boolean;
+  Week: number;
 }
 
 export interface CalendarDay {
@@ -36,6 +37,7 @@ const CalendarMatchSchema: Schema = new Schema({
   Time: String,
   Competition: String,
   Played: Boolean,
+  Week: Number,
 });
 
 const CalendarDaySchema: Schema = new Schema({

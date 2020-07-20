@@ -13,14 +13,12 @@ export async function getCurrentSeasons(req: Request, res: Response) {
    * 4. Thank you Jesus...
    */
 
-  //    TODO: look for the latest none finished ones
-
   const { year } = req.query;
 
   // now find the seasons with these parameters [${compCode}-${Month}-${Year}]
   // const seasons = findAll
   // Find the seasons that are in these competitions and this year
-  const query = { Year: year };
+  const query = { Year: year, isFinished: false };
   try {
     const seasons = await fetchAll(query, 'Fixtures Competition', false);
     if (seasons.length === 0) {

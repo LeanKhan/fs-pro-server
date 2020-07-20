@@ -149,7 +149,7 @@ io.use((socket: any, next: any) => {
 });
 
 // Socket.io Instance
-io.use(function (socket, next) {
+io.use((socket, next) => {
   Session(socket.request, socket.request.res || {}, next);
 });
 
@@ -159,7 +159,6 @@ io.use(function (socket, next) {
 
 // Anytime there is a (re)connection save the socketID to the session
 // You could actually also save the User id... then map the id to the current socket id.
-// TODO: refactor after creating User model
 
 io.on('connection', (socket: i.Socket) => {
   // let sessionID = socket.handshake.session.id;

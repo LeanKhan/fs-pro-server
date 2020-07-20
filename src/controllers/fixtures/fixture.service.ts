@@ -1,6 +1,7 @@
 import DB from '../../db';
 import { incrementCounter } from '../../utils/counter';
 import { Fixture } from './fixture.model';
+import { fixtureInterface } from '@/utils/seasons';
 
 /**
  * fetchAll
@@ -12,7 +13,7 @@ export function fetchAll(query: {} = {}) {
 /**
  * FetchOneById
  *
- * Fetch a specific season by its id
+ * Fetch a specific fixture by its id
  * @param id
  */
 export function fetchOneById(
@@ -47,4 +48,14 @@ export function createNew(data: any) {
 
 export async function deleteById(id: string) {
   return DB.Models.Fixture.findByIdAndDelete(id).lean().exec();
+}
+
+/**
+ *
+ * @param data Find one and update
+ */
+export function findOneAndUpdate(query: {}, update: any): Promise<Fixture> {
+  return DB.Models.Fixture.findOneAndUpdate(query, update, { new: true })
+    .lean()
+    .exec();
 }

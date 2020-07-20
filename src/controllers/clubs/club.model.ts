@@ -23,16 +23,16 @@ declare interface IClub extends Document {
   League: string;
 }
 
-export interface Club {
-  _id: string;
+export interface ClubInterface {
+  _id?: string;
   Name: string;
   ClubCode: string;
-  LeagueCode: string;
-  League: string;
+  LeagueCode?: string;
+  League?: string;
   AttackingClass: number;
   DefensiveClass: number;
   Players: IPlayer[];
-  assets: {
+  assets?: {
     Kit: string;
     Logo: string;
     Stadium: string;
@@ -43,27 +43,27 @@ export interface Club {
   DEF_Rating: number;
   MID_Rating: number;
   Manager: string;
-  Stadium: {
+  Stadium?: {
     Name: string;
     Capacity: string;
     YearOccupied: string;
     Location: string;
   };
-  Stats: {
+  Stats?: {
     LeagueTitles: number;
     Cups: number;
     MatchesWon: number;
     MatchesLost: number;
     MatchesDrawn: number;
   };
-  Address: {
+  Address?: {
     Section: string;
     City: string;
     Country: string;
   };
-  User: string | IUser;
-  Budget: number;
-  Transactions: {};
+  User?: string | IUser;
+  Budget?: number;
+  Transactions?: {};
 }
 
 export interface ClubModel extends Model<IClub> {}
