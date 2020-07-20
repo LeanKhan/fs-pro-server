@@ -12,6 +12,7 @@ import {
 } from '../../classes/Match';
 import { CalendarMatch } from '../calendar/calendar.model';
 import { ClubStandings } from '../seasons/season.model';
+import { findOneAndUpdate as updateSeason } from '../seasons/season.service';
 import { findOneAndUpdate } from '../fixtures/fixture.service';
 import { response } from 'express';
 
@@ -165,6 +166,47 @@ export function updateStandings(
 
   // TODO: make Calendar Day a separate collection...
   // THANK YOU JESUS! I LOVE YOU LORD
+
+  // Thank you Jesus!
+  // We can get the season id from fixture or from query params...
+  // Better to get it from Fixture object... THANK YOU JESUS!
+
+  // Find the week and the club and update them!
+
+  /**
+   * { 'Standings.${week -1}.Table.ClubCode...: $set: {} }
+   */
+  const options = {
+    upsert: false,
+    arrayFilters: [
+      {
+        'home.ClubCode': home.clubCode,
+      },
+      {
+        'away.ClubCode': away.clubCode,
+      },
+    ],
+  };
+
+  const hw = `Standings.${week - 1}.Table.$[home]`;
+  const aw = `Standings.${week - 1}.Table.$[away]`;
+
+  updateSeason(
+    { _id: seasonID.toString() },
+    {
+      $set: {
+        [hw]: homeTable,
+        [aw]: awayTable,
+      },
+    },
+    options
+  )
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 
   return { homeTable, awayTable };
   // Now find the week and update it :)

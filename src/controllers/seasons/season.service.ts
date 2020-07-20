@@ -44,8 +44,11 @@ export function findByIdAndUpdate(id: string, update: any) {
  *
  * @param data Find one and update
  */
-export function findOneAndUpdate(query: {}, update: any) {
-  return DB.Models.Season.findOneAndUpdate(query, update, { new: true })
+export function findOneAndUpdate(query: {}, update: any, options: any) {
+  return DB.Models.Season.findOneAndUpdate(query, update, {
+    new: true,
+    ...options,
+  })
     .lean()
     .exec();
 }

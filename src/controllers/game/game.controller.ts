@@ -383,10 +383,11 @@ export async function restPlayGame(
     req.body.home = homeObj;
     req.body.away = awayObj;
     req.body.match = result;
+    req.body.season_id = fixture.Season;
 
     return next();
   } catch (error) {
-    console.log('Error updating fixture...');
+    console.log('Error updating fixture...', error);
 
     return res.status(400).json(error);
   }
@@ -397,8 +398,11 @@ export function restUpdateStandings(
   res: Response,
   next: NextFunction
 ) {
-  const { week, season_id } = req.query;
-  const { match, home, away } = req.body;
+  // Soon we will be getting it from the fixture object...
+  // THANK YOU JESUS!
+
+  const { week } = req.query;
+  const { match, home, away, season_id } = req.body;
 
   const result = updateStandings(
     match.HomeSideDetails,
