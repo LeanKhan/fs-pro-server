@@ -9,7 +9,7 @@ import Referee, { IReferee } from '../classes/Referee';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { matchEvents, createMatchEvent } from '../utils/events';
 import { fetchClubs } from './clubs/club.service';
-import { IClub } from '../interfaces/Club';
+import { ClubInterface as IClub } from '../controllers/clubs/club.model';
 // import { EventEmitter } from 'events';
 
 // let Clubs: IClubModel[] = [];
@@ -44,13 +44,26 @@ export class Game {
 
   constructor(
     clubs: IClub[],
+    sides: { home: string; away: string },
     hp: IBlock,
     ap: IBlock,
     field: IBlock[],
     ball: Ball,
     ref: Referee
   ) {
-    this.Match = new Match(clubs[0], clubs[1], ap, hp, centerBlock);
+    // Get the club that is meant to be home
+    const homeIndex = clubs.findIndex((club) => club.ClubCode == sides.home);
+
+    // Get the club that is meant to be away
+    const awayIndex = clubs.findIndex((club) => club.ClubCode == sides.away);
+
+    this.Match = new Match(
+      clubs[homeIndex],
+      clubs[awayIndex],
+      ap,
+      hp,
+      centerBlock
+    );
     this.Clubs = clubs;
     this.homePost = hp;
     this.awayPost = ap;
@@ -61,7 +74,7 @@ export class Game {
 
     this.Referee = ref;
 
-    this.MatchActions = new Actions(ref);
+    this.MatchActions = new Actions(ref, [this.Match.Home, this.Match.Away]);
 
     /* ---------- LISTEN TO MATCH EVENTS ----------- */
   }
@@ -72,6 +85,12 @@ export class Game {
 
   public refAssignMatch() {
     this.Referee.assignMatch(this.Match);
+  }
+
+  public setClubPlayers() {
+    this.Match.Home.setPlayers();
+
+    this.Match.Away.setPlayers();
   }
 
   public setClubFormations(homeFormation: string, awayFormation: string) {
@@ -221,6 +240,7 @@ export class Game {
 
   public startHalf() {
     createMatchEvent('Match Kick-Off', 'match');
+    console.log('Half is starting!');
     this.gamePlay();
   }
 
@@ -263,6 +283,40 @@ export class Game {
 
 let CurrentGame: Game;
 
+export const setupGame = async (
+  clubs: string[],
+  sides: { home: string; away: string }
+) => {
+  try {
+    const teams = await fetchClubs({ _id: { $in: clubs } });
+
+    const ball = new Ball('#ffffff', centerBlock);
+
+    const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
+
+    CurrentGame = new Game(
+      teams,
+      sides,
+      homePost,
+      awayPost,
+      PlayingField,
+      ball,
+      ref
+    );
+
+    CurrentGame.refAssignMatch();
+
+    CurrentGame.setClubPlayers();
+
+    CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
+
+    return CurrentGame;
+  } catch (err) {
+    console.log('Error setting up game! => ', err);
+    throw new Error(err);
+  }
+};
+
 export const getClubs = async () => {
   try {
     const result = await fetchClubs({ ClubCode: { $in: ['RP', 'IB'] } });
@@ -271,7 +325,7 @@ export const getClubs = async () => {
 
     const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
 
-    CurrentGame = new Game(result, homePost, awayPost, PlayingField, ball, ref);
+    // CurrentGame = new Game(result, homePost, awayPost, PlayingField, ball, ref);
 
     CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
 
@@ -284,6 +338,16 @@ export const getClubs = async () => {
     // After here, the game should start!
   } catch (error) {
     console.log('Errro!', error);
+  }
+};
+
+export const startGame = async () => {
+  try {
+    CurrentGame.startHalf();
+
+    // After here, the game should start!
+  } catch (error) {
+    console.log('Error starting game!', error);
   }
 };
 

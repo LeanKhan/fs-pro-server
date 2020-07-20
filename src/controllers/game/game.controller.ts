@@ -1,10 +1,13 @@
 // Sockets...
 
 import { Socket } from 'socket.io';
-import { Request, Response } from 'express';
-import { getUserSession } from '../user/user.service';
+import { Request, Response, NextFunction } from 'express';
 import { fetchOneById } from '../fixtures/fixture.service';
-import { Club } from '../clubs/club.model';
+import { Fixture } from '../fixtures/fixture.model';
+import { setupGame, Game, startGame } from '../game.controller';
+import { ClubInterface } from '../clubs/club.model';
+import { IPlayerStats } from '../../interfaces/Player';
+import { updateFixture, updateStandings } from './functions';
 const users = [];
 
 interface GameUser {
@@ -27,6 +30,10 @@ const currentMatch: {
   sameUser: false,
   status: 'not-initiated',
 };
+
+let currentFixture: Fixture;
+
+let currentGame: Game;
 
 export function sockets(socket: Socket) {
   socket.on('join-match', ({ user, match }) => {
@@ -77,28 +84,100 @@ export function sockets(socket: Socket) {
 
   // Player is ready to play...  thank you Jesus!
   socket.on('ready', ({ user }) => {
-      // same match so check if it has started...
+    // same match so check if it has started...
 
-      const u = currentMatch.users.find((u: any) => u.id.toString() === user.toString());
+    const u = currentMatch.users.find(
+      (u: any) => u.id.toString() === user.toString()
+    );
 
-      if (
-        currentMatch.status === 'waiting' &&
-        u
-      ) {
+    // check if everyone is ready...
 
-        console.log(`${u.id} is ready!`);
+    if (currentMatch.status === 'waiting' && u) {
+      console.log(`${u.id} is ready!`);
 
       // User is here, now set them to ready...user
 
-          u.ready = true;
+      u.ready = true;
 
-          // Tell the others that this user is ready...
-           socket.server
-          .to(currentMatch.fixtureCode)
-          .emit('player-ready', currentMatch);
-      }
+      // const allReady = currentMatch.users.every(u => u.ready && u.connected);
+      // if(allReady) {
+      //   // Maybe send the event to start the match ... thank you Jesus
+      //   socket.server
+      //   .to(currentMatch.fixtureCode)
+      //   .emit('start-match', currentMatch);
+      // }
+
+      // Tell the others that this user is ready...
+      socket.server
+        .to(currentMatch.fixtureCode)
+        .emit('player-ready', currentMatch);
     }
-  );
+  });
+
+  // Actually, you do this when both players are ready!
+  socket.on('setup-game', async () => {
+    // use club ids instead of their club code...
+
+    // Now we are using the fixture id only! to fetch the teams playing...
+    // Thank you Jesus!
+    const { fixture: fixture_id } = currentMatch;
+
+    let fixture: Fixture;
+
+    try {
+      // get fixture and its details...
+      fixture = await fetchOneById(fixture_id, false);
+      // We also need to get the associated calendar day...
+    } catch (error) {
+      throw error;
+    }
+
+    if (fixture!.Played) {
+      // has been played!
+
+      console.log('Match has been played already!');
+
+      return socket.server
+        .to(currentMatch.fixtureCode)
+        .emit('match-setup-error', 'Match has already been played!');
+    }
+
+    let { HomeTeam: home, AwayTeam: away } = fixture;
+
+    home = home as string;
+    away = away as string;
+
+    currentGame = (await setupGame([home, away], {
+      home,
+      away,
+    })) as Game;
+
+    socket.server.to(currentMatch.fixtureCode).emit('game-setup', {
+      homeSquad: currentGame.getMatch().Home.MatchSquad,
+      awaySquad: currentGame.getMatch().Away.MatchSquad,
+    });
+  });
+
+  socket.on('start-game', async () => {
+    await startGame();
+
+    // Match is over...
+
+    // Here we need a loop to send match events every second or s?
+    socket.server.to(currentMatch.fixtureCode).emit('game-complete', {
+      matchDetails: currentGame.getMatch().Details,
+      matchEvents: currentGame.getMatch().Events,
+      homeSquad: currentGame.getMatch().Home.MatchSquad,
+      awaySquad: currentGame.getMatch().Away.MatchSquad,
+    });
+  });
+}
+
+function endGame() {
+  // prepare stuff you need though...
+  const homeSquadPlayerStats: IPlayerStats[] = currentGame
+    .getMatch()
+    .Home.MatchSquad.map((p) => ({ ...p.Stats, id: p._id })) as IPlayerStats[];
 }
 
 export async function initiateGame(req: Request, res: Response) {
@@ -114,10 +193,10 @@ export async function initiateGame(req: Request, res: Response) {
     path: 'HomeTeam AwayTeam',
     populate: {
       path: 'Players',
-      model: 'Player'
-    }
-  }
-  const fixture = await fetchOneById(fixture_id, populate);
+      model: 'Player',
+    },
+  };
+  currentFixture = await fetchOneById(fixture_id, populate);
 
   if (currentMatch.fixture.toString() === fixture_id) {
     // same match so check if it has started...
@@ -136,7 +215,7 @@ export async function initiateGame(req: Request, res: Response) {
         console.log('gottem! ready to join match! thank you Jesus!');
         return res.send({
           message: 'Match Joined successfully :), thank you Jesus',
-          fixture,
+          currentFixture,
         });
       }
     }
@@ -147,13 +226,13 @@ export async function initiateGame(req: Request, res: Response) {
    *
    */
 
-  const home_side = fixture.HomeTeam as Club;
-  const away_side = fixture.AwayTeam as Club;
+  const home_side = currentFixture.HomeTeam as ClubInterface;
+  const away_side = currentFixture.AwayTeam as ClubInterface;
 
   const home_user = home_side.User as string;
   const away_user = away_side.User as string;
 
-  req.body.fixtureObject = fixture;
+  req.body.fixtureObject = currentFixture;
   req.body.home_user_id = home_user.toString();
   req.body.away_user_id = away_user.toString();
 
@@ -180,7 +259,33 @@ export async function initiateGame(req: Request, res: Response) {
 // }
 
 function sameUserFixture(req: Request, res: Response) {
-  return res.send({ message: 'Same User!', fixture: req.body.fixtureObject });
+  currentMatch.users = [
+    {
+      id: req.body.home_user_id,
+      session: undefined,
+      connected: false,
+      ready: false,
+    },
+  ];
+
+  currentMatch.sameUser = true;
+
+  currentMatch.status = 'waiting';
+
+  currentMatch.fixture = req.body.fixtureObject._id;
+  currentMatch.fixtureCode = req.body.fixtureObject.FixtureCode;
+
+  // req.io?.sockets.emit()
+  // req.io?.sockets.emit('join-match', req.body.fixtureObject._id);
+
+  // And now emit event telling user that they can send the join room event
+
+  // The user will send the 'join-match' event themselves
+
+  return res.send({
+    message: 'Match Created! - {same user}',
+    fixture: req.body.fixtureObject,
+  });
 }
 
 function differentUserFixture(req: Request, res: Response) {
@@ -196,7 +301,7 @@ function differentUserFixture(req: Request, res: Response) {
       id: req.body.away_user_id,
       session: undefined,
       connected: false,
-      ready: false
+      ready: false,
     },
   ];
 
@@ -213,8 +318,99 @@ function differentUserFixture(req: Request, res: Response) {
   // The user will send the 'join-match' event themselves
 
   return res.send({
-    message: 'Match Created not waiting!',
+    message: 'Match Created! - {diff users}',
     fixture: req.body.fixtureObject,
+  });
+}
+
+export async function restPlayGame(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { fixture_id } = req.query;
+
+  let fixture: Fixture;
+
+  try {
+    // get fixture and its details...
+    fixture = await fetchOneById(fixture_id, false);
+    // We also need to get the associated calendar day...
+  } catch (error) {
+    throw error;
+  }
+
+  if (fixture!.Played) {
+    // has been played!
+    return res.send('Match has been played already!');
+  }
+
+  let { HomeTeam: home, AwayTeam: away } = fixture;
+
+  home = home as string;
+  away = away as string;
+
+  currentGame = (await setupGame([home as string, away as string], {
+    home,
+    away,
+  })) as Game;
+
+  await startGame();
+
+  const homeObj = {
+    id: currentGame.getMatch().Home._id,
+    name: currentGame.getMatch().Home.Name,
+    clubCode: currentGame.getMatch().Home.ClubCode,
+  };
+
+  const awayObj = {
+    id: currentGame.getMatch().Away._id,
+    name: currentGame.getMatch().Away.Name,
+    clubCode: currentGame.getMatch().Away.ClubCode,
+  };
+
+  // After the match is done send the result to...
+
+  try {
+    const result = await updateFixture(
+      currentGame.getMatch().Details,
+      currentGame.getMatch().Events,
+      homeObj,
+      awayObj,
+      fixture_id
+    );
+
+    req.body.home = homeObj;
+    req.body.away = awayObj;
+    req.body.match = result;
+
+    return next();
+  } catch (error) {
+    console.log('Error updating fixture...');
+
+    return res.status(400).json(error);
+  }
+}
+
+export function restUpdateStandings(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { week, season_id } = req.query;
+  const { match, home, away } = req.body;
+
+  const result = updateStandings(
+    match.HomeSideDetails,
+    match.AwaySideDetails,
+    week,
+    home,
+    away,
+    season_id
+  );
+
+  return res.json({
+    result,
   });
 }
 
