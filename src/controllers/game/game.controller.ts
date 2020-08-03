@@ -385,6 +385,8 @@ export async function restPlayGame(
     req.body.match = result;
     req.body.season_id = fixture.Season;
 
+    // delete currentGame;
+
     return next();
   } catch (error) {
     console.log('Error updating fixture...', error);

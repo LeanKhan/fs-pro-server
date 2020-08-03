@@ -12,20 +12,25 @@ const router = Router();
 
 router.post('/play', async (req, res) => {
   //   const response = fetchOneById(req.params.id);
+  const clubs = req.body.clubs || ['RP', 'IB'];
 
-  const game = (await getClubs()) as Game;
+  const sides = req.body.sides;
 
-  game.getMatch().Events.forEach((event) => {
-    setTimeout(() => {
-      io.emit('match-event', event);
-    }, 1200);
-  });
+  console.log('clubs => ', clubs)
 
-  io.emit('match-ended', {
-    details: game.getMatch().Details,
-    home: game.getMatch().Home.ClubCode,
-    away: game.getMatch().Away.ClubCode,
-  });
+  const game = (await getClubs(clubs, sides)) as Game;
+
+  // game.getMatch().Events.forEach((event) => {
+  //   setTimeout(() => {
+  //     io.emit('match-event', event);
+  //   }, 1200);
+  // });
+
+  // io.emit('match-ended', {
+  //   details: game.getMatch().Details,
+  //   home: game.getMatch().Home.ClubCode,
+  //   away: game.getMatch().Away.ClubCode,
+  // });
 
   respond.success(res, 200, 'Match played');
 });

@@ -325,19 +325,25 @@ export const setupGame = async (
   }
 };
 
-export const getClubs = async () => {
+export const getClubs = async (clubs: string[], s: string[]) => {
   try {
-    const result = await fetchClubs({ ClubCode: { $in: ['RP', 'IB'] } });
+    const result = await fetchClubs({ ClubCode: { $in: clubs } });
 
     const ball = new Ball('#ffffff', centerBlock);
 
     const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
 
-    // CurrentGame = new Game(result, homePost, awayPost, PlayingField, ball, ref);
+    const sides = { home: s[0], away: s[1] };
 
-    CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
+    console.log('sides =>', sides)
+
+    CurrentGame = new Game(result, sides, homePost, awayPost, PlayingField, ball, ref);
 
     CurrentGame.refAssignMatch();
+
+    CurrentGame.setClubPlayers();
+
+    CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
 
     CurrentGame.startHalf();
 

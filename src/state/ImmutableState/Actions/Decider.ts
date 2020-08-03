@@ -188,7 +188,7 @@ export class Decider {
   ): boolean {
     // check their properties
     let result = true;
-    const chance = Math.round(Math.random() * 100);
+    const chance = this.gimmeAChance();
     switch (type) {
       case 'short':
         if (interceptor) {
@@ -245,7 +245,7 @@ export class Decider {
     dribbler: IFieldPlayer,
     opponent: IFieldPlayer
   ): boolean {
-    const chance = Math.round(Math.random() * 100);
+    const chance = this.gimmeAChance();
     const tally =
       dribbler.Attributes.Dribbling / 2 +
       dribbler.Attributes.Speed / 2 -
@@ -266,7 +266,7 @@ export class Decider {
     tackler: IFieldPlayer,
     ballHolder: IFieldPlayer
   ): boolean {
-    const chance = Math.round(Math.random() * 100);
+    const chance = this.gimmeAChance();
     // TODO: Improve the distribution of attributes here...
     const tally =
       tackler.Attributes.Tackling / 2 +
@@ -291,7 +291,7 @@ export class Decider {
     // Let's see what happens.
     // What determines a goal? Shooter's shooting (duh), ball control, Keepers keeping and the *le randomness* :)
     const onTarget = this.getShotTarget(shooter);
-    const chance = Math.round(Math.random() * 100);
+    const chance = this.gimmeAChance();
 
     if (!keeper && onTarget) {
       return { onTarget, goal: true };
@@ -345,7 +345,7 @@ export class Decider {
    */
   private getShotTarget(shooter: IFieldPlayer) {
     // if distance from post is near post...
-    const chance = Math.round(Math.random() * 100);
+    const chance = this.gimmeAChance();
 
     // Get shooter's team shey? THANK YOU JESUS!
 

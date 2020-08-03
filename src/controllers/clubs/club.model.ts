@@ -68,9 +68,6 @@ export interface ClubInterface {
 
 export interface ClubModel extends Model<IClub> {}
 
-// TODO:
-// Figure out how to calculate Club rating o!
-
 export class Club {
   private _model: Model<IClub>;
 

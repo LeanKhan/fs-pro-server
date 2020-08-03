@@ -37,8 +37,8 @@ export function updateFixture(
   const matchDetails = {
     ...MatchDetails,
     MOTM: MatchDetails.MOTM.id,
-    Winner: MatchDetails.Winner!.id,
-    Loser: MatchDetails.Loser!.id,
+    Winner: MatchDetails.Winner ? MatchDetails.Winner!.id : null,
+    Loser: MatchDetails.Loser ? MatchDetails.Loser!.id : null,
   };
   const Events = events;
   const HomeSideDetails = MatchDetails.HomeTeamDetails;

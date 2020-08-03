@@ -26,10 +26,16 @@ export const calculateClubRating: RequestHandler = async (
         }, 0);
       }
 
+      const attClass = (ratings.find(r => r.position == 'ATT').avg_rating + ratings.find(r => r.position == 'MID').avg_rating) / 2;
+      
+      const defClass = (ratings.find(r => r.position == 'GK').avg_rating + ratings.find(r => r.position == 'DEF').avg_rating) / 2;
+
       const avg_total_rating = total_rating ? total_rating / ratings.length : 0;
 
       const data: ClubRating = {
         Rating: avg_total_rating,
+        AttackingClass: attClass,
+        DefensiveClass: defClass
       };
 
       ratings.forEach((rating, i) => {
