@@ -20,7 +20,7 @@ export interface CalendarInterface {
   YearString: string; // june-2020
   YearDigits: string; // 06-2020
   CurrentDay: number;
-  Days: CalendarDay[];
+  Days: string[];
 }
 
 declare interface ICalendar extends Document {
@@ -28,7 +28,7 @@ declare interface ICalendar extends Document {
   YearString: string; // june-2020
   YearDigits: string; // 06-2020
   CurrentDay: number;
-  Days: CalendarDay[];
+  Days: string[];
 }
 
 const CalendarMatchSchema: Schema = new Schema({
@@ -57,8 +57,9 @@ export class Calendar {
         Name: String,
         YearString: String,
         YearDigits: String,
-        CurrentDay: String, // Should be the _id of a Day of type CalendarDaySchema...
-        Days: [CalendarDaySchema],
+        CurrentDay: { type: Schema.Types.ObjectId, ref: 'Fixture' }, // Should be the _id of a Day of type DaySchema...
+        // Days: [CalendarDaySchema],
+        Days: [{ type: Schema.Types.ObjectId, ref: 'Day' }],
       },
       { timestamps: true }
     );

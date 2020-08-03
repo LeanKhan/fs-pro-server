@@ -13,6 +13,7 @@ import {
   Calendar,
   CalendarModel,
 } from '../controllers/calendar/calendar.model';
+import { Day, DayModel } from '../controllers/day/day.model';
 
 declare interface IModels {
   Competition: CompetitionModel;
@@ -22,6 +23,7 @@ declare interface IModels {
   User: UserModel;
   Fixture: FixtureModel;
   Calendar: CalendarModel;
+  Day: DayModel;
 }
 
 export const MONGO_DEV_URL = 'mongodb://localhost:27017/fspro-gameplay-test';
@@ -61,6 +63,7 @@ export default class DB {
       User: new User().model,
       Fixture: new Fixture().model,
       Calendar: new Calendar().model,
+      Day: new Day().model,
     };
 
     set('useFindAndModify', false);

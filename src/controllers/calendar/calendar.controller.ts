@@ -205,6 +205,7 @@ export async function saveCalendar(
     YearString: `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`,
     YearDigits: `${now.getMonth() + 1}-${now.getFullYear()}`,
     CurrentDay: 0,
+    // Pass the ids of newly created calendar days instead...
     Days: calendarDays,
   };
 
