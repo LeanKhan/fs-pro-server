@@ -1,7 +1,7 @@
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as co from './coordinates';
-import { IPositions, IFieldPlayer } from '../interfaces/Player';
+import { IPositions, IFieldPlayer, IPlayer } from '../interfaces/Player';
 import { ratingFactors, postitionFactors, ageFactors } from './player_factors';
 
 /**
@@ -299,6 +299,24 @@ function randomBetween(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min) + min);
 }
 
+/**
+Sort from keeper down
+-Returns the players from GK-DEF-MID-ATT
+
+thank you Jesus!
+**/
+function sortFromKeeperDown(players: IPlayer[]) {
+  const positions = { GK: 4, DEF: 3, MID: 2, ATT: 1 } as {
+    GK: number;
+    DEF: number;
+    MID: number;
+    ATT: number;
+    [key: string]: number;
+  };
+
+  return players.sort((a, b) => positions[b.Position] - positions[a.Position]);
+}
+
 export {
   getATTMID,
   findFreeBlock,
@@ -306,4 +324,5 @@ export {
   getRandomATTMID,
   getGK,
   calculatePlayerValue,
+  sortFromKeeperDown,
 };

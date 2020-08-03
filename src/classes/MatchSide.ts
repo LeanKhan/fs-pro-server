@@ -6,6 +6,7 @@ import Ball from './Ball';
 import { formations, FormationItem } from '../state/PersistentState/Formations';
 import Player from './Player';
 import { ClubInterface } from '../controllers/clubs/club.model';
+import { sortFromKeeperDown } from '../utils/players';
 
 /** MatchSide
  *
@@ -49,7 +50,10 @@ export class MatchSide extends Club {
   public setFormation(formation: string, ball: Ball, fieldPlay: IBlock[]) {
     this.Formation = formations[formation];
 
-    const currentFormation = formations[formation];
+    const currentFormation = [...formations[formation]];
+
+    // Sort them here...
+    this.MatchSquad = sortFromKeeperDown(this.MatchSquad);
 
     this.StartingSquad = this.MatchSquad.map((p: IPlayer, i) => {
       // const startingBlock = fieldPlay[this.Formation[i]];
@@ -61,6 +65,16 @@ export class MatchSide extends Club {
         p,
         currentFormation
       );
+
+      // Sort players by position! Thank you Jesus!
+
+      console.log(
+        'currentFormation & player => ',
+        currentFormation.length,
+        p.Position
+      );
+
+      console.log('index => ', foundIndex);
 
       currentFormation.splice(foundIndex, 1);
 
@@ -113,10 +127,15 @@ export class MatchSide extends Club {
       return { block: fp[formation[0].block], index: 0 };
     }
     let index = -1;
-    const formationBlock = formation.find((pick, id) => {
+    let formationBlock = formation.find((pick, id) => {
       index = id;
       return pick.positions.includes(p.Position);
     });
+
+    if (!formationBlock) {
+      // give him something...
+      formationBlock = formation[0];
+    }
 
     console.log('player =>', p.PlayerID, formationBlock, p.Position);
 
