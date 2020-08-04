@@ -13,7 +13,7 @@ import {
   Calendar,
   CalendarModel,
 } from '../controllers/calendar/calendar.model';
-import { Day, DayModel } from '../controllers/day/day.model';
+import { Day, DayModel } from '../controllers/days/day.model';
 
 declare interface IModels {
   Competition: CompetitionModel;

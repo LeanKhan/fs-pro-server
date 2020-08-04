@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import respond from '../../helpers/responseHandler';
-import { fetchAll } from '../../controllers/seasons/season.service';
+import { fetchAll } from '../seasons/season.service';
+import { createMany } from '../days/day.service';
 import { Types } from 'mongoose';
 import { Fixture } from '../fixtures/fixture.model';
 import {
@@ -180,9 +181,17 @@ export async function generateCalendar(
     day.Day = i + 1;
   });
 
-  req.body.days = completeDays;
+  // Here create the Calendar Days in the db...
 
-  return next();
+  createMany(completeDays)
+    .then((days) => {
+      // get ids...
+      req.body.days = days.map((day) => day._id);
+      return next();
+    })
+    .catch((err) => {
+      return respond.fail(res, 400, 'Failed to create days ' + err);
+    });
 
   // firstDivisionDays[0][0]
 
@@ -194,7 +203,7 @@ export async function saveCalendar(
   res: Response,
   next: NextFunction
 ) {
-  const calendarDays: CalendarDay[] = req.body.days;
+  const calendarDays: string[] = req.body.days;
 
   // TODO: move these to functions!
 
@@ -204,7 +213,6 @@ export async function saveCalendar(
     Name: now.toLocaleDateString(),
     YearString: `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`,
     YearDigits: `${now.getMonth() + 1}-${now.getFullYear()}`,
-    CurrentDay: 0,
     // Pass the ids of newly created calendar days instead...
     Days: calendarDays,
   };

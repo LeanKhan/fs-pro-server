@@ -19,7 +19,7 @@ export interface CalendarInterface {
   Name: string;
   YearString: string; // june-2020
   YearDigits: string; // 06-2020
-  CurrentDay: number;
+  CurrentDay?: number;
   Days: string[];
 }
 
