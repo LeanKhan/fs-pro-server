@@ -164,7 +164,6 @@ export function updateStandings(
 
   // Now save this in the Standings array
 
-  // TODO: make Calendar Day a separate collection...
   // THANK YOU JESUS! I LOVE YOU LORD
 
   // Thank you Jesus!
