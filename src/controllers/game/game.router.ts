@@ -7,6 +7,8 @@ import {
   restPlayGame,
   restUpdateStandings,
 } from './game.controller';
+import { findOne } from '../days/day.service';
+import { Types } from 'mongoose';
 
 const router = Router();
 
@@ -16,7 +18,7 @@ router.post('/play', async (req, res) => {
 
   const sides = req.body.sides;
 
-  console.log('clubs => ', clubs)
+  console.log('clubs => ', clubs);
 
   const game = (await getClubs(clubs, sides)) as Game;
 
@@ -36,6 +38,41 @@ router.post('/play', async (req, res) => {
 });
 
 router.get('/kickoff', restPlayGame, restUpdateStandings);
+
+// router.get('/kickoff', async (req, res) => {
+//   const { fixture_id } = req.query;
+
+//   const query = { 'Matches.Fixture': Types.ObjectId(fixture_id) };
+
+//   findOne(query, false)
+//     .then((day) => {
+//       console.log('Day =>', day);
+
+//       // Then find the array position...
+//       const matchIndex = day.Matches.findIndex(
+//         (m) => m.Fixture.toString() === fixture_id
+//       );
+
+//       console.log('Match =>', day.Matches[matchIndex]);
+
+//       respond.success(res, 200, 'Day found :)', day);
+//     })
+//     .catch((err) => {
+//       console.log('err =>', err);
+//       respond.fail(res, 404, 'Day not found :(');
+//     });
+// });
+
+/**
+ *  findOne(query, false).then(
+    day => {
+console.log('Day =>', day)
+    }
+  )
+  .catch(err => {
+    console.log('err =>',err);
+  });
+ */
 
 router.post('/new-game', initiateGame);
 

@@ -14,7 +14,8 @@ import { CalendarMatch } from '../calendar/calendar.model';
 import { ClubStandings } from '../seasons/season.model';
 import { findOneAndUpdate as updateSeason } from '../seasons/season.service';
 import { findOneAndUpdate } from '../fixtures/fixture.service';
-import { response } from 'express';
+import { findOne } from '../days/day.service';
+import { Types } from 'mongoose';
 
 interface Team {
   id: string;
@@ -93,7 +94,7 @@ export function updateFixture(
 export function updateStandings(
   homeDetails: IMatchSideDetails,
   awayDetails: IMatchSideDetails,
-  week: number,
+  fixture_id: string,
   home: Team,
   away: Team,
   seasonID: string
@@ -103,6 +104,8 @@ export function updateStandings(
   // AwaySideDetails.Won = MatchDetails.Winner?.id === away.id;
   // Maybe we should only update these one by one...
   // const homePoints = homeDetails.Goals > awayDetails.Goals ? '3' : homeDetails.Goals == awayDetails
+
+  // Maybe you should use the fixture code to get the day then the week...
 
   const homeTable: ClubStandings = {
     ClubCode: home.clubCode,
@@ -171,43 +174,79 @@ export function updateStandings(
   // Better to get it from Fixture object... THANK YOU JESUS!
 
   // Find the week and the club and update them!
+  const query = { 'Matches.Fixture': Types.ObjectId(fixture_id) };
+
+  // TODO: handle cases where there's no match that day
+  const getMatchWeek = async () => {
+    return findOne(query, false)
+      .then((day) => {
+        console.log('Day =>', day);
+
+        // Then find the array position...
+        const matchIndex = day.Matches.findIndex(
+          (m) => m.Fixture.toString() === fixture_id
+        );
+
+        return day.Matches[matchIndex].Week;
+      })
+      .catch((err) => {
+        console.log('err =>', err);
+        throw new Error(err);
+      });
+  };
+
+  // const query = { 'Matches.$.Fixture': fixture_id };
+
+  //   findOne(query, false).then(
+  //     day => {
+  // console.log('Day =>', day)
+  //     }
+  //   )
+  //   .catch(err => {
+  //     console.log('err =>',err);
+  //   });
 
   /**
    * { 'Standings.${week -1}.Table.ClubCode...: $set: {} }
    */
-  const options = {
-    upsert: false,
-    arrayFilters: [
+
+  const updateTable = async (week: number) => {
+    const options = {
+      upsert: false,
+      arrayFilters: [
+        {
+          'home.ClubCode': home.clubCode,
+        },
+        {
+          'away.ClubCode': away.clubCode,
+        },
+      ],
+    };
+
+    const hw = `Standings.${week - 1}.Table.$[home]`;
+    const aw = `Standings.${week - 1}.Table.$[away]`;
+
+    return updateSeason(
+      { _id: seasonID.toString() },
       {
-        'home.ClubCode': home.clubCode,
+        $set: {
+          [hw]: homeTable,
+          [aw]: awayTable,
+        },
       },
-      {
-        'away.ClubCode': away.clubCode,
-      },
-    ],
+      options
+    )
+      .then((res) => {
+        console.log(res);
+        return { homeTable, awayTable };
+      })
+      .catch((err) => {
+        console.log(err);
+        throw new Error(err);
+      });
   };
 
-  const hw = `Standings.${week - 1}.Table.$[home]`;
-  const aw = `Standings.${week - 1}.Table.$[away]`;
-
-  updateSeason(
-    { _id: seasonID.toString() },
-    {
-      $set: {
-        [hw]: homeTable,
-        [aw]: awayTable,
-      },
-    },
-    options
-  )
-    .then((res) => {
-      console.log(res);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-
-  return { homeTable, awayTable };
+  return getMatchWeek().then(updateTable);
   // Now find the week and update it :)
   //  TO do that we need the Fixture ID, shey?
 }

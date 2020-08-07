@@ -9,7 +9,7 @@ export interface CalendarMatchInterface {
   Week: number;
 }
 
-export interface CalendarDayInterface {
+export interface DayInterface {
   Matches: CalendarMatchInterface[];
   isFree: boolean;
   Day?: number;

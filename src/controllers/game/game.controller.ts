@@ -403,21 +403,24 @@ export function restUpdateStandings(
   // Soon we will be getting it from the fixture object...
   // THANK YOU JESUS!
 
-  const { week } = req.query;
+  // TODO: should not need to pass the week! Just pass the day!
+  const { fixture_id } = req.query;
   const { match, home, away, season_id } = req.body;
 
-  const result = updateStandings(
+  updateStandings(
     match.HomeSideDetails,
     match.AwaySideDetails,
-    week,
+    fixture_id,
     home,
     away,
     season_id
-  );
-
-  return res.json({
-    result,
-  });
+  )
+    .then((result) =>
+      res.json({
+        result,
+      })
+    )
+    .catch((err) => res.status(400).send(err));
 }
 
 // function joinGame(req: Request, res: Response) {
