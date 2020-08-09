@@ -138,7 +138,7 @@ export async function generateFixtures(
       seasonCode,
       seasonId,
       leagueCode: leagueCode.toUpperCase(),
-      stadium: home.Stadium.Name,
+      stadium: home.Stadium!.Name,
       index,
       matchesPerWeek,
       type: competition.Type.toLowerCase(),

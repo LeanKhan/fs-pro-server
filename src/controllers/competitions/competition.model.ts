@@ -1,6 +1,6 @@
 // tslint:disable: variable-name
 import { Schema, model, Document, Model } from 'mongoose';
-import { Club } from '../clubs/club.model';
+import { Club, ClubInterface } from '../clubs/club.model';
 
 export interface Competition {
   Type: string;
@@ -12,7 +12,7 @@ export interface Competition {
   Cup: boolean;
   NumberOfTeams: number;
   NumberOfWeeks: number;
-  Clubs: Club[];
+  Clubs: ClubInterface[];
   Seasons: [];
 }
 

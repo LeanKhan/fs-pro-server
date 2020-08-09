@@ -14,7 +14,7 @@ import { CalendarMatch } from '../calendar/calendar.model';
 import { ClubStandings } from '../seasons/season.model';
 import { findOneAndUpdate as updateSeason } from '../seasons/season.service';
 import { findOneAndUpdate } from '../fixtures/fixture.service';
-import { findOne } from '../days/day.service';
+import { findOne, findOneAndUpdate as updateDay } from '../days/day.service';
 import { Types } from 'mongoose';
 
 interface Team {
@@ -163,22 +163,18 @@ export function updateStandings(
     awayTable.Losses = 0;
   }
 
-  // findOneAndUpdate({})
-
-  // Now save this in the Standings array
-
-  // THANK YOU JESUS! I LOVE YOU LORD
-
-  // Thank you Jesus!
-  // We can get the season id from fixture or from query params...
-  // Better to get it from Fixture object... THANK YOU JESUS!
-
-  // Find the week and the club and update them!
   const query = { 'Matches.Fixture': Types.ObjectId(fixture_id) };
 
   // TODO: handle cases where there's no match that day
-  const getMatchWeek = async () => {
-    return findOne(query, false)
+
+  // We need to update the Day Match to Played!
+  // Update the array element that matches that query
+  /**
+   * Updates the Match entry in Day and returns the week of the match
+   *
+   */
+  const getWeekAndUpdateMatch = async () => {
+    return updateDay(query, { $set: { 'Matches.$.Played': true } })
       .then((day) => {
         console.log('Day =>', day);
 
@@ -195,21 +191,12 @@ export function updateStandings(
       });
   };
 
-  // const query = { 'Matches.$.Fixture': fixture_id };
-
-  //   findOne(query, false).then(
-  //     day => {
-  // console.log('Day =>', day)
-  //     }
-  //   )
-  //   .catch(err => {
-  //     console.log('err =>',err);
-  //   });
-
   /**
-   * { 'Standings.${week -1}.Table.ClubCode...: $set: {} }
+   * Update the standings based on the match result :)
+   *
+   * Thank you Jesus!
+   * @param {number} week
    */
-
   const updateTable = async (week: number) => {
     const options = {
       upsert: false,
@@ -246,7 +233,5 @@ export function updateStandings(
       });
   };
 
-  return getMatchWeek().then(updateTable);
-  // Now find the week and update it :)
-  //  TO do that we need the Fixture ID, shey?
+  return getWeekAndUpdateMatch().then(updateTable);
 }

@@ -5,7 +5,7 @@ import { fetchOneById } from './fixture.service';
 const router = Router();
 
 router.get('/:id', (req, res) => {
-  const response = fetchOneById(req.params.id);
+  const response = fetchOneById(req.params.id, false);
 
   response
     .then((fixture) => {
