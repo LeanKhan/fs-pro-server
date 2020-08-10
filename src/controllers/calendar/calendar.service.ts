@@ -20,18 +20,31 @@ export function fetchOneById(id: string) {
 /**
   paginate!
 */
-export function fetchOne(query: {}, populate: Boolean | string = false, paginate: {skip: number, limit: number} = {skip: 0, limit: 14}) {
-  if(populate && paginate) {
+export function fetchOne(
+  query: {},
+  populate: Boolean | string = false,
+  paginate: { skip: number; limit: number } = { skip: 0, limit: 14 }
+) {
+  if (populate && paginate) {
     // Use $slice: [skip, limit] to 'paginate' array in a way...
-      return DB.Models.Calendar.findOne(query, { Days: {$slice: [paginate.skip, paginate.limit]} }).populate({
+    return DB.Models.Calendar.findOne(query, {
+      Days: { $slice: [paginate.skip, paginate.limit] },
+    })
+      .populate({
         path: 'Days.Matches.Fixture',
-        model: 'Fixture'
-      }).lean().exec();
+        model: 'Fixture',
+      })
+      .lean()
+      .exec();
   }
-  if(populate) {
-  return DB.Models.Calendar.findOne(query).lean().exec();    
+  if (populate) {
+    return DB.Models.Calendar.findOne(query).lean().exec();
   }
   return DB.Models.Calendar.findOne(query).lean().exec();
+}
+
+export function findOneAndUpdate(query: {}, update: any) {
+  return DB.Models.Calendar.findOneAndUpdate(query, update).lean().exec();
 }
 
 export function createCalendars(Calendars: any[]) {

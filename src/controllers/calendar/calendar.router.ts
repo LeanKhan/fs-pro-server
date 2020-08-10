@@ -5,7 +5,8 @@ import {
   getSeasons,
   generateCalendar,
   saveCalendar,
-  getCurrentCalendar
+  getCurrentCalendar,
+  startYear,
 } from './calendar.controller';
 
 const router = Router();
@@ -30,5 +31,9 @@ router.get('/current', getCurrentCalendar);
 
 // Create new calendar year...
 router.post('/new', getSeasons, generateCalendar, saveCalendar);
+
+// start year...
+// This well set all the seasons to started and change the CurrentDay to 1.
+router.post('/start', startYear);
 
 export default router;

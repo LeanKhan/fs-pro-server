@@ -9,6 +9,9 @@ declare interface ISeason extends Document {
   Winner: string;
   isFinished: boolean;
   isStarted: boolean;
+  Status: string;
+  StartDate: Date;
+  EndDate: Date;
   Fixtures: [];
   Standings: [];
   PlayerStats: any[];
@@ -69,11 +72,12 @@ export class Season {
         SeasonCode: { type: String, unique: true },
         Title: { type: String },
         StartDate: { type: Date },
+        EndDate: { type: Date },
         Winner: { type: String },
         isFinished: { type: Boolean, default: false },
         isStarted: { type: Boolean, default: false },
+        Status: { type: String, default: 'Pending' },
         Year: String,
-        EndDate: { type: Date },
         Competition: { type: Schema.Types.ObjectId, ref: 'Competition' },
         CompetitionCode: { type: String },
         Fixtures: [{ type: Schema.Types.ObjectId, ref: 'Fixture' }],

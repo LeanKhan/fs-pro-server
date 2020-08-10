@@ -50,7 +50,11 @@ export class MatchSide extends Club {
   public setFormation(formation: string, ball: Ball, fieldPlay: IBlock[]) {
     this.Formation = formations[formation];
 
+    console.log('Formation =>', formations);
+
     const currentFormation = [...formations[formation]];
+
+    console.log('Current Formation =>', currentFormation);
 
     // Sort them here...
     this.MatchSquad = sortFromKeeperDown(this.MatchSquad);
@@ -68,13 +72,13 @@ export class MatchSide extends Club {
 
       // Sort players by position! Thank you Jesus!
 
-      console.log(
-        'currentFormation & player => ',
-        currentFormation.length,
-        p.Position
-      );
+      // console.log(
+      //   'currentFormation & player => ',
+      //   currentFormation.length,
+      //   p.Position
+      // ); REVERT?
 
-      console.log('index => ', foundIndex);
+      // console.log('index => ', foundIndex); REVERT?
 
       currentFormation.splice(foundIndex, 1);
 
@@ -91,14 +95,16 @@ export class MatchSide extends Club {
   public rollCall() {
     console.log('------ ======== -----');
 
-    console.table(
-      this.StartingSquad.map((p) => ({
-        Name: p.FirstName + ' ' + p.LastName,
-        Club: p.ClubCode,
-        Position: p.Position,
-        Block: p.BlockPosition.key,
-      }))
-    );
+    console.log('ROLL-CALL WAS ERE - DELETE SOON :)');
+
+    // console.table(
+    //   this.StartingSquad.map((p) => ({
+    //     Name: p.FirstName + ' ' + p.LastName,
+    //     Club: p.ClubCode,
+    //     Position: p.Position,
+    //     Block: p.BlockPosition.key,
+    //   }))
+    // ); REVERT
 
     console.log('-----------');
   }
@@ -137,7 +143,7 @@ export class MatchSide extends Club {
       formationBlock = formation[0];
     }
 
-    console.log('player =>', p.PlayerID, formationBlock, p.Position);
+    // console.log('player =>', p.PlayerID, formationBlock, p.Position); REVERT
 
     return { block: fp[formationBlock!.block], index };
   }

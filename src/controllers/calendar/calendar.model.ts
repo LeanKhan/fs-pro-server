@@ -1,19 +1,19 @@
 import { Schema, Document, model, Model } from 'mongoose';
 
-export interface CalendarMatch {
-  Fixture: string;
-  MatchType: string;
-  Time: string;
-  Competition: string;
-  Played: boolean;
-  Week: number;
-}
+// export interface CalendarMatch {
+//   Fixture: string;
+//   MatchType: string;
+//   Time: string;
+//   Competition: string;
+//   Played: boolean;
+//   Week: number;
+// }
 
-export interface CalendarDay {
-  Matches: CalendarMatch[];
-  isFree: boolean;
-  Day?: number;
-}
+// export interface CalendarDay {
+//   Matches: CalendarMatch[];
+//   isFree: boolean;
+//   Day?: number;
+// }
 
 export interface CalendarInterface {
   Name: string;
@@ -31,20 +31,20 @@ declare interface ICalendar extends Document {
   Days: string[];
 }
 
-const CalendarMatchSchema: Schema = new Schema({
-  Fixture: { type: Schema.Types.ObjectId, ref: 'Fixture' },
-  MatchType: String,
-  Time: String,
-  Competition: String,
-  Played: Boolean,
-  Week: Number,
-});
+// const CalendarMatchSchema: Schema = new Schema({
+//   Fixture: { type: Schema.Types.ObjectId, ref: 'Fixture' },
+//   MatchType: String,
+//   Time: String,
+//   Competition: String,
+//   Played: Boolean,
+//   Week: Number,
+// });
 
-const CalendarDaySchema: Schema = new Schema({
-  Matches: [CalendarMatchSchema],
-  isFree: Boolean,
-  Day: Number,
-});
+// const CalendarDaySchema: Schema = new Schema({
+//   Matches: [CalendarMatchSchema],
+//   isFree: Boolean,
+//   Day: Number,
+// });
 
 export interface CalendarModel extends Model<ICalendar> {}
 
@@ -57,8 +57,7 @@ export class Calendar {
         Name: String,
         YearString: String,
         YearDigits: String,
-        CurrentDay: { type: Schema.Types.ObjectId, ref: 'Fixture' }, // Should be the _id of a Day of type DaySchema...
-        // Days: [CalendarDaySchema],
+        CurrentDay: Number, // the index of the day...
         Days: [{ type: Schema.Types.ObjectId, ref: 'Day' }],
       },
       { timestamps: true }

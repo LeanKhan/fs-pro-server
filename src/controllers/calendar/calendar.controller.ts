@@ -1,16 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
 import respond from '../../helpers/responseHandler';
-import { fetchAll } from '../seasons/season.service';
+import {
+  fetchAll as fetchAllSeasons,
+  findAndUpdate as updateManySeasons,
+} from '../seasons/season.service';
 import { createMany } from '../days/day.service';
 import { Types } from 'mongoose';
 import { Fixture } from '../fixtures/fixture.model';
-import {
-  CalendarDay,
-  CalendarMatch,
-  CalendarInterface,
-} from './calendar.model';
+import { CalendarInterface } from './calendar.model';
+import { DayInterface, CalendarMatchInterface } from '../days/day.model';
 import { monthFromIndex } from '../../utils/seasons';
-import { createNew, fetchOne } from './calendar.service';
+import {
+  createNew,
+  fetchOne,
+  findOneAndUpdate as updateCalendar,
+} from './calendar.service';
 
 export async function getSeasons(
   req: Request,
@@ -48,7 +52,7 @@ export async function getSeasons(
   // Find the seasons that are in these competitions and this year
   const query = { Competition: { $in: competitions }, Year: newYear };
   try {
-    const seasons = await fetchAll(
+    const seasons = await fetchAllSeasons(
       query,
       'Fixtures',
       'Fixtures Standings CompetitionCode'
@@ -106,14 +110,14 @@ export async function generateCalendar(
       (s: any) => s.CompetitionCode === secondDivisionLeague!.code
     ).Standings.length;
 
-  let firstDivisionDays: CalendarDay[] = [];
+  let firstDivisionDays: DayInterface[] = [];
 
   // Use the number of matches in the season to get the one that
 
   try {
     firstDivisionDays = firstDivisionFixtures.map(
       (fixture: Fixture, index: number) => {
-        const Match: CalendarMatch[] = [
+        const Match: CalendarMatchInterface[] = [
           {
             Fixture: fixture._id,
             Competition: fixture.LeagueCode,
@@ -132,8 +136,8 @@ export async function generateCalendar(
 
   try {
     firstDivisionDays = firstDivisionDays.map(
-      (day: CalendarDay, index: number) => {
-        const Match: CalendarMatch = {
+      (day: DayInterface, index: number) => {
+        const Match: CalendarMatchInterface = {
           Fixture: secondDivisionFixtures[index]._id,
           Competition: secondDivisionFixtures[index].LeagueCode,
           MatchType: secondDivisionFixtures[index].Type,
@@ -154,10 +158,10 @@ export async function generateCalendar(
 
   // respond.success(res, 200, 'Done :p', firstDivisionDays);
   // Here add like 20 free days?
-  let completeDays: CalendarDay[] = [];
+  let completeDays: DayInterface[] = [];
   firstDivisionDays.forEach((day, i) => {
     if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
-      const emptyDay: CalendarDay = {
+      const emptyDay: DayInterface = {
         Matches: [],
         isFree: true,
       };
@@ -234,6 +238,66 @@ export async function saveCalendar(
       response.result
     );
   }
+}
+
+export async function changeCurrentDay(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  // Change current day...
+  // Check if there is any match that day so you can move to the next day that has a match...
+  // First check if all the Matches have been played...
+  const { year } = req.body;
+  //
+  // return updateCalendar({ YearString: year }, { CurrentDay: 1 });
+}
+
+export async function startYear(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  // In the future you will do a lot here tho...
+  // Like reset Club money and all...
+  const { year } = req.body;
+
+  if (!year) {
+    return respond.fail(res, 400, 'No year provided!');
+  }
+
+  const fetchSeasons = () => {
+    const query = { Year: year, isFinished: false, Status: 'pending' };
+
+    return updateManySeasons(query, {
+      isStarted: true,
+      StartDate: new Date(),
+      Status: 'started',
+    });
+  };
+
+  const startCalendarYear = async (seasons: any) => {
+    // This means the Seasons were not found and updated :o
+    if (seasons.n === 0 && seasons.nModified === 0) {
+      throw new Error('No seasons found!');
+    }
+    return updateCalendar({ YearString: year }, { CurrentDay: 1 });
+  };
+
+  fetchSeasons()
+    .then(startCalendarYear)
+    .then((response) => {
+      // Updated calendar!
+      return respond.success(
+        res,
+        200,
+        'Calendar Year started successfully!',
+        response
+      );
+    })
+    .catch((err) => {
+      return respond.fail(res, 400, 'Error starting year!', err);
+    });
 }
 
 export async function getCurrentCalendar(

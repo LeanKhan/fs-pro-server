@@ -52,6 +52,17 @@ export function findOneAndUpdate(query: {}, update: any, options: any) {
     .lean()
     .exec();
 }
+
+/**
+ * Update many seasons that match a particular query
+ * @param query
+ * @param update
+ * @param options
+ */
+export function findAndUpdate(query: {}, update: any) {
+  return DB.Models.Season.updateMany(query, update).lean().exec();
+}
+
 /**
  * create new season
  */
