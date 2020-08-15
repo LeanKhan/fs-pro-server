@@ -4,7 +4,7 @@ import {
   fetchAll as fetchAllSeasons,
   findAndUpdate as updateManySeasons,
 } from '../seasons/season.service';
-import { createMany } from '../days/day.service';
+import { createMany, findOne as findDay } from '../days/day.service';
 import { Types } from 'mongoose';
 import { Fixture } from '../fixtures/fixture.model';
 import { CalendarInterface } from './calendar.model';
@@ -240,17 +240,38 @@ export async function saveCalendar(
   }
 }
 
-export async function changeCurrentDay(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+/**
+ * Change the Current Day to next available day :)
+ *
+ * Thank you Jesus!
+ *
+ * @param year Calendar year
+ */
+export async function changeCurrentDay(year: string) {
   // Change current day...
   // Check if there is any match that day so you can move to the next day that has a match...
   // First check if all the Matches have been played...
-  const { year } = req.body;
-  //
-  // return updateCalendar({ YearString: year }, { CurrentDay: 1 });
+  // const { year } = req.body;
+  // Actually this is supposed to move the nearest day that is free...
+
+  // Find the first day where all matches are not played
+  // TODO: also a day that is higher than the current day...
+  // TODO: you should also prevent matches from being played anyhow.
+  // matches should be played in sequence
+  const getNextDay = async () => {
+    const query = { $nor: [{ 'Matches.Played': true }] };
+
+    return findDay(query, false);
+  };
+
+  const updateCurrentDay = async (nextfreeday: DayInterface) => {
+    return updateCalendar(
+      { YearString: year },
+      { CurrentDay: nextfreeday.Day }
+    );
+  };
+
+  return getNextDay().then(updateCurrentDay);
 }
 
 export async function startYear(

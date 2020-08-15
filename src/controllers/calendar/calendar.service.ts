@@ -18,11 +18,11 @@ export function fetchOneById(id: string) {
 }
 
 /**
-  paginate!
+  fetch one calendar based on query
 */
 export function fetchOne(
   query: {},
-  populate: Boolean | string = false,
+  populate: boolean | string = false,
   paginate: { skip: number; limit: number } = { skip: 0, limit: 14 }
 ) {
   if (populate && paginate) {

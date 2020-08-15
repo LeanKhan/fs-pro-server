@@ -8,6 +8,7 @@ import { setupGame, Game, startGame } from '../game.controller';
 import { ClubInterface } from '../clubs/club.model';
 import { IPlayerStats } from '../../interfaces/Player';
 import { updateFixture, updateStandings } from './functions';
+import { changeCurrentDay } from '../calendar/calendar.controller';
 const users = [];
 
 interface GameUser {
@@ -345,6 +346,8 @@ export async function restPlayGame(
     return res.send('Match has been played already!');
   }
 
+  req.body.SeasonCode = fixture.SeasonCode;
+
   let { HomeTeam: home, AwayTeam: away } = fixture;
 
   home = home.toString() as string;
@@ -415,12 +418,39 @@ export function restUpdateStandings(
     away,
     season_id
   )
-    .then((result) =>
-      res.json({
-        result,
-      })
-    )
+    .then(({ homeTable, awayTable, matches }) => {
+      // Check if we need to update Calendar day
+      const allMatchesPlayed = matches.every((m) => m.Played);
+
+      if (allMatchesPlayed) {
+        // move current Day!
+        req.body.homeTable = homeTable;
+        req.body.awayTable = awayTable;
+
+        // We have to get this from the kini...
+        // TODO there should be a better way to get these constants...
+        const currentYear = req.body.SeasonCode.split('-').splice(1).join('-');
+        return changeCurrentDay(currentYear)
+          .then(() => {
+            console.log('Current Day changed successfully!');
+            return res.json({
+              homeTable,
+              awayTable,
+            });
+          })
+          .catch((err) => {
+            console.log('Error changing current Calendar Day!');
+            return res.json(err);
+          });
+      }
+
+      return res.json({
+        homeTable,
+        awayTable,
+      });
+    })
     .catch((err) => res.status(400).send(err));
+  // Here we should check if we need to update anything else...
 }
 
 // function joinGame(req: Request, res: Response) {

@@ -10,12 +10,12 @@ import {
   IMatchSideDetails,
   Match,
 } from '../../classes/Match';
-import { CalendarMatch } from '../calendar/calendar.model';
 import { ClubStandings } from '../seasons/season.model';
 import { findOneAndUpdate as updateSeason } from '../seasons/season.service';
 import { findOneAndUpdate } from '../fixtures/fixture.service';
 import { findOne, findOneAndUpdate as updateDay } from '../days/day.service';
 import { Types } from 'mongoose';
+import { CalendarMatchInterface } from '../days/day.model';
 
 interface Team {
   id: string;
@@ -183,7 +183,7 @@ export function updateStandings(
           (m) => m.Fixture.toString() === fixture_id
         );
 
-        return day.Matches[matchIndex].Week;
+        return { week: day.Matches[matchIndex].Week, matches: day.Matches };
       })
       .catch((err) => {
         console.log('err =>', err);
@@ -197,7 +197,13 @@ export function updateStandings(
    * Thank you Jesus!
    * @param {number} week
    */
-  const updateTable = async (week: number) => {
+  const updateTable = async ({
+    week,
+    matches,
+  }: {
+    week: number;
+    matches: CalendarMatchInterface[];
+  }) => {
     const options = {
       upsert: false,
       arrayFilters: [
@@ -225,7 +231,7 @@ export function updateStandings(
     )
       .then((res) => {
         console.log(res);
-        return { homeTable, awayTable };
+        return { homeTable, awayTable, matches };
       })
       .catch((err) => {
         console.log(err);
@@ -235,3 +241,6 @@ export function updateStandings(
 
   return getWeekAndUpdateMatch().then(updateTable);
 }
+
+/** update game and calendar */
+export function updateCalendar() {}
