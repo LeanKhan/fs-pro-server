@@ -14,6 +14,7 @@ import {
   createNew,
   fetchOne,
   findOneAndUpdate as updateCalendar,
+  findAndUpdate as updateCalendars,
 } from './calendar.service';
 
 export async function getSeasons(
@@ -217,6 +218,7 @@ export async function saveCalendar(
     Name: now.toLocaleDateString(),
     YearString: `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`,
     YearDigits: `${now.getMonth() + 1}-${now.getFullYear()}`,
+    isActive: false,
     // Pass the ids of newly created calendar days instead...
     Days: calendarDays,
   };
@@ -288,7 +290,7 @@ export async function startYear(
   }
 
   const fetchSeasons = () => {
-    const query = { Year: year, isFinished: false, Status: 'pending' };
+    const query = { Year: year };
 
     return updateManySeasons(query, {
       isStarted: true,
@@ -302,7 +304,14 @@ export async function startYear(
     if (seasons.n === 0 && seasons.nModified === 0) {
       throw new Error('No seasons found!');
     }
-    return updateCalendar({ YearString: year }, { CurrentDay: 1 });
+    // Set the rest to false and this one to true...
+    // TODO: This uses an Aggregation pipeline inside the update query. This only works from MongodDB version 4.2 :)
+    // so upgrade next by God's grace
+    // There should be only ONE active calendar at a time. Thank you Jesus!
+    console.log('Year =>', year);
+    return updateCalendars({}, [
+      { $set: { isActive: { $eq: ['$YearString', year] } } },
+    ]);
   };
 
   fetchSeasons()
@@ -317,6 +326,7 @@ export async function startYear(
       );
     })
     .catch((err) => {
+      console.log('Error starting year! => ', err);
       return respond.fail(res, 400, 'Error starting year!', err);
     });
 }

@@ -1,7 +1,7 @@
 // Sockets...
 
 import { Socket } from 'socket.io';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, response } from 'express';
 import { fetchOneById } from '../fixtures/fixture.service';
 import { Fixture } from '../fixtures/fixture.model';
 import { setupGame, Game, startGame } from '../game.controller';
@@ -9,6 +9,7 @@ import { ClubInterface } from '../clubs/club.model';
 import { IPlayerStats } from '../../interfaces/Player';
 import { updateFixture, updateStandings } from './functions';
 import { changeCurrentDay } from '../calendar/calendar.controller';
+import responseHandler from '../../helpers/responseHandler';
 const users = [];
 
 interface GameUser {
@@ -331,6 +332,13 @@ export async function restPlayGame(
 ) {
   const { fixture_id } = req.query;
 
+  if (!fixture_id) {
+    // SEND IT BACK!
+    return responseHandler.fail(res, 404, 'No Fixture ID sent!', {
+      matchErrorResponseCode: 1,
+    });
+  }
+
   let fixture: Fixture;
 
   try {
@@ -338,12 +346,24 @@ export async function restPlayGame(
     fixture = await fetchOneById(fixture_id, false);
     // We also need to get the associated calendar day...
   } catch (error) {
-    throw error;
+    console.log('Error!', error);
+
+    return responseHandler.fail(
+      res,
+      400,
+      'Error Playing Match! and fetching Fixture!',
+      {
+        ...error,
+        matchErrorResponseCode: 1,
+      }
+    );
   }
 
   if (fixture!.Played) {
     // has been played!
-    return res.send('Match has been played already!');
+    return responseHandler.fail(res, 400, 'Match has been played already!', {
+      matchErrorResponseCode: 2,
+    });
   }
 
   req.body.SeasonCode = fixture.SeasonCode;
@@ -394,7 +414,10 @@ export async function restPlayGame(
   } catch (error) {
     console.log('Error updating fixture...', error);
 
-    return res.status(400).json(error);
+    return responseHandler.fail(res, 400, 'Error updating fixtures!', {
+      ...error,
+      matchErrorResponseCode: 2,
+    });
   }
 }
 
@@ -406,7 +429,6 @@ export function restUpdateStandings(
   // Soon we will be getting it from the fixture object...
   // THANK YOU JESUS!
 
-  // TODO: should not need to pass the week! Just pass the day!
   const { fixture_id } = req.query;
   const { match, home, away, season_id } = req.body;
 
@@ -432,24 +454,47 @@ export function restUpdateStandings(
         const currentYear = req.body.SeasonCode.split('-').splice(1).join('-');
         return changeCurrentDay(currentYear)
           .then(() => {
+            // This marks the end of the match...
+            // you should send the results and everything back... Thank you Jesus!
+            // We also need to check if the season is over...
+            // Maybe send back the updated day...
             console.log('Current Day changed successfully!');
-            return res.json({
-              homeTable,
-              awayTable,
-            });
+            return responseHandler.success(
+              res,
+              200,
+              'Match Played successfully!',
+              {
+                homeTable,
+                awayTable,
+                match,
+              }
+            );
           })
           .catch((err) => {
             console.log('Error changing current Calendar Day!');
-            return res.json(err);
+            return responseHandler.fail(
+              res,
+              400,
+              'Error changing current Calendar Day!',
+              err
+            );
           });
       }
 
-      return res.json({
+      return responseHandler.success(res, 200, 'Match Played successfully!', {
         homeTable,
         awayTable,
+        match,
       });
     })
-    .catch((err) => res.status(400).send(err));
+    .catch((err) =>
+      responseHandler.fail(
+        res,
+        400,
+        'Error Playing Match and updating Standings!',
+        { ...err, matchErrorResponseCode: 2 }
+      )
+    );
   // Here we should check if we need to update anything else...
 }
 

@@ -17,34 +17,31 @@ import { Schema, Document, model, Model } from 'mongoose';
 
 export interface CalendarInterface {
   Name: string;
-  YearString: string; // june-2020
-  YearDigits: string; // 06-2020
+  /** Like JUN-2020 */
+  YearString: string;
+  /** Like 06-2020 */
+  YearDigits: string;
+  /** The present day of the year */
   CurrentDay?: number;
+  /** If the Calendar is the active one */
+  isActive: boolean;
+  /** Array of the ids of Days */
   Days: string[];
 }
 
 declare interface ICalendar extends Document {
   Name: string;
-  YearString: string; // june-2020
-  YearDigits: string; // 06-2020
-  CurrentDay: number;
+  /** Like JUN-2020 */
+  YearString: string;
+  /** Like 06-2020 */
+  YearDigits: string;
+  /** The present day of the year */
+  CurrentDay?: number;
+  /** If the Calendar is the active one */
+  isActive: boolean;
+  /** Array of the ids of Days */
   Days: string[];
 }
-
-// const CalendarMatchSchema: Schema = new Schema({
-//   Fixture: { type: Schema.Types.ObjectId, ref: 'Fixture' },
-//   MatchType: String,
-//   Time: String,
-//   Competition: String,
-//   Played: Boolean,
-//   Week: Number,
-// });
-
-// const CalendarDaySchema: Schema = new Schema({
-//   Matches: [CalendarMatchSchema],
-//   isFree: Boolean,
-//   Day: Number,
-// });
 
 export interface CalendarModel extends Model<ICalendar> {}
 
@@ -58,6 +55,7 @@ export class Calendar {
         YearString: String,
         YearDigits: String,
         CurrentDay: Number, // the index of the day...
+        isActive: { type: Boolean, default: false },
         Days: [{ type: Schema.Types.ObjectId, ref: 'Day' }],
       },
       { timestamps: true }
