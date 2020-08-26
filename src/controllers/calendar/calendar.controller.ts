@@ -276,6 +276,8 @@ export async function changeCurrentDay(year: string) {
   return getNextDay().then(updateCurrentDay);
 }
 
+// Have to delete all Days and create a new fresh Calendar. Test with that. Thank you Jesus!
+
 export async function startYear(
   req: Request,
   res: Response,
@@ -305,12 +307,10 @@ export async function startYear(
       throw new Error('No seasons found!');
     }
     // Set the rest to false and this one to true...
-    // TODO: This uses an Aggregation pipeline inside the update query. This only works from MongodDB version 4.2 :)
-    // so upgrade next by God's grace
     // There should be only ONE active calendar at a time. Thank you Jesus!
     console.log('Year =>', year);
     return updateCalendars({}, [
-      { $set: { isActive: { $eq: ['$YearString', year] } } },
+      { $set: { isActive: { $eq: ['$YearString', 'JUN-2020'] } } },
     ]);
   };
 
@@ -343,6 +343,7 @@ export async function getCurrentCalendar(
 
   // const now = new Date();
   // const currentYear = `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`;
+  // Actually now Days are in their separate collection :)
 
   const skip = getSkip(parseInt(req.query.page || 1), 14);
   const limit = parseInt(req.query.limit || 14);

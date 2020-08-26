@@ -8,6 +8,19 @@ export function fetchAll(query: {} = {}) {
 }
 
 /**
+ * fetch many Days
+ * @param query
+ */
+export function fetchMany(
+  query: {} = {},
+  populate = true,
+  page = 1,
+  limit = 14
+) {
+  return DB.Models.Day.find(query).lean().exec();
+}
+
+/**
  * Fetch One By Id
  *
  * Fetch a specific day by its id
