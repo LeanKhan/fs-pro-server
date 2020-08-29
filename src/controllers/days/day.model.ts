@@ -13,12 +13,16 @@ export interface DayInterface {
   Matches: CalendarMatchInterface[];
   isFree: boolean;
   Day?: number;
+  Year: string;
+  Calendar: string;
 }
 
 declare interface IDay extends Document {
   Matches: CalendarMatchInterface[];
   isFree: boolean;
   Day?: number;
+  Year: string;
+  Calendar: string;
 }
 
 const CalendarMatchSchema: Schema = new Schema({
@@ -41,6 +45,8 @@ export class Day {
         Matches: [CalendarMatchSchema],
         isFree: Boolean,
         Day: Number,
+        Year: String,
+        Calendar: { type: Schema.Types.ObjectId, ref: 'Calendar' },
       },
       { timestamps: true }
     );

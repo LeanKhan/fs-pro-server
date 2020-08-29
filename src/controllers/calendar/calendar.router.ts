@@ -8,6 +8,7 @@ import {
   getCurrentCalendar,
   startYear,
 } from './calendar.controller';
+import { fetchMany } from '../days/day.service';
 
 const router = Router();
 
@@ -20,6 +21,26 @@ router.get('/calendars/:id', (req, res) => {
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error fetching Fixture', err);
+    });
+});
+
+/** Get days of the calendar */
+router.get('/:year/days', async (req: Request, res: Response) => {
+  const { year } = req.body;
+
+  const response = fetchMany();
+
+  response
+    .then((days) => {
+      respond.success(
+        res,
+        200,
+        'Days of Calendar Year fetched successfully!',
+        days
+      );
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching days in calendar', err);
     });
 });
 

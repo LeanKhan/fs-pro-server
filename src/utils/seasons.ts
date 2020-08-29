@@ -55,6 +55,58 @@ export function monthFromIndex(index: number): string {
   return month;
 }
 
+/** Index from Month */
+export function indexFromMonth(month: string): number {
+  let index = -1;
+
+  switch (month) {
+    case 'JAN':
+      // code...
+      index = 0;
+      break;
+    case 'FEB':
+      index = 1;
+      break;
+    case 'MAR':
+      index = 2;
+      break;
+    case 'APR':
+      // code...
+      index = 3;
+      break;
+    case 'MAY':
+      index = 4;
+      break;
+    case 'JUN':
+      index = 5;
+      break;
+    case 'JUL':
+      index = 6;
+      break;
+    case 'AUG':
+      index = 7;
+      break;
+    case 'SEP':
+      index = 8;
+      break;
+    case 'OCT':
+      // code...
+      index = 9;
+      break;
+    case 'NOV':
+      index = 10;
+      break;
+    case 'DEC':
+      index = 11;
+      break;
+    default:
+      // code...
+      break;
+  }
+
+  return index;
+}
+
 /**
  * Generate the Week Table
  * @param clubs

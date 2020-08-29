@@ -49,6 +49,7 @@ router.get('/:id', async (req: Request, res: Response) => {
     });
 });
 
+/** Get all the seasons */
 router.get('/:id/seasons/all', async (req: Request, res: Response) => {
   const response = fetchAllSeasons({ Competition: req.params.id });
 
@@ -96,7 +97,6 @@ router.delete('/:id', (req: Request, res: Response) => {
 });
 
 router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
-  // TODO: make sure you are getting the Division type from the client abeg :)
   const response = await createNew(req.body.data);
 
   if (!response.error) {

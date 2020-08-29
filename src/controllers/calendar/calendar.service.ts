@@ -31,15 +31,13 @@ export function fetchOne(
       Days: { $slice: [paginate.skip, paginate.limit] },
     })
       .populate({
-        path: 'Days.Matches.Fixture',
-        model: 'Fixture',
+        path: 'Days',
+        model: 'Day',
       })
       .lean()
       .exec();
   }
-  if (populate) {
-    return DB.Models.Calendar.findOne(query).lean().exec();
-  }
+
   return DB.Models.Calendar.findOne(query).lean().exec();
 }
 
@@ -58,6 +56,11 @@ export function findAndUpdate(query: {}, update: any) {
     .exec();
 }
 
+/** update Calendar */
+export function updateCalendar(id: string, update: any) {
+  return DB.Models.Calendar.findByIdAndUpdate(id, update).lean().exec();
+}
+
 export function createCalendars(Calendars: any[]) {
   return DB.Models.Calendar.insertMany(Calendars, { ordered: true });
 }
@@ -69,11 +72,7 @@ export function createCalendars(Calendars: any[]) {
 export function createNew(data: any) {
   const Calendar = new DB.Models.Calendar(data);
 
-  return Calendar.save()
-    .then((c) => {
-      return { error: false, result: c.toObject() };
-    })
-    .catch((error) => ({ error: true, result: error }));
+  return Calendar.save();
 }
 
 export async function deleteById(id: string) {

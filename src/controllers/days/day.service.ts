@@ -8,16 +8,31 @@ export function fetchAll(query: {} = {}) {
 }
 
 /**
- * fetch many Days
+ * fetch many Days be week
  * @param query
  */
 export function fetchMany(
   query: {} = {},
   populate = true,
-  page = 1,
-  limit = 14
+  week = 1,
+  limit = 7
 ) {
-  return DB.Models.Day.find(query).lean().exec();
+  if (populate) {
+    return DB.Models.Day.find(query)
+      .limit(limit * 1)
+      .skip((week - 1) * limit)
+      .populate({
+        path: 'Day.Matches.Fixture',
+        model: 'Fixture',
+      })
+      .lean()
+      .exec();
+  }
+  return DB.Models.Day.find(query)
+    .limit(limit * 1)
+    .skip((week - 1) * limit)
+    .lean()
+    .exec();
 }
 
 /**

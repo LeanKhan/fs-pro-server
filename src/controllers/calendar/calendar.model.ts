@@ -16,6 +16,7 @@ import { Schema, Document, model, Model } from 'mongoose';
 // }
 
 export interface CalendarInterface {
+  _id?: string;
   Name: string;
   /** Like JUN-2020 */
   YearString: string;

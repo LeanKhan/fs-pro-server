@@ -9,13 +9,14 @@ import { Types } from 'mongoose';
 import { Fixture } from '../fixtures/fixture.model';
 import { CalendarInterface } from './calendar.model';
 import { DayInterface, CalendarMatchInterface } from '../days/day.model';
-import { monthFromIndex } from '../../utils/seasons';
+import { monthFromIndex, indexFromMonth } from '../../utils/seasons';
 import {
   createNew,
   fetchOne,
   findOneAndUpdate as updateCalendar,
   findAndUpdate as updateCalendars,
 } from './calendar.service';
+import { indexToBlock } from '@/utils/coordinates';
 
 export async function getSeasons(
   req: Request,
@@ -77,126 +78,174 @@ export async function generateCalendar(
   // const { number_of_days } = req.query;
 
   // req.body.seasons.
-  const competitions = req.body.competitions as [
-    { id: string; code: string; division: string; type: string }
-  ];
-  const firstDivisionLeague = competitions.find(
-    (c) => c.division === 'first' && c.type === 'league'
-  ); // ideally, the first competition you pass is the first one...
 
-  const secondDivisionLeague = competitions.find(
-    (c) => c.division === 'second' && c.type === 'league'
-  ); // ideally, the first competition you pass is the first one...
+  // 1. Create the Calendar first but no Days yet...
+  // 2. Create days with Calendar id and year string...
+  // 3. Update Calendar with Days...
+  // 4. Thank you Jesus!
 
-  const cup = competitions.find((c) => c.type === 'cup'); // ideally, the first competition you pass is the first one...
+  const createCalendar = async () => {
+    const now = new Date();
+    const { year, month } = req.query;
 
-  // now create days...
+    const YearString =
+      year && month
+        ? `${month}-${year}`
+        : `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`;
+    const YearDigits =
+      year && month
+        ? `${indexFromMonth(month)}-${year}`
+        : `${now.getMonth() + 1}-${now.getFullYear()}`;
 
-  const firstDivisionFixtures = req.body.seasons.find(
-    (s: any) => s.CompetitionCode === firstDivisionLeague!.code
-  ).Fixtures;
-  const secondDivisionFixtures = req.body.seasons.find(
-    (s: any) => s.CompetitionCode === secondDivisionLeague!.code
-  ).Fixtures;
+    const calendar: CalendarInterface = {
+      Name: now.toLocaleDateString(),
+      YearString,
+      YearDigits,
+      isActive: false,
+      Days: [],
+    };
 
-  const firstDivisionMatchesPerWeek =
-    firstDivisionFixtures.length /
-    req.body.seasons.find(
+    return createNew(calendar);
+  };
+
+  const createDays = async (calendar: CalendarInterface) => {
+    req.body.calendarID = calendar._id;
+    const competitions = req.body.competitions as [
+      { id: string; code: string; division: string; type: string }
+    ];
+    const firstDivisionLeague = competitions.find(
+      (c) => c.division === 'first' && c.type === 'league'
+    ); // ideally, the first competition you pass is the first one...
+
+    const secondDivisionLeague = competitions.find(
+      (c) => c.division === 'second' && c.type === 'league'
+    ); // ideally, the first competition you pass is the first one...
+
+    const cup = competitions.find((c) => c.type === 'cup'); // ideally, the first competition you pass is the first one...
+
+    // now create days...
+
+    const firstDivisionFixtures = req.body.seasons.find(
       (s: any) => s.CompetitionCode === firstDivisionLeague!.code
-    ).Standings.length;
-
-  const secondDivisionMatchesPerWeek =
-    secondDivisionFixtures.length /
-    req.body.seasons.find(
+    ).Fixtures;
+    const secondDivisionFixtures = req.body.seasons.find(
       (s: any) => s.CompetitionCode === secondDivisionLeague!.code
-    ).Standings.length;
+    ).Fixtures;
 
-  let firstDivisionDays: DayInterface[] = [];
+    const firstDivisionMatchesPerWeek =
+      firstDivisionFixtures.length /
+      req.body.seasons.find(
+        (s: any) => s.CompetitionCode === firstDivisionLeague!.code
+      ).Standings.length;
 
-  // Use the number of matches in the season to get the one that
+    const secondDivisionMatchesPerWeek =
+      secondDivisionFixtures.length /
+      req.body.seasons.find(
+        (s: any) => s.CompetitionCode === secondDivisionLeague!.code
+      ).Standings.length;
 
-  try {
-    firstDivisionDays = firstDivisionFixtures.map(
-      (fixture: Fixture, index: number) => {
-        const Match: CalendarMatchInterface[] = [
-          {
-            Fixture: fixture._id,
-            Competition: fixture.LeagueCode,
-            MatchType: fixture.Type,
-            Played: false,
-            Time: `${1}`,
-            Week: Math.ceil((index + 1) / firstDivisionMatchesPerWeek),
-          },
-        ];
-        return { Matches: Match, isFree: false };
-      }
-    );
-  } catch (error) {
-    return respond.fail(res, 400, 'Failed!', error);
-  }
+    let firstDivisionDays: DayInterface[] = [];
 
-  try {
-    firstDivisionDays = firstDivisionDays.map(
-      (day: DayInterface, index: number) => {
-        const Match: CalendarMatchInterface = {
-          Fixture: secondDivisionFixtures[index]._id,
-          Competition: secondDivisionFixtures[index].LeagueCode,
-          MatchType: secondDivisionFixtures[index].Type,
-          Played: false,
-          Time: `${2}`,
-          Week: Math.ceil((index + 1) / secondDivisionMatchesPerWeek),
-        };
-        return { Matches: [...day.Matches, Match], isFree: false };
-      }
-    );
-  } catch (error) {
-    return respond.fail(
-      res,
-      400,
-      'Failed to generate second division days! ' + error
-    );
-  }
+    // Use the number of matches in the season to get the one that
 
-  // respond.success(res, 200, 'Done :p', firstDivisionDays);
-  // Here add like 20 free days?
-  let completeDays: DayInterface[] = [];
-  firstDivisionDays.forEach((day, i) => {
-    if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
-      const emptyDay: DayInterface = {
-        Matches: [],
-        isFree: true,
-      };
-      return completeDays.push(day, emptyDay);
+    try {
+      firstDivisionDays = firstDivisionFixtures.map(
+        (fixture: Fixture, index: number) => {
+          const Match: CalendarMatchInterface[] = [
+            {
+              Fixture: fixture._id,
+              Competition: fixture.LeagueCode,
+              MatchType: fixture.Type,
+              Played: false,
+              Time: `${1}`,
+              Week: Math.ceil((index + 1) / firstDivisionMatchesPerWeek),
+            },
+          ];
+          return { Matches: Match, isFree: false };
+        }
+      );
+    } catch (error) {
+      throw error;
+      // return respond.fail(res, 400, 'Failed!', error);
     }
 
-    completeDays.push(day);
-  });
+    try {
+      firstDivisionDays = firstDivisionDays.map(
+        (day: DayInterface, index: number) => {
+          const Match: CalendarMatchInterface = {
+            Fixture: secondDivisionFixtures[index]._id,
+            Competition: secondDivisionFixtures[index].LeagueCode,
+            MatchType: secondDivisionFixtures[index].Type,
+            Played: false,
+            Time: `${2}`,
+            Week: Math.ceil((index + 1) / secondDivisionMatchesPerWeek),
+          };
+          return {
+            Matches: [...day.Matches, Match],
+            isFree: false,
+            Calendar: calendar._id as string,
+            Year: calendar.YearString,
+          };
+        }
+      );
+    } catch (error) {
+      throw error;
+      // return respond.fail(
+      //   res,
+      //   400,
+      //   'Failed to generate second division days! ' + error
+      // );
+    }
 
-  const freeDays = Array(20).fill({
-    Matches: [],
-    isFree: true,
-  });
+    // respond.success(res, 200, 'Done :p', firstDivisionDays);
+    // Here add like 20 free days?
+    let completeDays: DayInterface[] = [];
+    firstDivisionDays.forEach((day, i) => {
+      if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
+        const emptyDay: DayInterface = {
+          Matches: [],
+          isFree: true,
+          Calendar: calendar._id as string,
+          Year: calendar.YearString,
+        };
+        return completeDays.push(day, emptyDay);
+      }
 
-  completeDays = [...completeDays, ...freeDays];
+      completeDays.push(day);
+    });
 
-  // counts the number of days...
-  completeDays.forEach((day, i) => {
-    // So that every day will have a number,
-    // we can easily query 'get me the matches in day 34'
-    day.Day = i + 1;
-  });
+    const freeDays = Array(20).fill({
+      Matches: [],
+      isFree: true,
+    });
+
+    completeDays = [...completeDays, ...freeDays];
+
+    // counts the number of days...
+    completeDays.forEach((day, i) => {
+      // So that every day will have a number,
+      // we can easily query 'get me the matches in day 34'
+      day.Day = i + 1;
+    });
+
+    return completeDays;
+  };
 
   // Here create the Calendar Days in the db...
-
-  createMany(completeDays)
+  createCalendar()
+    .then(createDays)
+    .then(createMany)
     .then((days) => {
       // get ids...
+      console.log('Days created successfully!');
       req.body.days = days.map((day) => day._id);
       return next();
     })
     .catch((err) => {
       return respond.fail(res, 400, 'Failed to create days ' + err);
     });
+
+  // createMany(completeDays)
 
   // firstDivisionDays[0][0]
 
@@ -209,37 +258,36 @@ export async function saveCalendar(
   next: NextFunction
 ) {
   const calendarDays: string[] = req.body.days;
+  const calendarID: string = req.body.calendarID;
 
   // TODO: move these to functions!
 
-  const now = new Date();
+  // const now = new Date();
 
-  const calendar: CalendarInterface = {
-    Name: now.toLocaleDateString(),
-    YearString: `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`,
-    YearDigits: `${now.getMonth() + 1}-${now.getFullYear()}`,
-    isActive: false,
-    // Pass the ids of newly created calendar days instead...
-    Days: calendarDays,
-  };
+  // const calendar: CalendarInterface = {
+  //   Name: now.toLocaleDateString(),
+  //   YearString: `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`,
+  //   YearDigits: `${now.getMonth() + 1}-${now.getFullYear()}`,
+  //   isActive: false,
+  //   // Pass the ids of newly created calendar days instead...
+  //   Days: calendarDays,
+  // };
 
-  const response = await createNew(calendar);
-
-  if (response.error) {
-    return respond.fail(
-      res,
-      400,
-      'Failed to create calendar!',
-      response.result
-    );
-  } else {
-    return respond.success(
-      res,
-      200,
-      'Created calendar successfully!',
-      response.result
-    );
-  }
+  updateCalendar({ _id: calendarID }, { Days: calendarDays })
+    .then((cal) => {
+      console.log('Calendar Updated successfully!');
+      return respond.success(
+        res,
+        200,
+        'New Calendar created successfully!',
+        cal
+      );
+    })
+    .catch((err) => {
+      console.log('Error updating Calendar!', err);
+      return respond.fail(res, 500, 'Error adding Days to Calendar!', err);
+    });
+  // TODO: check if you actually found the right calendar...
 }
 
 /**
@@ -292,7 +340,8 @@ export async function startYear(
   }
 
   const fetchSeasons = () => {
-    const query = { Year: year };
+    // this is the wrong query. Fetch seasons that have not started and are 'pending' state
+    const query = { Year: year, Status: 'pending', isFinished: false };
 
     return updateManySeasons(query, {
       isStarted: true,
@@ -308,9 +357,8 @@ export async function startYear(
     }
     // Set the rest to false and this one to true...
     // There should be only ONE active calendar at a time. Thank you Jesus!
-    console.log('Year =>', year);
     return updateCalendars({}, [
-      { $set: { isActive: { $eq: ['$YearString', 'JUN-2020'] } } },
+      { $set: { isActive: { $eq: ['$YearString', year] } } },
     ]);
   };
 
