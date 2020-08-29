@@ -26,13 +26,18 @@ router.get('/calendars/:id', (req, res) => {
 
 /** Get days of the calendar */
 router.get('/:year/days', async (req: Request, res: Response) => {
-  const { year } = req.body;
+  const { year } = req.params;
+  const { paginate = false, populate = false, week, limit } = req.query;
 
-  const response = fetchMany();
-
-  response
+  fetchMany(
+    { Year: year },
+    JSON.parse(populate),
+    JSON.parse(paginate),
+    week,
+    limit
+  )
     .then((days) => {
-      respond.success(
+      return respond.success(
         res,
         200,
         'Days of Calendar Year fetched successfully!',
@@ -40,7 +45,7 @@ router.get('/:year/days', async (req: Request, res: Response) => {
       );
     })
     .catch((err) => {
-      respond.fail(res, 400, 'Error fetching days in calendar', err);
+      return respond.fail(res, 400, 'Error fetching days in calendar', err);
     });
 });
 

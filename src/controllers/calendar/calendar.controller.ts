@@ -200,6 +200,21 @@ export async function generateCalendar(
     // respond.success(res, 200, 'Done :p', firstDivisionDays);
     // Here add like 20 free days?
     let completeDays: DayInterface[] = [];
+    // for (let i = 0; i < firstDivisionDays.length; i++) {
+    //   if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
+    //     const emptyDay: DayInterface = {
+    //       Matches: [],
+    //       isFree: true,
+    //       Calendar: calendar._id as string,
+    //       Year: calendar.YearString,
+    //     };
+    //     return completeDays.push(firstDivisionDays[i], emptyDay);
+    //   }
+
+    //   completeDays.push(firstDivisionDays[i]);
+    // }
+
+    // TODO: look at the performance of this loop... thank you Jesus!
     firstDivisionDays.forEach((day, i) => {
       if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
         const emptyDay: DayInterface = {
@@ -214,18 +229,23 @@ export async function generateCalendar(
       completeDays.push(day);
     });
 
-    const freeDays = Array(20).fill({
-      Matches: [],
-      isFree: true,
-    });
+    const freeDays = new Array(20);
+    for (let i = 0; i < 20; i++) {
+      freeDays[i] = {
+        Matches: [],
+        isFree: true,
+        Calendar: calendar._id as string,
+        Year: calendar.YearString,
+      };
+    }
 
     completeDays = [...completeDays, ...freeDays];
 
     // counts the number of days...
-    completeDays.forEach((day, i) => {
+    completeDays.map((day, i) => {
       // So that every day will have a number,
       // we can easily query 'get me the matches in day 34'
-      day.Day = i + 1;
+      return { ...day, Day: day.Day = i + 1 };
     });
 
     return completeDays;

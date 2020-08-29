@@ -42,7 +42,9 @@ export function fetchOne(
 }
 
 export function findOneAndUpdate(query: {}, update: any) {
-  return DB.Models.Calendar.findOneAndUpdate(query, update).lean().exec();
+  return DB.Models.Calendar.findOneAndUpdate(query, update, { new: true })
+    .lean()
+    .exec();
 }
 
 /** updates many.
@@ -51,14 +53,19 @@ export function findOneAndUpdate(query: {}, update: any) {
  * update docs...
  */
 export function findAndUpdate(query: {}, update: any) {
-  return DB.Models.Calendar.updateMany(query, update, { multi: true })
+  return DB.Models.Calendar.updateMany(query, update, {
+    multi: true,
+    new: true,
+  })
     .lean()
     .exec();
 }
 
 /** update Calendar */
 export function updateCalendar(id: string, update: any) {
-  return DB.Models.Calendar.findByIdAndUpdate(id, update).lean().exec();
+  return DB.Models.Calendar.findByIdAndUpdate(id, update, { new: true })
+    .lean()
+    .exec();
 }
 
 export function createCalendars(Calendars: any[]) {

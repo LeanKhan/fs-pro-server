@@ -14,25 +14,40 @@ export function fetchAll(query: {} = {}) {
 export function fetchMany(
   query: {} = {},
   populate = true,
+  paginate = true,
   week = 1,
   limit = 7
 ) {
-  if (populate) {
+  if (populate && paginate) {
     return DB.Models.Day.find(query)
       .limit(limit * 1)
       .skip((week - 1) * limit)
       .populate({
-        path: 'Day.Matches.Fixture',
+        path: 'Matches.Fixture',
         model: 'Fixture',
       })
       .lean()
       .exec();
   }
-  return DB.Models.Day.find(query)
-    .limit(limit * 1)
-    .skip((week - 1) * limit)
-    .lean()
-    .exec();
+  if (populate) {
+    return DB.Models.Day.find(query)
+      .populate({
+        path: 'Matches.Fixture',
+        model: 'Fixture',
+      })
+      .lean()
+      .exec();
+  }
+
+  if (paginate) {
+    return DB.Models.Day.find(query)
+      .limit(limit * 1)
+      .skip((week - 1) * limit)
+      .lean()
+      .exec();
+  }
+
+  return DB.Models.Day.find(query).lean().exec();
 }
 
 /**
