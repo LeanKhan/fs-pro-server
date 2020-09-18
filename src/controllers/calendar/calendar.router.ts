@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import respond from '../../helpers/responseHandler';
-import { fetchOneById } from './calendar.service';
+import { fetchOneById, fetchAll, deleteById } from './calendar.service';
 import {
   getSeasons,
   generateCalendar,
@@ -12,6 +12,7 @@ import { fetchMany } from '../days/day.service';
 
 const router = Router();
 
+/** Get Calendar by id */
 router.get('/calendars/:id', (req, res) => {
   const response = fetchOneById(req.params.id);
 
@@ -24,7 +25,38 @@ router.get('/calendars/:id', (req, res) => {
     });
 });
 
-/** Get days of the calendar */
+/** Delete Calendar by id */
+router.delete('/calendars/:id', (req, res) => {
+  const response = deleteById(req.params.id);
+
+  response
+    .then((calendar) => {
+      respond.success(res, 200, 'Calendar deleted successfully :)', calendar);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error deleting Calendar', err);
+    });
+});
+
+/** Get all Calendars */
+router.get('/calendars', (req, res) => {
+  const response = fetchAll();
+
+  response
+    .then((calendars) => {
+      respond.success(
+        res,
+        200,
+        'All Calendars fetched successfully',
+        calendars
+      );
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching all Calendars', err);
+    });
+});
+
+/** Get days of a Calendar by Year */
 router.get('/:year/days', async (req: Request, res: Response) => {
   const { year } = req.params;
   const { paginate = false, populate = false, week, limit } = req.query;
@@ -49,17 +81,13 @@ router.get('/:year/days', async (req: Request, res: Response) => {
     });
 });
 
+/** Get current Calendar */
 router.get('/current', getCurrentCalendar);
 
-// interface NewCalendarYearBody {
-//     competitions:
-// }
-
-// Create new calendar year...
+/** Create new Calendar year */
 router.post('/new', getSeasons, generateCalendar, saveCalendar);
 
-// start year...
-// This well set all the seasons to started and change the CurrentDay to 1.
-router.post('/start', startYear);
+/** Start Calendar Year... */
+router.post('/:year/start', startYear);
 
 export default router;

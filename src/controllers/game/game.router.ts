@@ -63,16 +63,14 @@ router.get('/kickoff', restPlayGame, restUpdateStandings);
 //     });
 // });
 
-/**
- *  findOne(query, false).then(
-    day => {
-console.log('Day =>', day)
-    }
-  )
-  .catch(err => {
-    console.log('err =>',err);
-  });
- */
+// findOne(query, false).then(
+//     day => {
+// console.log('Day =>', day)
+//     }
+//   )
+//   .catch(err => {
+//     console.log('err =>',err);
+//   });
 
 router.post('/new-game', initiateGame);
 

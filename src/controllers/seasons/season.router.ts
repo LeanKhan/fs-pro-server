@@ -19,6 +19,7 @@ import respond from '../../helpers/responseHandler';
 
 const router = Router();
 
+/** Get all Seasons */
 router.get('/all', async (req: Request, res: Response) => {
   const response = fetchAll();
 
@@ -31,6 +32,7 @@ router.get('/all', async (req: Request, res: Response) => {
     });
 });
 
+/** Get Season by id */
 router.get('/season/:id', (req: Request, res: Response) => {
   const response = fetchOneById(req.params.id);
 
@@ -43,6 +45,7 @@ router.get('/season/:id', (req: Request, res: Response) => {
     });
 });
 
+/** Delete Season by id */
 router.delete('/season/:id', (req: Request, res: Response) => {
   const response = deleteById(req.params.id);
 
@@ -55,11 +58,10 @@ router.delete('/season/:id', (req: Request, res: Response) => {
     });
 });
 
+/** Create new Season */
 router.post('/new', getCurrentCounter, createSeason, addSeasonToCompetition);
 
-/**
- * Generate Fixtures for the Season
- */
+/** Generate Fixtures for Season */
 router.post(
   '/:id/:code/generate-fixtures',
   fetchCompetitionClubs,
@@ -85,6 +87,7 @@ router.post(
   }
 );
 
+/** Start Season */
 router.patch('/:id/start', (req, res) => {
   const response = findByIdAndUpdate(req.params.id, {
     isStarted: true,
@@ -100,6 +103,7 @@ router.patch('/:id/start', (req, res) => {
     });
 });
 
+/** Get all Fixtures in Season */
 router.get('/:id/fixtures/all', (req, res) => {
   const response = fetchAllFixtures({ Season: req.params.id });
 
@@ -117,6 +121,7 @@ router.get('/:id/fixtures/all', (req, res) => {
     });
 });
 
+/** Get current Season */
 router.get('/current', getCurrentSeasons);
 
 export default router;

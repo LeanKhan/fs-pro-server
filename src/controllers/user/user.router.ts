@@ -58,6 +58,7 @@ router.post(
   initializeSession
 );
 
+/** Login User */
 router.post(
   '/login',
   (req, res, next) => {
@@ -99,35 +100,39 @@ router.post(
   initializeSession
 );
 
-router.post(
-  '/change-password',
-  (req, res, next) => {
-    const { Username, NewPassword } = req.body;
+/** Change User's password */
+router.post('/change-password', (req, res, next) => {
+  const { Username, NewPassword } = req.body;
 
-    const response = fetchOneUser({ Username }, true);
+  const response = fetchOneUser({ Username }, true);
 
-    response
-      .then((result: IUser) => {
-        if (!result) {
-          return respond.fail(res, 404, 'Username does not exist');
-        } else {
-          // User exists... check password
+  response.then((result: IUser) => {
+    if (!result) {
+      return respond.fail(res, 404, 'Username does not exist');
+    } else {
+      // User exists... check password
 
-           result.Password = NewPassword;
+      result.Password = NewPassword;
 
-           result.save()
-           .then(user => {
-return respond.success(res, 200, 'Password changed successfully', user.toObject());
-           })
-           .catch(error => {
-return respond.fail(res, 400, 'Error changing password', error);
-           });
-
-  }});
-  initializeSession
+      result
+        .save()
+        .then((user) => {
+          return respond.success(
+            res,
+            200,
+            'Password changed successfully',
+            user.toObject()
+          );
+        })
+        .catch((error) => {
+          return respond.fail(res, 400, 'Error changing password', error);
+        });
+    }
+  });
+  initializeSession;
 });
 
-
+/** Get User by id */
 router.get('/:id', (req, res) => {
   const id = req.params.id;
   const populate = req.query.populate || false;
@@ -143,6 +148,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
+/** Logout User */
 router.delete('/:id/logout', (req, res) => {
   // delete user's session
   const userID = req.params.id;
@@ -182,6 +188,7 @@ router.delete('/:id/logout', (req, res) => {
     });
 });
 
+/** Update User by id */
 router.post('/:id/update', (req, res) => {
   const id = req.params.id;
   const { data } = req.body;
@@ -197,6 +204,7 @@ router.post('/:id/update', (req, res) => {
     });
 });
 
+/** Add Clubs to User account */
 router.post('/:id/add-clubs', (req, res) => {
   const id = req.params.id;
   const { data } = req.body;
@@ -214,6 +222,7 @@ router.post('/:id/add-clubs', (req, res) => {
     });
 });
 
+/** Add Club to User account */
 router.post('/:id/add-club', (req, res) => {
   const id = req.params.id;
   const { clubId } = req.body.data;
@@ -231,6 +240,7 @@ router.post('/:id/add-club', (req, res) => {
     });
 });
 
+/** Remove Club from User account */
 router.delete('/:id/clubs/:id', (req, res) => {
   const id = req.params.id;
   const club_id = req.params.club_id;
@@ -248,6 +258,7 @@ router.delete('/:id/clubs/:id', (req, res) => {
     });
 });
 
+/** Enter.. ??? [Need clarification] */
 router.post('/enter', findSession);
 
 //

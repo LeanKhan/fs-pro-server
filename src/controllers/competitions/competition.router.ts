@@ -15,6 +15,7 @@ import { incrementCounter } from '../../utils/counter';
 
 const router = Router();
 
+/** Get all Competitions */
 router.get('/all', async (req: Request, res: Response) => {
   const response = fetchAll();
 
@@ -32,6 +33,7 @@ router.get('/all', async (req: Request, res: Response) => {
     });
 });
 
+/** Get Competition by id */
 router.get('/:id', async (req: Request, res: Response) => {
   const response = fetchOneById(req.params.id);
 
@@ -67,6 +69,7 @@ router.get('/:id/seasons/all', async (req: Request, res: Response) => {
     });
 });
 
+/** Update Competition by id */
 router.post('/:id/update', async (req: Request, res: Response) => {
   const response = update(req.params.id, req.body.data);
 
@@ -84,6 +87,7 @@ router.post('/:id/update', async (req: Request, res: Response) => {
     });
 });
 
+/** Delete Competition by id */
 router.delete('/:id', (req: Request, res: Response) => {
   const response = deleteById(req.params.id);
 
@@ -96,6 +100,7 @@ router.delete('/:id', (req: Request, res: Response) => {
     });
 });
 
+/** Create new Competition */
 router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
   const response = await createNew(req.body.data);
 
@@ -112,6 +117,7 @@ router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
   }
 });
 
+/** Add Club to Competition */
 router.post('/:league_id/add-club', addClubToCompetition, addLeagueToClub);
 
 export default router;

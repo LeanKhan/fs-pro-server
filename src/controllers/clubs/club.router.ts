@@ -16,7 +16,7 @@ import {
 
 const router = Router();
 
-// Get all clubs bro
+/** Fetch all Clubs */
 router.get('/all', async (req, res) => {
   const response = fetchAllClubs();
 
@@ -29,6 +29,7 @@ router.get('/all', async (req, res) => {
     });
 });
 
+/** Fetch Club by query */
 router.get('/fetch', async (req, res) => {
   // fetch clubs with query and all
   let query;
@@ -57,9 +58,7 @@ router.get('/fetch', async (req, res) => {
     });
 });
 
-/**
- * Create a new club bross
- */
+/** Create new Club */
 router.post('/new', async (req, res) => {
   const response = await createNewClub(req.body.data);
 
@@ -70,6 +69,7 @@ router.post('/new', async (req, res) => {
   }
 });
 
+/** Update Club */
 router.post('/:id/update', (req, res) => {
   const data = req.body.data;
 
@@ -84,6 +84,7 @@ router.post('/:id/update', (req, res) => {
     });
 });
 
+/** Delete Club by id */
 router.delete('/:id', (req, res) => {
   const response = deleteById(req.params.id);
 
@@ -96,11 +97,7 @@ router.delete('/:id', (req, res) => {
     });
 });
 
-/**
- * fetchSingleClubById
- *
- * fetch a single club by it's id brozay
- */
+/** Fetch Club by id */
 router.get('/:id', async (req, res) => {
   const response = fetchSingleClubById(req.params.id, req.query.populate);
 
@@ -113,10 +110,7 @@ router.get('/:id', async (req, res) => {
     });
 });
 
-/**
- * add Player to club
- */
-
+/** Add Player to Club */
 router.put(
   '/:id/add-player',
   updatePlayerSigning,
@@ -124,6 +118,7 @@ router.put(
   calculateClubRating
 );
 
+/** Remove Player from Club */
 router.put(
   '/:id/remove-player',
   updatePlayerSigning,

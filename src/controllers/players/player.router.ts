@@ -73,6 +73,7 @@ router.post('/:id/update', (req, res) => {
     });
 });
 
+/** Delete Player by id */
 router.delete('/:id', (req, res) => {
   const id = req.params.id;
 
