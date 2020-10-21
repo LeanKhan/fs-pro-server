@@ -7,7 +7,7 @@ import {
   updateById,
 } from './manager.service';
 import respond from '../../helpers/responseHandler';
-import { incrementCounter } from '../../utils/counter';
+import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 
 const router = Router();
 
@@ -78,7 +78,7 @@ router.put('/:id', (req, res) => {
 });
 
 /** CREATE NEW MANAGER */
-router.post('/', async (req, res) => {
+router.post('/', getCurrentCounter, async (req, res) => {
   // Create a new Manager
   const response = await create(req.body.data);
 

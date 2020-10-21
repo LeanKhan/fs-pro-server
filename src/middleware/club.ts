@@ -26,16 +26,22 @@ export const calculateClubRating: RequestHandler = async (
         }, 0);
       }
 
-      const attClass = (ratings.find(r => r.position == 'ATT').avg_rating + ratings.find(r => r.position == 'MID').avg_rating) / 2;
-      
-      const defClass = (ratings.find(r => r.position == 'GK').avg_rating + ratings.find(r => r.position == 'DEF').avg_rating) / 2;
+      const attClass =
+        (ratings.find((r) => r.position === 'ATT').avg_rating +
+          ratings.find((r) => r.position === 'MID').avg_rating) /
+        2;
+
+      const defClass =
+        (ratings.find((r) => r.position === 'GK').avg_rating +
+          ratings.find((r) => r.position === 'DEF').avg_rating) /
+        2;
 
       const avg_total_rating = total_rating ? total_rating / ratings.length : 0;
 
       const data: ClubRating = {
         Rating: avg_total_rating,
         AttackingClass: attClass,
-        DefensiveClass: defClass
+        DefensiveClass: defClass,
       };
 
       ratings.forEach((rating, i) => {
@@ -122,21 +128,4 @@ export async function addLeagueToClub(
   } else {
     respond.fail(res, 400, 'Error adding player to club', _response.result);
   }
-}
-
-export async function updateClubs(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  const { clubs, userID } = req.body;
-  const response = updateClubsById(clubs, { User: userID });
-
-  response
-    .then((cl) => {
-      next();
-    })
-    .catch((err) => {
-      respond.fail(res, 400, 'Error adding User to club', err);
-    });
 }

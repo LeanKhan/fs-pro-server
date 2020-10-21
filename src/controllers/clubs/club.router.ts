@@ -13,6 +13,7 @@ import {
   addPlayerToClubMiddleware,
   calculateClubRating,
 } from '../../middleware/club';
+import { addManagerToClub, removeManagerFromClub } from './club.controller';
 
 const router = Router();
 
@@ -73,9 +74,7 @@ router.post('/new', async (req, res) => {
 router.post('/:id/update', (req, res) => {
   const data = req.body.data;
 
-  const response = updateClub(req.params.id, data);
-
-  response
+  updateClub(req.params.id, data)
     .then((club) => {
       respond.success(res, 200, 'Club updated successfully', club);
     })
@@ -117,6 +116,12 @@ router.put(
   addPlayerToClubMiddleware,
   calculateClubRating
 );
+
+router.put('/:id/manager', addManagerToClub);
+
+// There can only be one main manager per time so just remove
+// that one...
+router.delete('/:id/manager', removeManagerFromClub);
 
 /** Remove Player from Club */
 router.put(

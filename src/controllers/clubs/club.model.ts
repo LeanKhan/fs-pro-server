@@ -96,8 +96,8 @@ export class Club {
         DEF_Rating: { type: Number, default: 0 },
         MID_Rating: { type: Number, default: 0 },
         Manager: {
-          type: String,
-          unique: true,
+          type: Schema.Types.ObjectId,
+          ref: 'Manager',
         },
         assets: {
           type: Object,
@@ -122,6 +122,7 @@ export class Club {
         },
         Budget: Number,
         Transactions: {},
+        Records: [],
         Stadium: {
           type: Object,
           Name: String,

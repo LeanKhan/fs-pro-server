@@ -7,11 +7,9 @@ import {
   deleteById,
 } from './competition.service';
 import { fetchAll as fetchAllSeasons } from '../seasons/season.service';
-import { addClubToCompetition } from '../../middleware/competition';
-import { addLeagueToClub } from '../../middleware/club';
 import respond from '../../helpers/responseHandler';
-import { getCurrentCounter } from '../../middleware/player';
-import { incrementCounter } from '../../utils/counter';
+import { incrementCounter, getCurrentCounter } from '../../utils/counter';
+import { addClubToCompetition } from './competition.controller';
 
 const router = Router();
 
@@ -118,6 +116,6 @@ router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
 });
 
 /** Add Club to Competition */
-router.post('/:league_id/add-club', addClubToCompetition, addLeagueToClub);
+router.post('/:id/club', addClubToCompetition);
 
 export default router;

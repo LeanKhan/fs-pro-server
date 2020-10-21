@@ -12,8 +12,8 @@ import {
   generateFixtures,
   setInitialStandings,
 } from '../../middleware/seasons';
-import { getCurrentCounter } from '../../middleware/player';
-import { addSeasonToCompetition } from '../../middleware/competition';
+import { incrementCounter, getCurrentCounter } from '../../utils/counter';
+import { addSeasonToCompetition } from '../competitions/competition.controller';
 import { getCurrentSeasons } from './season.controller';
 import respond from '../../helpers/responseHandler';
 
@@ -21,9 +21,7 @@ const router = Router();
 
 /** Get all Seasons */
 router.get('/all', async (req: Request, res: Response) => {
-  const response = fetchAll();
-
-  response
+  fetchAll()
     .then((seasons) => {
       respond.success(res, 200, 'Seasons fetched successfully', seasons);
     })
@@ -34,9 +32,7 @@ router.get('/all', async (req: Request, res: Response) => {
 
 /** Get Season by id */
 router.get('/season/:id', (req: Request, res: Response) => {
-  const response = fetchOneById(req.params.id);
-
-  response
+  fetchOneById(req.params.id)
     .then((season) => {
       respond.success(res, 200, 'Season fetched successfully', season);
     })
@@ -47,9 +43,7 @@ router.get('/season/:id', (req: Request, res: Response) => {
 
 /** Delete Season by id */
 router.delete('/season/:id', (req: Request, res: Response) => {
-  const response = deleteById(req.params.id);
-
-  response
+  deleteById(req.params.id)
     .then((season) => {
       respond.success(res, 200, 'Season deleted successfully', season);
     })
@@ -59,7 +53,13 @@ router.delete('/season/:id', (req: Request, res: Response) => {
 });
 
 /** Create new Season */
-router.post('/new', getCurrentCounter, createSeason, addSeasonToCompetition);
+router.post(
+  '/new',
+  incrementCounter,
+  getCurrentCounter,
+  createSeason,
+  addSeasonToCompetition
+);
 
 /** Generate Fixtures for Season */
 router.post(
@@ -70,9 +70,7 @@ router.post(
   (req, res) => {
     const fixtureIds = req.body.fixtureIds;
 
-    const response = findByIdAndUpdate(req.params.id, { Fixtures: fixtureIds });
-
-    response
+    findByIdAndUpdate(req.params.id, { Fixtures: fixtureIds })
       .then((season) => {
         respond.success(
           res,
@@ -89,12 +87,10 @@ router.post(
 
 /** Start Season */
 router.patch('/:id/start', (req, res) => {
-  const response = findByIdAndUpdate(req.params.id, {
+  findByIdAndUpdate(req.params.id, {
     isStarted: true,
     StartDate: new Date(),
-  }).then();
-
-  response
+  })
     .then((season) => {
       respond.success(res, 200, 'Season started successfully', season!);
     })
@@ -105,9 +101,7 @@ router.patch('/:id/start', (req, res) => {
 
 /** Get all Fixtures in Season */
 router.get('/:id/fixtures/all', (req, res) => {
-  const response = fetchAllFixtures({ Season: req.params.id });
-
-  response
+  fetchAllFixtures({ Season: req.params.id })
     .then((fixtures) => {
       respond.success(
         res,
@@ -117,7 +111,7 @@ router.get('/:id/fixtures/all', (req, res) => {
       );
     })
     .catch((err) => {
-      respond.fail(res, 400, "Error fetching Season' Fixtures", err);
+      respond.fail(res, 400, 'Error fetching Season Fixtures', err);
     });
 });
 

@@ -7,8 +7,7 @@ import {
   updateById,
   deletePlayer,
 } from './player.service';
-import { getCurrentCounter } from '../../middleware/player';
-import { incrementCounter } from '../../utils/counter';
+import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { fetchAppearance } from '../../utils/appearance';
 
 const router = Router();
@@ -28,9 +27,7 @@ router.get('/all', async (req, res) => {
     console.log('Error parsing JSON => ', err);
   }
 
-  const response = fetchAll(options);
-
-  response
+  fetchAll(options)
     .then((players) => {
       respond.success(res, 200, 'Players fetched successfully', players);
     })
@@ -44,10 +41,9 @@ router.get('/all', async (req, res) => {
  */
 
 router.get('/:id', (req, res) => {
-  const id = req.params.id;
-  const response = fetchOneById(id);
+  const { id } = req.params;
 
-  response
+  fetchOneById(id)
     .then((player) => {
       respond.success(res, 200, 'Player fetched successfully', player);
     })
@@ -60,11 +56,10 @@ router.get('/:id', (req, res) => {
  * Update a Player
  */
 router.post('/:id/update', (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
   const { data } = req.body;
-  const response = updateById(id, data);
 
-  response
+  updateById(id, data)
     .then((player) => {
       respond.success(res, 200, 'Player updated successfully', player);
     })
@@ -75,11 +70,9 @@ router.post('/:id/update', (req, res) => {
 
 /** Delete Player by id */
 router.delete('/:id', (req, res) => {
-  const id = req.params.id;
+  const { id } = req.params;
 
-  const response = deletePlayer(id);
-
-  response
+  deletePlayer(id)
     .then((player) => {
       respond.success(res, 200, 'Player deleted successfully', player);
     })
@@ -104,9 +97,7 @@ router.post('/new', getCurrentCounter, async (req, res) => {
 });
 
 router.get('/appearance', async (req, res) => {
-  const response = fetchAppearance();
-
-  response
+  fetchAppearance()
     .then((features) => {
       respond.success(res, 200, 'Fetch Appearance successfully', features);
     })

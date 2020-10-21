@@ -1,12 +1,14 @@
 import { Schema, Document, Model, model } from 'mongoose';
 
 export interface ManagerInterface {
-  ManagerID: string;
+  _id?: string;
+  Key: string;
   FirstName: string;
   LastName: string;
   Picture: string;
   Club: string;
   NationalTeam?: boolean;
+  Nationality: string;
   Records: [];
   isEmployed: boolean;
 }
@@ -17,12 +19,13 @@ export interface ManagerInterface {
  */
 
 declare interface IManager extends Document {
-  ManagerID: string;
+  Key: string;
   FirstName: string;
   LastName: string;
   Picture: string;
   Club: string;
   NationalTeam?: boolean;
+  Nationality: string;
   Records: [];
   isEmployed: boolean;
 }
@@ -35,7 +38,7 @@ export class Manager {
   constructor() {
     const ManagerSchema: Schema = new Schema(
       {
-        ManagerID: {
+        Key: {
           type: String,
           unique: true,
         },
@@ -55,6 +58,7 @@ export class Manager {
           type: Boolean,
           default: false,
         },
+        Nationality: String,
         Records: [],
         isEmployed: {
           type: Boolean,

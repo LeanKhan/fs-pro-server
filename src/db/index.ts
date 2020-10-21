@@ -14,6 +14,7 @@ import {
   CalendarModel,
 } from '../controllers/calendar/calendar.model';
 import { Day, DayModel } from '../controllers/days/day.model';
+import { Manager, ManagerModel } from '../controllers/managers/manager.model';
 
 declare interface IModels {
   Competition: CompetitionModel;
@@ -24,6 +25,7 @@ declare interface IModels {
   Fixture: FixtureModel;
   Calendar: CalendarModel;
   Day: DayModel;
+  Manager: ManagerModel;
 }
 
 export const MONGO_DEV_URL = 'mongodb://localhost:27017/fspro-gameplay-test';
@@ -64,6 +66,7 @@ export default class DB {
       Fixture: new Fixture().model,
       Calendar: new Calendar().model,
       Day: new Day().model,
+      Manager: new Manager().model,
     };
 
     set('useFindAndModify', false);

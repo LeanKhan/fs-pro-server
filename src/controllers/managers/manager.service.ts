@@ -27,7 +27,7 @@ export function fetchOneById(id: string) {
  * @param id
  * @param update
  */
-export function updateById(id: string, update: any) {
+export function updateById(id: string, update: any): Promise<ManagerInterface> {
   return DB.Models.Manager.findByIdAndUpdate(id, update, { new: true })
     .lean()
     .exec();
