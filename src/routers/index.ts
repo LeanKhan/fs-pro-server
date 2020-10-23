@@ -8,6 +8,7 @@ import gameRouter from '../controllers/game/game.router';
 import calendarRouter from '../controllers/calendar/calendar.router';
 import { fileRouter } from '../services/file/file.service';
 import managers from '../controllers/managers/manager.router';
+import countries from '../controllers/countries/router';
 
 const router = Router();
 
@@ -28,5 +29,7 @@ router.use('/files', fileRouter);
 router.use('/game', gameRouter);
 
 router.use('/managers', managers);
+
+router.use('/countries', countries);
 
 export default router;
