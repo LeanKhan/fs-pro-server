@@ -8,6 +8,9 @@ import {
 } from './manager.service';
 import respond from '../../helpers/responseHandler';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
+import { updateClub } from '../clubs/club.service';
+import { ManagerInterface } from './manager.model';
+import { managers } from '@/state/PersistentState/OnlineManagers';
 
 const router = Router();
 
@@ -39,8 +42,8 @@ router.get('/:id', (req, res) => {
   const { id } = req.params;
 
   fetchOneById(id)
-    .then((player) => {
-      respond.success(res, 200, 'Manager fetched successfully', player);
+    .then((m) => {
+      respond.success(res, 200, 'Manager fetched successfully', m);
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error fetching Manager', err);
@@ -52,9 +55,47 @@ router.delete('/:id', (req, res) => {
   // Delete Manager by name
   const { id } = req.params;
 
-  deleteById(id)
-    .then((player) => {
-      respond.success(res, 200, 'Manager deleted successfully', player);
+  // Find the club(s) that they are employed and remove them...
+  // if manager is signed to a club, remove them from that arrangement...
+  const getManager = () => {
+    return fetchOneById(id)
+      .then((m) => {
+        if (m.isEmployed && m.Club) {
+          return m;
+        }
+
+        return false;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  };
+
+  const _updateClub = (manager: ManagerInterface | false) => {
+    const { Club, FirstName, LastName } = manager as ManagerInterface;
+    if (Club) {
+      // TODO: finish this, refer to manager when adding record
+      updateClub(Club, {
+        $unset: { Manager: 1 },
+        $push: {
+          Records: `${FirstName} ${LastName} has left the club and the system. They just left not fired :/`,
+        },
+      }).catch((err) => {
+        throw err;
+      });
+    }
+  };
+
+  const deleteManager = () => {
+    return deleteById(id);
+  };
+
+  // hey, link up!
+  getManager()
+    .then(_updateClub)
+    .then(deleteManager)
+    .then((m) => {
+      respond.success(res, 200, 'Manager deleted successfully', m);
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error deleting Manager', err);
@@ -90,5 +131,4 @@ router.post('/', getCurrentCounter, async (req, res) => {
   }
 });
 
-// Maybe lookup Managers by their id instead...
 export default router;

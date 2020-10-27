@@ -117,8 +117,6 @@ export function removeManagerFromClub(req: Request, res: Response) {
   };
 
   const _updateClub = (m: ManagerInterface) => {
-    // TODO: delete Manager's record from the Club document
-    // TODO: update => Test this $unset thing out
     return updateClub(id, {
       $unset: { Manager: 1 },
       $push: {
