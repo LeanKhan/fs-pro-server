@@ -1,13 +1,13 @@
 import DB from '../../db';
-import { incrementCounter } from '../../utils/counter';
+// import { incrementCounter } from '../../utils/counter';
 
 /**
  * fetchAll
  */
 export function fetchAll(
   query: {} = {},
-  populate: Boolean | String = false,
-  select: Boolean | String = false
+  populate: boolean | string = false,
+  select: boolean | string = false
 ) {
   if (populate && select) {
     return DB.Models.Season.find(query)
@@ -70,12 +70,7 @@ export function findAndUpdate(query: {}, update: any) {
 export function createNew(data: any) {
   const SEASON = new DB.Models.Season(data);
 
-  return SEASON.save()
-    .then((season) => {
-      incrementCounter('season_counter');
-      return { error: false, result: season };
-    })
-    .catch((error) => ({ error: true, result: error }));
+  return SEASON.save();
 }
 
 export async function deleteById(id: string) {

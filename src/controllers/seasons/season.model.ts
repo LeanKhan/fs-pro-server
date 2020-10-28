@@ -78,6 +78,7 @@ export class Season {
         isStarted: { type: Boolean, default: false },
         Status: { type: String, default: 'Pending' },
         Year: String,
+        Calendar: { type: Schema.Types.ObjectId, ref: 'Calendar' },
         Competition: { type: Schema.Types.ObjectId, ref: 'Competition' },
         CompetitionCode: { type: String },
         Fixtures: [{ type: Schema.Types.ObjectId, ref: 'Fixture' }],

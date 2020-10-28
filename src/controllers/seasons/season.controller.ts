@@ -1,9 +1,9 @@
 //   const { month, year } = req.query;
 //   const newYear = month.toUpperCase() + '-' + year;
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response } from 'express';
 import respond from '../../helpers/responseHandler';
 import { fetchAll } from '../../controllers/seasons/season.service';
-import { monthFromIndex } from '../../utils/seasons';
+// import { monthFromIndex } from '../../utils/seasons';
 
 export async function getCurrentSeasons(req: Request, res: Response) {
   /**
@@ -29,3 +29,22 @@ export async function getCurrentSeasons(req: Request, res: Response) {
     return respond.fail(res, 400, 'Failed to get seasons \n ' + error, error);
   }
 }
+
+// TODO: sort standings
+// Should we sort when the season is being saved or when it is fetched?
+// ------------ //
+// sortStandings(standings_array) {
+//   standings = standings_array.sort((a, b) => {
+//     if (b.Points == a.Points) {
+//       if (b.GD == b.GD) {
+//         return b.GF - a.GF;
+//       } else {
+//         b.GD - a.GD;
+//       }
+//     } else {
+//       return b.Points - a.Points;
+//     }
+//   });
+//   console.log(standings);
+//   view.displayStandings(standings);
+// }

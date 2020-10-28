@@ -5,7 +5,7 @@ import {
   findByIdAndUpdate,
 } from '../controllers/seasons/season.service';
 import { fetchCompetition } from '../controllers/competitions/competition.service';
-import { Competition } from '../controllers/competitions/competition.model';
+import { CompetitionInterface } from '../controllers/competitions/competition.model';
 import { createFixtures } from '../controllers/fixtures/fixture.service';
 import {
   monthFromIndex,
@@ -14,6 +14,9 @@ import {
   RoundRobin,
   fixtureInterface,
 } from '../utils/seasons';
+import { fetchOne } from '../controllers/calendar/calendar.service';
+import { CalendarInterface } from '../controllers/calendar/calendar.model';
+import { incrementCounter } from '../utils/counter';
 
 export async function createSeason(
   req: Request,
@@ -21,29 +24,64 @@ export async function createSeason(
   next: NextFunction
 ) {
   // tslint:disable-next-line: variable-name
-  const startDate = new Date(req.body.data.StartDate);
-  const monthNumber = startDate.getMonth();
-  const year = startDate.getFullYear();
 
-  const month = monthFromIndex(monthNumber);
+  /**
+   * CompetitionCode,
+   *
+   */
 
   req.body.data.CompetitionCode = req.body.data.CompetitionCode.toUpperCase();
 
   // No two seasons of the same competition and same month and year should exist at the same time...
 
-  const seasonCode = req.body.data.CompetitionCode + '-' + month + '-' + year;
-  // SeasonID.charAt(SeasonID.length - 1);
+  // Send Year from Client.
+  // In client request for a list of all the Calendars available
+  const year = process.env.CURRENT_YEAR!.trim().toUpperCase();
 
-  req.body.data.SeasonCode = seasonCode;
-  req.body.data.Year = `${month.toUpperCase()}-${year}`;
-  const _response = await createNew(req.body.data);
+  const seasonCode = req.body.data.CompetitionCode + ':' + year;
 
-  if (!_response.error) {
-    req.body.seasonMongoID = _response.result._doc._id;
-    next();
-  } else {
-    respond.fail(res, 400, 'Error creating Season', _response.result);
-  }
+  // NOTE: Before we were getting Year for Season here...
+  //  req.body.data.Year
+
+  console.log(year);
+
+  const findCalendar = () => {
+    return fetchOne({ YearString: year });
+  };
+
+  // Add the Calendar's id to season...
+  // maybe get it from the client? or find it?
+  // UPDATE: no need, we can just use the Year to find it?
+
+  // You should only be able to create a Season when there's
+  // a calendar... So maybe create the season in the Current Year
+  // using the Current Calendar...
+
+  // TODO: URGENT! AND IMPORTANT! COMPLETE THIS WORK
+  // TEST CREATING A SEASON LIKE THIS, thank you Jesus!
+  const newSeason = (cal: CalendarInterface) => {
+    if (!cal) {
+      throw new Error('Calendar does not exist!');
+    }
+    req.body.data.SeasonCode = seasonCode;
+    req.body.data.Calendar = cal._id;
+    req.body.data.Year = cal.YearString;
+    return createNew(req.body.data).catch((err) => {
+      throw err;
+    });
+  };
+
+  findCalendar()
+    .then(newSeason)
+    .then((season: any) => {
+      incrementCounter('season_counter');
+      req.body.seasonMongoID = season._doc._id;
+      return next();
+    })
+    .catch((error) => {
+      console.error(error);
+      return respond.fail(res, 400, 'Error creating Season', error);
+    });
 }
 
 /**
@@ -57,6 +95,8 @@ export async function createSeason(
  * @param res
  * @param next
  */
+
+// TODO: remove this and move to the main function...
 export async function fetchCompetitionClubs(
   req: Request,
   res: Response,
@@ -64,9 +104,7 @@ export async function fetchCompetitionClubs(
 ) {
   const { competitionId } = req.body.data as GenerateFixturesBody;
 
-  const response = fetchCompetition(competitionId);
-
-  response
+  fetchCompetition(competitionId)
     .then((value) => {
       req.body.competition = value;
       next();
@@ -88,7 +126,7 @@ export async function generateFixtures(
   res: Response,
   next: NextFunction
 ) {
-  const competition: Competition = req.body.competition;
+  const competition: CompetitionInterface = req.body.competition;
 
   const { leagueCode } = req.body.data as GenerateFixturesBody;
 
@@ -148,9 +186,7 @@ export async function generateFixtures(
 
   // respond.success(res, 200, 'Success creating Fixtures', fixtureObjects);
 
-  const response = createFixtures(fixtureObjects);
-
-  response
+  createFixtures(fixtureObjects)
     .then((fixtures) => {
       const fixtureIds: string[] = fixtures.map((fixture) => {
         return fixture._id;
@@ -169,7 +205,7 @@ export function setInitialStandings(
   res: Response,
   next: NextFunction
 ) {
-  const competition: Competition = req.body.competition;
+  const competition: CompetitionInterface = req.body.competition;
 
   const seasonId = req.params.id;
 
@@ -193,9 +229,7 @@ export function setInitialStandings(
     weeks.push(week);
   }
 
-  const response = findByIdAndUpdate(seasonId, { Standings: weeks });
-
-  response
+  findByIdAndUpdate(seasonId, { Standings: weeks })
     .then((season) => {
       next();
     })

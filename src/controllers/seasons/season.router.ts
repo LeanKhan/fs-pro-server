@@ -20,7 +20,7 @@ import respond from '../../helpers/responseHandler';
 const router = Router();
 
 /** Get all Seasons */
-router.get('/all', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response) => {
   fetchAll()
     .then((seasons) => {
       respond.success(res, 200, 'Seasons fetched successfully', seasons);
@@ -30,8 +30,12 @@ router.get('/all', async (req: Request, res: Response) => {
     });
 });
 
+router.put('/:id', (req, res) => {
+  // update season
+});
+
 /** Get Season by id */
-router.get('/season/:id', (req: Request, res: Response) => {
+router.get('/:id', (req: Request, res: Response) => {
   fetchOneById(req.params.id)
     .then((season) => {
       respond.success(res, 200, 'Season fetched successfully', season);
@@ -42,7 +46,7 @@ router.get('/season/:id', (req: Request, res: Response) => {
 });
 
 /** Delete Season by id */
-router.delete('/season/:id', (req: Request, res: Response) => {
+router.delete('/:id', (req: Request, res: Response) => {
   deleteById(req.params.id)
     .then((season) => {
       respond.success(res, 200, 'Season deleted successfully', season);
@@ -53,13 +57,7 @@ router.delete('/season/:id', (req: Request, res: Response) => {
 });
 
 /** Create new Season */
-router.post(
-  '/new',
-  incrementCounter,
-  getCurrentCounter,
-  createSeason,
-  addSeasonToCompetition
-);
+router.post('/', getCurrentCounter, createSeason, addSeasonToCompetition);
 
 /** Generate Fixtures for Season */
 router.post(
@@ -100,7 +98,7 @@ router.patch('/:id/start', (req, res) => {
 });
 
 /** Get all Fixtures in Season */
-router.get('/:id/fixtures/all', (req, res) => {
+router.get('/:id/fixtures', (req, res) => {
   fetchAllFixtures({ Season: req.params.id })
     .then((fixtures) => {
       respond.success(
