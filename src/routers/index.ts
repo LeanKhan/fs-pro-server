@@ -1,32 +1,32 @@
 import { Router } from 'express';
-import clubRouter from '../controllers/clubs/club.router';
-import playerRouter from '../controllers/players/player.router';
-import competitionRouter from '../controllers/competitions/competition.router';
-import seasonRouter from '../controllers/seasons/season.router';
-import userRouter from '../controllers/user/user.router';
-import gameRouter from '../controllers/game/game.router';
-import calendarRouter from '../controllers/calendar/calendar.router';
-import { fileRouter } from '../services/file/file.service';
+import clubs from '../controllers/clubs/club.router';
+import players from '../controllers/players/player.router';
+import competitions from '../controllers/competitions/competition.router';
+import seasons from '../controllers/seasons/season.router';
+import users from '../controllers/user/user.router';
+import games from '../controllers/game/game.router';
+import calendars from '../controllers/calendar/calendar.router';
+import files from '../services/file/file.service';
 import managers from '../controllers/managers/manager.router';
 import countries from '../controllers/countries/router';
 
 const router = Router();
 
-router.use('/clubs', clubRouter);
+router.use('/clubs', clubs);
 
-router.use('/players', playerRouter);
+router.use('/players', players);
 
-router.use('/competitions', competitionRouter);
+router.use('/competitions', competitions);
 
-router.use('/users', userRouter);
+router.use('/users', users);
 
-router.use('/seasons', seasonRouter);
+router.use('/seasons', seasons);
 
-router.use('/calendar', calendarRouter);
+router.use('/calendar', calendars);
 
-router.use('/files', fileRouter);
+router.use('/files', files);
 
-router.use('/game', gameRouter);
+router.use('/game', games);
 
 router.use('/managers', managers);
 
