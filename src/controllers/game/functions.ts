@@ -21,6 +21,7 @@ interface Team {
   id: string;
   name: string;
   clubCode: string;
+  manager: string;
 }
 
 // };
@@ -75,6 +76,7 @@ export function updateFixture(
    *
    */
 
+  //  { _id: fixture_id, Played: false }, TODO - Change back to this!
   //  Find that particular fixture that has not been played of course...
   return findOneAndUpdate(
     { _id: fixture_id, Played: false },
@@ -85,6 +87,8 @@ export function updateFixture(
       Events,
       HomeSideDetails,
       AwaySideDetails,
+      HomeManager: home.manager,
+      AwayManager: away.manager,
     }
   );
 
