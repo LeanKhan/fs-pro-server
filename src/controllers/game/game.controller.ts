@@ -4,12 +4,19 @@ import { Socket } from 'socket.io';
 import { Request, Response, NextFunction, response } from 'express';
 import { fetchOneById } from '../fixtures/fixture.service';
 import { Fixture } from '../fixtures/fixture.model';
-import { setupGame, Game, startGame } from '../game.controller';
+import Game, {
+  setupGame,
+  startGame,
+  endGame as finishGame,
+} from '../game.controller';
 import { ClubInterface } from '../clubs/club.model';
 import { IPlayerStats } from '../../interfaces/Player';
 import { updateFixture, updateStandings } from './functions';
 import { changeCurrentDay } from '../calendar/calendar.controller';
 import responseHandler from '../../helpers/responseHandler';
+import { Match } from '../../classes/Match';
+import Ball from '../../classes/Ball';
+import FieldPlayer from '../../classes/FieldPlayer';
 const users = [];
 
 interface GameUser {
@@ -33,9 +40,9 @@ const currentMatch: {
   status: 'not-initiated',
 };
 
-let currentFixture: Fixture;
+let currentFixture!: Fixture | undefined;
 
-let currentGame: Game;
+let currentGame: Game | undefined;
 
 export function sockets(socket: Socket) {
   socket.on('join-match', ({ user, match }) => {
@@ -134,15 +141,16 @@ export function sockets(socket: Socket) {
       throw error;
     }
 
-    if (fixture!.Played) {
-      // has been played!
+    // TODO - UNCOMMENT O
+    // if (fixture!.Played) {
+    //   // has been played!
 
-      console.log('Match has been played already!');
+    //   console.log('Match has been played already!');
 
-      return socket.server
-        .to(currentMatch.fixtureCode)
-        .emit('match-setup-error', 'Match has already been played!');
-    }
+    //   return socket.server
+    //     .to(currentMatch.fixtureCode)
+    //     .emit('match-setup-error', 'Match has already been played!');
+    // }
 
     let { HomeTeam: home, AwayTeam: away } = fixture;
 
@@ -167,17 +175,17 @@ export function sockets(socket: Socket) {
 
     // Here we need a loop to send match events every second or s?
     socket.server.to(currentMatch.fixtureCode).emit('game-complete', {
-      matchDetails: currentGame.getMatch().Details,
-      matchEvents: currentGame.getMatch().Events,
-      homeSquad: currentGame.getMatch().Home.MatchSquad,
-      awaySquad: currentGame.getMatch().Away.MatchSquad,
+      matchDetails: currentGame!.getMatch().Details,
+      matchEvents: currentGame!.getMatch().Events,
+      homeSquad: currentGame!.getMatch().Home.MatchSquad,
+      awaySquad: currentGame!.getMatch().Away.MatchSquad,
     });
   });
 }
 
 function endGame() {
   // prepare stuff you need though...
-  const homeSquadPlayerStats: IPlayerStats[] = currentGame
+  const homeSquadPlayerStats: IPlayerStats[] = currentGame!
     .getMatch()
     .Home.MatchSquad.map((p) => ({ ...p.Stats, id: p._id })) as IPlayerStats[];
 }
@@ -359,12 +367,13 @@ export async function restPlayGame(
     );
   }
 
-  if (fixture!.Played) {
-    // has been played!
-    return responseHandler.fail(res, 400, 'Match has been played already!', {
-      matchErrorResponseCode: 2,
-    });
-  }
+  // TODO - UNCOMMENT O!
+  // if (fixture!.Played) {
+  //   // has been played!
+  //   return responseHandler.fail(res, 400, 'Match has been played already!', {
+  //     matchErrorResponseCode: 2,
+  //   });
+  // }
 
   req.body.SeasonCode = fixture.SeasonCode;
 
@@ -384,13 +393,20 @@ export async function restPlayGame(
     id: currentGame.getMatch().Home._id,
     name: currentGame.getMatch().Home.Name,
     clubCode: currentGame.getMatch().Home.ClubCode,
+    manager: currentGame.getMatch().Home.Manager,
   };
 
   const awayObj = {
     id: currentGame.getMatch().Away._id,
     name: currentGame.getMatch().Away.Name,
     clubCode: currentGame.getMatch().Away.ClubCode,
+    manager: currentGame.getMatch().Away.Manager,
   };
+
+  console.log('The Match instances', Match.instances);
+  console.log('The Ball instances', Ball.instances);
+  console.log('The FieldPlayer instances', FieldPlayer.instances);
+  console.log('The Game instances', Game.instances);
 
   // After the match is done send the result to...
 
@@ -402,6 +418,17 @@ export async function restPlayGame(
       awayObj,
       fixture_id
     );
+
+    if (!result) {
+      return responseHandler.fail(
+        res,
+        400,
+        'Error updating fixtures! - Match cannot be found!',
+        {
+          matchErrorResponseCode: 3,
+        }
+      );
+    }
 
     req.body.home = homeObj;
     req.body.away = awayObj;
@@ -494,7 +521,15 @@ export function restUpdateStandings(
         'Error Playing Match and updating Standings!',
         { ...err, matchErrorResponseCode: 2 }
       )
-    );
+    )
+    .finally(() => {
+      // Delete CurrentMatch Instance...
+      console.log('deleted currentGame');
+      currentGame = undefined;
+      currentFixture = undefined;
+      finishGame();
+      console.log('CurrentGame after undefined =>', currentGame);
+    });
   // Here we should check if we need to update anything else...
 }
 

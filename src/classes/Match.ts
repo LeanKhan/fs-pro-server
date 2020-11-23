@@ -1,13 +1,19 @@
 import { ClubInterface as Club } from '../controllers/clubs/club.model';
 import { MatchSide } from './MatchSide';
-import { matchEvents, createMatchEvent } from '../utils/events';
+import { matchEvents, createMatchEvent, ballMove } from '../utils/events';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer, IPlayerStats } from '../interfaces/Player';
 import { IShot, IPass, GamePoints, ITackle, IDribble } from './Referee';
 /**
  * The Match Class gan gan
  */
-export class Match implements IMatch {
+
+abstract class MatchClass {
+  public static instances: number;
+}
+// tslint:disable-next-line: max-classes-per-file
+export class Match implements IMatch, MatchClass {
+  public static instances: number = 0;
   public Home: MatchSide;
   public Away: MatchSide;
   public CenterBlock: IBlock;
@@ -213,15 +219,19 @@ export class Match implements IMatch {
         data.tackler.increasePoints(GamePoints.Tackle);
 
         console.log(
-          `${data.tackler.FirstName} ${
-            data.tackler.LastName
-          } at ${JSON.stringify(
-            data.tackler.BlockPosition.key
-          )} tackled the ball from ${data.tackled.FirstName} ${
+          `${data.tackler.FirstName} ${data.tackler.LastName} [with Ball? ${
+            data.tackler.WithBall
+          }] at ${JSON.stringify({
+            x: data.tackler.BlockPosition.x,
+            y: data.tackler.BlockPosition.y,
+            key: data.tackler.BlockPosition.key,
+          })} tackled the ball from ${data.tackled.FirstName} ${
             data.tackled.LastName
-          } who was at ${JSON.stringify(data.tackled.BlockPosition.key)} at ${
-            this.getCurrentTime
-          } mins`
+          } [with Ball? ${data.tackled.WithBall}] who was at ${JSON.stringify({
+            x: data.tackled.BlockPosition.x,
+            y: data.tackled.BlockPosition.y,
+            key: data.tackled.BlockPosition.key,
+          })} at ${this.getCurrentTime} mins`
         );
       } else {
         // Subtract points hehe
@@ -254,14 +264,14 @@ export class Match implements IMatch {
 
       createMatchEvent('Half Over', 'match');
 
-      console.table(this.Events);
+      // console.table(this.Events); TODO - UNCOMMENT O
 
       console.log('Home Team => ', this.Home.ClubCode);
       this.Home.StartingSquad.forEach((p) => {
         console.log(
           `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
         );
-        console.table(p.GameStats);
+        // console.table(p.GameStats); TODO -UNCOMMENT O
       });
 
       console.log('Away Team => ', this.Away.ClubCode);
@@ -269,11 +279,13 @@ export class Match implements IMatch {
         console.log(
           `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
         );
-        console.table(p.GameStats);
+        // console.table(p.GameStats); TODO - UNCOMMENT O
       });
 
       this.endMatch();
     });
+
+    Match.instances++;
   }
 
   public castEvent(data: IMatchEvent) {
@@ -333,6 +345,12 @@ export class Match implements IMatch {
     this.getWinners();
     this.getMOTM();
 
+    console.log('ball-moved listeners: ', ballMove.listenerCount('ball-moved'));
+    if (this.getCurrentTime === 90) {
+      // Only remove the listeners at the end of the match :) Thank you Jesus!
+      ballMove.removeAllListeners();
+      matchEvents.removeAllListeners();
+    }
     console.log('Match Details =>', this.Details);
   }
 
@@ -363,7 +381,8 @@ export class Match implements IMatch {
   }
 
   public showActions() {
-    console.table(this.Actions);
+    // console.table(this.Actions); TODO: UNCOMMENT O
+    console.table('this.Actions');
   }
 
   public calculatePosession() {
@@ -388,7 +407,7 @@ export class Match implements IMatch {
     );
 
     const motm = allSquads[allSquads.length - 1];
-    console.log('MOTM =>', motm);
+    // console.log('MOTM =>', motm); TODO - UNCOMMENT O
 
     this.Details.MOTM = {
       playerID: motm.PlayerID,

@@ -10,7 +10,15 @@ import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { coordinateToBlock } from '../utils/coordinates';
 import { ballMove } from '../utils/events';
 
-export default class FieldPlayer extends Player implements IFieldPlayer {
+abstract class FieldPlayerClass {
+  public static instances: number;
+}
+
+// tslint:disable-next-line: max-classes-per-file
+export default class FieldPlayer
+  extends Player
+  implements IFieldPlayer, FieldPlayerClass {
+  public static instances: number = 0;
   public Points: number = 0;
   public Substitute: boolean;
   public BlockPosition: IBlock;
@@ -53,6 +61,8 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
     ballMove.on('ball-moved', (p) => {
       this.updateBallPosition(p);
     });
+
+    FieldPlayer.instances++;
   }
 
   public pass(pos: ICoordinate) {
@@ -68,6 +78,7 @@ export default class FieldPlayer extends Player implements IFieldPlayer {
   }
 
   public updateBallPosition(pos: IBlock) {
+    console.log('New Position x,y,key =>', pos.x, pos.y, pos.key);
     this.Ball.Position = pos;
     this.checkWithBall();
   }

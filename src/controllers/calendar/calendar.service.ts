@@ -1,4 +1,5 @@
 import DB from '../../db';
+import { CalendarInterface } from './calendar.model';
 
 /**
  * fetchAll
@@ -24,7 +25,7 @@ export function fetchOne(
   query: {},
   populate: boolean | string = false,
   paginate: { skip: number; limit: number } = { skip: 0, limit: 14 }
-) {
+): Promise<CalendarInterface> {
   if (populate && paginate) {
     // Use $slice: [skip, limit] to 'paginate' array in a way...
     return DB.Models.Calendar.findOne(query, {

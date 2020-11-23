@@ -1,4 +1,5 @@
 import DB from '../../db';
+import { CompetitionInterface, CompetitionModel } from './competition.model';
 /**
  * fetchAll Competitions
  */
@@ -41,7 +42,7 @@ export function createNew(data: any) {
     .catch((error) => ({ error: true, result: error }));
 }
 
-export function update(id: string, data: any) {
+export function update(id: string, data: any): Promise<CompetitionInterface> {
   return DB.Models.Competition.findByIdAndUpdate(id, data, { new: true })
     .lean()
     .exec();

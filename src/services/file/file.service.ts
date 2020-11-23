@@ -41,4 +41,4 @@ router.post('/upload', uploader, (req, res) => {
   res.status(200).send(req.file);
 });
 
-export const fileRouter = router;
+export default router;

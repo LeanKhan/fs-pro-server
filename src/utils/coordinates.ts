@@ -1,6 +1,6 @@
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
-import { PlayingField, mapWidth } from '../controllers/game.controller';
+import Game from '../controllers/game.controller';
 
 /**
  * Returns the tile index of the given coordinates
@@ -9,6 +9,9 @@ import { PlayingField, mapWidth } from '../controllers/game.controller';
  * @param y
  * @param mapWidth
  */
+
+const PlayingField = Game.FIELD.PlayingField;
+const mapWidth = Game.FIELD.mapWidth;
 
 // tslint:disable-next-line: no-shadowed-variable
 function XYToIndex(x: number, y: number, mapWidth: number): number {
@@ -80,7 +83,7 @@ function findClosestPlayer(
   });
 
   console.table(
-    plyrs.map(p => ({
+    plyrs.map((p) => ({
       Name: p.FirstName + ' ' + p.LastName,
       PlayerPosition: p.Position,
       Club: p.ClubCode,
@@ -94,7 +97,7 @@ function findClosestPlayer(
    */
 
   if (originPlayer) {
-    plyrs = plyrs.filter(p => p.PlayerID !== originPlayer.PlayerID);
+    plyrs = plyrs.filter((p) => p.PlayerID !== originPlayer.PlayerID);
   }
 
   // Now select a random player from the first three options
@@ -146,7 +149,7 @@ function findClosestFieldPlayer(
 ) {
   // const plyrs = players;
   // Remove Golakeepers
-  let plyrs: IFieldPlayer[] = players.filter(p => {
+  let plyrs: IFieldPlayer[] = players.filter((p) => {
     return p.Position !== 'GK';
   });
 
@@ -162,7 +165,7 @@ function findClosestFieldPlayer(
    * The index of the origin player so we can remove it :)
    */
   if (originPlayer) {
-    const psI = plyrs.findIndex(p => {
+    const psI = plyrs.findIndex((p) => {
       return p === originPlayer;
     });
 
@@ -170,7 +173,7 @@ function findClosestFieldPlayer(
   }
 
   if (limit) {
-    plyrs = plyrs.filter(a => {
+    plyrs = plyrs.filter((a) => {
       return calculateDistance(ref, a.BlockPosition) <= limit;
     });
   }
@@ -201,7 +204,7 @@ function findRandomPlayer(
   /**
    * The index of the origin player so we can remove it :)
    */
-  const psI = ps.findIndex(p => {
+  const psI = ps.findIndex((p) => {
     return p === originPlayer;
   });
 
@@ -220,7 +223,7 @@ export function findClosestPlayerByPosition(
 ) {
   // const plyrs = players;
   // Remove Golakeepers
-  let plyrs: IFieldPlayer[] = players.filter(p => {
+  let plyrs: IFieldPlayer[] = players.filter((p) => {
     return p.Position === position;
   });
 
@@ -235,7 +238,7 @@ export function findClosestPlayerByPosition(
   /**
    * The index of the origin player so we can remove it :)
    */
-  const psI = plyrs.findIndex(p => {
+  const psI = plyrs.findIndex((p) => {
     return p === originPlayer;
   });
 
@@ -300,14 +303,30 @@ function findPath(ref: ICoordinate, pos: ICoordinate): ICoordinate {
 
 /**
  * Calcualte the difference between two coordinates
- * i.e from 'pos' to 'ref'
- * @param ref
- * @param pos
+ * i.e from 'pos' to 'dest'
+ * @param ref the destination i.e tackler
+ * @param pos the current location i.e tackled
  */
-function calculateDifference(ref: ICoordinate, pos: ICoordinate) {
+function calculateDifference(dest: ICoordinate, pos: ICoordinate) {
   const path: ICoordinate = { x: 0, y: 0 };
-  const x = ref.x - pos.x;
-  const y = ref.y - pos.y;
+
+  console.log('Dest => ', JSON.stringify({ x: dest.x, y: dest.y }));
+  console.log('Pos => ', JSON.stringify({ x: pos.x, y: pos.y }));
+
+  let x = dest.x - pos.x;
+  let y = dest.y - pos.y;
+
+  // if x is -ve
+  if (x < 0 && pos.x === 0) {
+    x = Math.abs(x);
+  }
+
+  // If y is -ve
+  if (y < 0 && pos.y === 0) {
+    y = Math.abs(y);
+  }
+
+  // These checks prevent sending
 
   path.x = x;
   path.y = y;

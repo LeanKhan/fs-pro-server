@@ -11,10 +11,9 @@ import respond from '../../helpers/responseHandler';
 import { checkUserExists, checkPassword } from '../../middleware/validateUser';
 import { IUserLogin } from '../../interfaces/Response';
 import { initializeSession, findSession } from '../../middleware/user';
-import { updateClubs } from '../../middleware/club';
+import { updateClubs } from '../../controllers/clubs/club.controller';
 import { IUser } from './user.model';
 import { store } from '../../server';
-import { updateClub } from '../clubs/club.service';
 
 //
 const router = Router();
@@ -247,9 +246,7 @@ router.delete('/:id/clubs/:id', (req, res) => {
 
   const data = { $pull: { Clubs: club_id } };
 
-  const response = updateUser(id, data);
-
-  response
+  updateUser(id, data)
     .then((user: any) => {
       respond.success(res, 200, 'User removed Club successfully', user);
     })

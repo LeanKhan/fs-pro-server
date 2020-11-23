@@ -10,7 +10,6 @@ import respond from '../../helpers/responseHandler';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { updateClub } from '../clubs/club.service';
 import { ManagerInterface } from './manager.model';
-import { managers } from '@/state/PersistentState/OnlineManagers';
 
 const router = Router();
 
@@ -40,8 +39,20 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   // Get Manager by name slug
   const { id } = req.params;
+  let po = false;
+  try {
+    po = req.query.populate && JSON.parse(req.query.populate);
+  } catch (err) {
+    console.error('Error fetching manager, ', +err);
+    return respond.fail(
+      res,
+      400,
+      'Error fetching Manager: Error populating field(s)',
+      err
+    );
+  }
 
-  fetchOneById(id)
+  fetchOneById(id, po)
     .then((m) => {
       respond.success(res, 200, 'Manager fetched successfully', m);
     })
@@ -78,7 +89,12 @@ router.delete('/:id', (req, res) => {
       updateClub(Club, {
         $unset: { Manager: 1 },
         $push: {
-          Records: `${FirstName} ${LastName} has left the club and the system. They just left not fired :/`,
+          Records: {
+            type: 'hired',
+            title: `${FirstName} ${LastName} just left the club and the system :/`,
+            date: new Date(),
+            details: 'Manager is no longer in the system',
+          },
         },
       }).catch((err) => {
         throw err;
@@ -124,8 +140,8 @@ router.post('/', getCurrentCounter, async (req, res) => {
   const response = await create(req.body.data);
 
   if (!response.error) {
-    respond.success(res, 200, 'Manger created successfully', response.result);
     incrementCounter('manager_counter');
+    respond.success(res, 200, 'Manger created successfully', response.result);
   } else {
     respond.fail(res, 400, 'Error creating Manager', response.result);
   }

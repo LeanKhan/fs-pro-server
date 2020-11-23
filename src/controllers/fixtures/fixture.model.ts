@@ -146,6 +146,8 @@ export class Fixture {
         },
         HomeSideDetails: MatchSideDetailsSchema,
         AwaySideDetails: MatchSideDetailsSchema,
+        HomeManager: { type: Schema.Types.ObjectId, ref: 'Manager' },
+        AwayManager: { type: Schema.Types.ObjectId, ref: 'Manager' },
       },
       { timestamps: true }
     );

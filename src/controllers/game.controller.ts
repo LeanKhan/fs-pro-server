@@ -12,23 +12,20 @@ import { fetchClubs } from './clubs/club.service';
 import { ClubInterface as IClub } from '../controllers/clubs/club.model';
 // import { EventEmitter } from 'events';
 
-// let Clubs: IClubModel[] = [];
-
-// let match: Match;
-
-export const GameField = new Field();
-export const PlayingField = GameField.PlayingField;
-
-export const mapWidth = GameField.mapWidth;
-
-const centerBlock = PlayingField[82];
-
 // const gameLoop = 90;
 
 const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
 const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
 
-export class Game {
+abstract class GameClass {
+  public static instances: number;
+}
+
+// tslint:disable-next-line: max-classes-per-file
+export default class Game implements GameClass {
+  public static instances: number = 0;
+  public static FIELD: Field = new Field();
+  // public static PLAYING_FIELD: IBlock[];
   public homePost: IBlock;
   public awayPost: IBlock;
   public Referee: Referee;
@@ -47,9 +44,9 @@ export class Game {
     sides: { home: string; away: string },
     hp: IBlock,
     ap: IBlock,
-    field: IBlock[],
     ball: Ball,
-    ref: Referee
+    ref: Referee,
+    centerBlock: any
   ) {
     // Get the club that is meant to be home
     const homeIndex = clubs.findIndex(
@@ -76,13 +73,14 @@ export class Game {
 
     this.MatchBall = ball;
 
-    this.PlayingField = field;
+    this.PlayingField = Game.FIELD.PlayingField;
 
     this.Referee = ref;
 
     this.MatchActions = new Actions(ref, [this.Match.Home, this.Match.Away]);
 
-    /* ---------- LISTEN TO MATCH EVENTS ----------- */
+    /* ---------- COUNT CLASS INSTANCES ----------- */
+    Game.instances++;
   }
 
   public setMatchBall(ball: Ball) {
@@ -215,7 +213,7 @@ export class Game {
       this.MatchBall.Position
     );
 
-    // this.matchComments();
+    this.matchComments();
   }
 
   public matchComments() {
@@ -270,8 +268,10 @@ export class Game {
       this.Match.setCurrentTime(Math.round((i + 1) / 2));
 
       if (this.AS === undefined || this.DS === undefined) {
+        console.log('Mvng Towards ball');
         this.moveTowardsBall();
       } else {
+        console.log('-- TAKING ACTION --');
         this.MatchActions.takeAction(
           this.ActivePlayerAS as IFieldPlayer,
           this.AS,
@@ -282,12 +282,12 @@ export class Game {
         this.Match.recordPossession(this.AS);
       }
 
-      this.matchComments();
+      // this.matchComments();
     }
   }
 }
 
-let CurrentGame: Game;
+let CurrentGame: any;
 
 export const setupGame = async (
   clubs: string[],
@@ -296,7 +296,9 @@ export const setupGame = async (
   try {
     const teams = await fetchClubs({ _id: { $in: clubs } });
 
-    console.log('Temas => ', teams[0]._id);
+    console.log('Teams => ', teams[0]._id);
+
+    const centerBlock = Game.FIELD.PlayingField[82];
 
     const ball = new Ball('#ffffff', centerBlock);
 
@@ -307,9 +309,9 @@ export const setupGame = async (
       sides,
       homePost,
       awayPost,
-      PlayingField,
       ball,
-      ref
+      ref,
+      centerBlock
     );
 
     CurrentGame.refAssignMatch();
@@ -325,35 +327,10 @@ export const setupGame = async (
   }
 };
 
-export const getClubs = async (clubs: string[], s: string[]) => {
-  try {
-    const result = await fetchClubs({ ClubCode: { $in: clubs } });
+// export class App {
+//   public game: Game;
 
-    const ball = new Ball('#ffffff', centerBlock);
-
-    const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
-
-    const sides = { home: s[0], away: s[1] };
-
-    console.log('sides =>', sides)
-
-    CurrentGame = new Game(result, sides, homePost, awayPost, PlayingField, ball, ref);
-
-    CurrentGame.refAssignMatch();
-
-    CurrentGame.setClubPlayers();
-
-    CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
-
-    CurrentGame.startHalf();
-
-    return CurrentGame;
-
-    // After here, the game should start!
-  } catch (error) {
-    console.log('Errro!', error);
-  }
-};
+// }
 
 export const startGame = async () => {
   try {
@@ -362,6 +339,16 @@ export const startGame = async () => {
     // After here, the game should start!
   } catch (error) {
     console.log('Error starting game!', error);
+  }
+};
+
+export const endGame = async () => {
+  try {
+    CurrentGame = null;
+
+    // After here, the game should start!
+  } catch (error) {
+    console.log('Error ending game!', error);
   }
 };
 

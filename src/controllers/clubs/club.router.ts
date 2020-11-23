@@ -98,15 +98,19 @@ router.delete('/:id', (req, res) => {
 
 /** Fetch Club by id */
 router.get('/:id', async (req, res) => {
-  const response = fetchSingleClubById(req.params.id, req.query.populate);
 
-  response
-    .then((club) => {
+  try {
+  fetchSingleClubById(req.params.id, req.query.populate)
+  .then((club) => {
       respond.success(res, 200, 'Club fetched successfully', club);
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error fetching Club', err);
     });
+  } catch (err) {
+      respond.fail(res, 400, 'Error fetching Club', err);
+  }
+    
 });
 
 /** Add Player to Club */

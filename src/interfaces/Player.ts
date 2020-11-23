@@ -1,5 +1,5 @@
 import { IBlock } from '../state/ImmutableState/FieldGrid';
-import { IBall } from '../classes/Ball';
+import Ball, { IBall } from '../classes/Ball';
 import { MatchSide } from '../classes/MatchSide';
 
 export interface IFieldPlayer extends IPlayer {
@@ -9,7 +9,7 @@ export interface IFieldPlayer extends IPlayer {
   /** Where the player starts the match */
   StartingPosition: IBlock;
   WithBall: boolean;
-  Ball: IBall;
+  Ball: Ball;
   // Team: MatchSide;
   move(pos: any): void;
   changePosition(pos: IBlock): void;

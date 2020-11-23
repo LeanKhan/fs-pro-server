@@ -5,6 +5,7 @@ export interface ManagerInterface {
   Key: string;
   FirstName: string;
   LastName: string;
+  Age: number;
   Picture: string;
   Club: string;
   NationalTeam?: boolean;
@@ -22,6 +23,7 @@ declare interface IManager extends Document {
   Key: string;
   FirstName: string;
   LastName: string;
+  Age: number;
   Picture: string;
   Club: string;
   NationalTeam?: boolean;
@@ -49,6 +51,10 @@ export class Manager {
         LastName: {
           type: String,
           required: true,
+        },
+        Age: {
+          type: Number,
+          default: 37,
         },
         Picture: {
           type: String,

@@ -18,7 +18,10 @@ export function fetchAll(query: {} = {}): Promise<ManagerInterface[]> {
  * Fetch a specific Manager by id
  * @param id
  */
-export function fetchOneById(id: string): Promise<ManagerInterface> {
+export function fetchOneById(id: string, populate: boolean = false): Promise<ManagerInterface> {
+  if(populate) {
+    return DB.Models.Manager.findById(id).populate('Club').lean().exec();
+  }
   return DB.Models.Manager.findById(id).lean().exec();
 }
 

@@ -2,7 +2,8 @@
 import { Schema, model, Document, Model } from 'mongoose';
 import { Club, ClubInterface } from '../clubs/club.model';
 
-export interface Competition {
+export interface CompetitionInterface {
+  _id?: string;
   Type: string;
   Title: string;
   CompetitionID: string;

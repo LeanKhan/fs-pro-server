@@ -1,16 +1,15 @@
 import { Router } from 'express';
-import { getClubs, Game } from '../game.controller';
+import App from '../app';
 import respond from '../../helpers/responseHandler';
-import { io } from '../../server';
 import {
   initiateGame,
   restPlayGame,
   restUpdateStandings,
 } from './game.controller';
-import { findOne } from '../days/day.service';
-import { Types } from 'mongoose';
 
 const router = Router();
+
+const _App = new App();
 
 router.post('/play', async (req, res) => {
   //   const response = fetchOneById(req.params.id);
@@ -20,7 +19,7 @@ router.post('/play', async (req, res) => {
 
   console.log('clubs => ', clubs);
 
-  const game = (await getClubs(clubs, sides)) as Game;
+  const game = await _App.setupGame(clubs, sides);
 
   // game.getMatch().Events.forEach((event) => {
   //   setTimeout(() => {
@@ -34,7 +33,7 @@ router.post('/play', async (req, res) => {
   //   away: game.getMatch().Away.ClubCode,
   // });
 
-  respond.success(res, 200, 'Match played');
+  respond.success(res, 200, 'Match played', game.Referee);
 });
 
 router.get('/kickoff', restPlayGame, restUpdateStandings);

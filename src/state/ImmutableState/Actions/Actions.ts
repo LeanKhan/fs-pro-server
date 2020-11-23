@@ -4,7 +4,7 @@ import * as prob from '../../../utils/probability';
 import * as playerFunc from '../../../utils/players';
 import { MatchSide } from '../../../classes/MatchSide';
 import { IBlock, ICoordinate } from '../../ImmutableState/FieldGrid';
-import { IBall } from '../../../classes/Ball';
+import Ball, { IBall } from '../../../classes/Ball';
 import { matchEvents, createMatchEvent } from '../../../utils/events';
 import {
   IReferee,
@@ -304,6 +304,8 @@ export class Actions {
         case 'towards ball':
           const ball = ref as IBlock;
 
+          console.log('Action.move : towards ball :)');
+
           // Find the path to the ball
           const path = co.findPath(ball, player.BlockPosition);
 
@@ -329,6 +331,7 @@ export class Actions {
             around
           ) as IFieldPlayer;
 
+          console.log('Moving Forward!');
           // r being where you want to move the player to
           const r = ref as IBlock;
 
@@ -339,6 +342,7 @@ export class Actions {
           // But if there is a marking opponent nearby, the opponent will try to take the ball from
           // the attackingPlayer
           if (opponentBlock === undefined) {
+            console.log('OppenentBlock === undefined!');
             if (this.makeMove(player, p, around)) {
               situation = { status: true, reason: 'move forward successful' };
             } else {
@@ -349,6 +353,12 @@ export class Actions {
             }
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
+            // Tackle about to happen :0
+            console.log(
+              'Ball x,y => ',
+              player.Ball.Position.x,
+              player.Ball.Position.y
+            );
             const success = this.decider.getDribbleResult(
               player,
               opponentBlock
@@ -392,6 +402,7 @@ export class Actions {
           break;
       }
     } else {
+      console.log('In the empty else for Actions.move, thank you Jesus!');
       // situation = { status: false, reason: 'move towards ball successful' };
     }
     return situation;
@@ -659,10 +670,35 @@ export class Actions {
 
   private tackle(player: IFieldPlayer, tackler: IFieldPlayer) {
     // console.log(`${tackler.LastName} is tackling ${player.LastName}`);
-    const success = this.decider.getTackleResult(tackler, player);
+    // const success = this.decider.getTackleResult(tackler, player);
+    const success = Math.round(Math.random() * 12) >= 6;
 
     if (success) {
       // Ball is now in possession of tackler :)
+      console.log(
+        `Tackler ${tackler.PlayerID} ${tackler.LastName} Ball x,y =>`,
+        tackler.Ball.Position.x,
+        tackler.Ball.Position.y,
+        tackler.Ball.Position.key,
+        `Ball birthtime: ${new Date(
+          tackler.Ball.created
+        ).toUTCString()}. No of instances: ${Ball.instances}`,
+        `${tackler.Ball.Position.occupant!.FirstName || 'null'} ${
+          tackler.Ball.Position.occupant!.LastName || 'null'
+        } is at [${tackler.Ball.Position.occupant!.BlockPosition.x || 'null'},${
+          tackler.Ball.Position.occupant!.BlockPosition.y || 'null'
+        }]. \n But Ball is at ${
+          tackler.Ball.Position.occupant!.Ball.Position.key || 'null'
+        } [${tackler.Ball.Position.occupant!.Ball.Position.x || 'null'}, ${
+          tackler.Ball.Position.occupant!.Ball.Position.y || 'null'
+        }]`
+      );
+      console.log(
+        `Player ${player.PlayerID} ${player.LastName} Ball x,y =>`,
+        player.Ball.Position.x,
+        player.Ball.Position.y,
+        player.Ball.Position.key
+      );
       tackler.Ball.move(
         co.calculateDifference(tackler.BlockPosition, player.BlockPosition)
       );

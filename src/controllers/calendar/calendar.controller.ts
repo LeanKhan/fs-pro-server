@@ -16,7 +16,6 @@ import {
   findOneAndUpdate as updateCalendar,
   findAndUpdate as updateCalendars,
 } from './calendar.service';
-import { indexToBlock } from '@/utils/coordinates';
 
 export async function getSeasons(
   req: Request,
@@ -86,19 +85,16 @@ export async function generateCalendar(
 
   const createCalendar = async () => {
     const now = new Date();
-    const { year, month } = req.query;
+    // const { year, month } = req.query;
+    const month = process.env.CURRENT_YEAR!.split('-')[0];
+    const year = process.env.CURRENT_YEAR!.split('-')[0];
 
-    const YearString =
-      year && month
-        ? `${month}-${year}`
-        : `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`;
-    const YearDigits =
-      year && month
-        ? `${indexFromMonth(month)}-${year}`
-        : `${now.getMonth() + 1}-${now.getFullYear()}`;
+    const YearString = `${month}-${year}`;
+
+    const YearDigits = `${indexFromMonth(month)}-${year}`;
 
     const calendar: CalendarInterface = {
-      Name: now.toLocaleDateString(),
+      Name: `${YearString}:${now.toLocaleDateString()}`,
       YearString,
       YearDigits,
       isActive: false,
@@ -353,7 +349,7 @@ export async function startYear(
 ) {
   // In the future you will do a lot here tho...
   // Like reset Club money and all...
-  const { year } = req.body;
+  const { year } = req.params;
 
   if (!year) {
     return respond.fail(res, 400, 'No year provided!');
@@ -378,7 +374,7 @@ export async function startYear(
     // Set the rest to false and this one to true...
     // There should be only ONE active calendar at a time. Thank you Jesus!
     return updateCalendars({}, [
-      { $set: { isActive: { $eq: ['$YearString', year] } } },
+      { $set: { isActive: { $eq: ['$YearString', year] }, CurrentDay: 0 } },
     ]);
   };
 
@@ -399,6 +395,8 @@ export async function startYear(
     });
 }
 
+// TODO: add the _id of Calendar to Season
+
 export async function getCurrentCalendar(
   req: Request,
   res: Response,
@@ -407,18 +405,23 @@ export async function getCurrentCalendar(
   // Get the current year calendar...
   // ERR! Use the month and year passed from the front end
 
-  const year = req.query.year;
-
-  // const now = new Date();
-  // const currentYear = `${monthFromIndex(now.getMonth())}-${now.getFullYear()}`;
-  // Actually now Days are in their separate collection :)
-
+  const year = process.env.CURRENT_YEAR!.trim() || req.query.year;
+  // We can use the CURRENT_YEAR env variable
   const skip = getSkip(parseInt(req.query.page || 1), 14);
   const limit = parseInt(req.query.limit || 14);
   let response;
 
+  let populate;
+
   try {
-    response = await fetchOne({ YearString: year }, true, {
+    populate = JSON.parse(req.query.populate);
+  } catch (error) {
+    console.log("Couldn't parse populate query param");
+    populate = false;
+  }
+
+  try {
+    response = await fetchOne({ YearString: year }, populate, {
       skip,
       limit,
     });
@@ -434,7 +437,7 @@ export async function getCurrentCalendar(
       response
     );
   } else {
-    return respond.success(res, 200, 'Found none :/', {});
+    return respond.fail(res, 404, 'Found none :/', {});
   }
 }
 

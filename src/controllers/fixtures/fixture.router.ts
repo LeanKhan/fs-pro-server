@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router } from 'express';
 import respond from '../../helpers/responseHandler';
 import { fetchOneById } from './fixture.service';
 
@@ -6,9 +6,7 @@ const router = Router();
 
 /** Get Fixture by id */
 router.get('/:id', (req, res) => {
-  const response = fetchOneById(req.params.id, false);
-
-  response
+  fetchOneById(req.params.id, false)
     .then((fixture) => {
       respond.success(res, 200, 'Fixture fetched successfully', fixture);
     })

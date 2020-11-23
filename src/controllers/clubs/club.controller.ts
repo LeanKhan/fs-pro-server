@@ -1,12 +1,13 @@
 import respond from '../../helpers/responseHandler';
 import { NextFunction, Request, Response } from 'express';
 import { ManagerInterface } from '../managers/manager.model';
-import { updateById } from '../managers/manager.service';
+import { updateById, fetchOneById } from '../managers/manager.service';
 import {
   fetchSingleClubById,
   updateClub,
   updateClubsById,
 } from './club.service';
+import { managers } from '@/state/PersistentState/OnlineManagers';
 
 export async function updateClubs(
   req: Request,
@@ -24,15 +25,35 @@ export async function updateClubs(
 }
 
 export function addManagerToClub(req: Request, res: Response) {
-  // Get the manager's id and save it to Club kini. But also
-  // edit the manager...
+  // Clubs must fire current managers before they can hire a new one!
 
   const { id: club_id } = req.params;
-  const { manager } = req.body;
+  const { manager, details } = req.body;
 
-  const getClubData = () => {
+  // Fetch Manager first and even confirm if they exist!
+
+  const fetchManager = () => {
+    return fetchOneById(manager);
+  };
+
+  // Club should not already have a manager!
+
+  const getClubData = (m: ManagerInterface) => {
+    if (!m) {
+      throw new Error('Manager does not exist!');
+    }
+
     return fetchSingleClubById(club_id, false)
       .then((club) => {
+        if (club.Manager) {
+          // club already has a manager, kill it off!
+          return respond.fail(
+            res,
+            401,
+            'Club already has a manager. Remove manager before you can hire a new one'
+          );
+        }
+
         return {
           $set: {
             isEmployed: true,
@@ -40,8 +61,10 @@ export function addManagerToClub(req: Request, res: Response) {
           },
           $push: {
             Records: {
-              message: `Joined ${club.Name} as their new manager`,
+              type: 'hired',
+              title: `${m.FirstName} ${m.LastName} joined ${club.Name} as their new manager`,
               date: new Date(),
+              details,
               club: club._id,
             },
           },
@@ -62,12 +85,19 @@ export function addManagerToClub(req: Request, res: Response) {
     return updateClub(club_id, {
       Manager: m._id,
       $push: {
-        Records: `Hired ${m.FirstName} ${m.LastName} [${m.Key}] as new manager!`,
+        Records: {
+          type: 'manager-hire',
+          title: `Hired ${m.FirstName} ${m.LastName} as new manager!`,
+          date: new Date(),
+          details,
+          manager: m._id,
+        },
       },
     });
   };
 
-  getClubData()
+  fetchManager()
+    .then(getClubData)
     .then(updateManager)
     .then(_updateClub)
     .then((c) => {
@@ -82,7 +112,7 @@ export function addManagerToClub(req: Request, res: Response) {
 
 export function removeManagerFromClub(req: Request, res: Response) {
   const { id } = req.params;
-  const reason = req.body.reason || '';
+  const details = req.query.reason || '';
 
   const getClubData = () => {
     return fetchSingleClubById(id, false)
@@ -97,10 +127,11 @@ export function removeManagerFromClub(req: Request, res: Response) {
             },
             $push: {
               Records: {
-                message: `Left ${club.Name} as their new manager.`,
+                type: 'manager-leaving',
+                title: `Left ${club.Name} as their new manager.`,
                 date: new Date(),
                 club: club._id,
-                reason,
+                details,
               },
             },
           },
@@ -120,7 +151,13 @@ export function removeManagerFromClub(req: Request, res: Response) {
     return updateClub(id, {
       $unset: { Manager: 1 },
       $push: {
-        Records: `${m.FirstName} ${m.LastName} [${m.Key}] has left the Club!`,
+        Records: {
+          type: 'manager-leaving',
+          title: `Manager ${m.FirstName} ${m.LastName} left the club`,
+          date: new Date(),
+          manager: m._id,
+          details,
+        },
       },
     });
   };
