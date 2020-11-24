@@ -5,7 +5,7 @@ import DB from '../../db';
  * fetchAll
  */
 export function fetchAll(
-  query: {} = {},
+  query: Record<string, unknown> = {},
   populate: boolean | string = false,
   select: boolean | string = false
 ) {
@@ -44,7 +44,11 @@ export function findByIdAndUpdate(id: string, update: any) {
  *
  * @param data Find one and update
  */
-export function findOneAndUpdate(query: {}, update: any, options: any) {
+export function findOneAndUpdate(
+  query: Record<string, unknown>,
+  update: any,
+  options: any
+) {
   return DB.Models.Season.findOneAndUpdate(query, update, {
     new: true,
     ...options,
@@ -59,7 +63,7 @@ export function findOneAndUpdate(query: {}, update: any, options: any) {
  * @param update
  * @param options
  */
-export function findAndUpdate(query: {}, update: any) {
+export function findAndUpdate(query: Record<string, unknown>, update: any) {
   return DB.Models.Season.updateMany(query, update).lean().exec();
 }
 

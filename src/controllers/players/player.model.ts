@@ -22,7 +22,7 @@ declare interface IPlayer extends Document {
   ClubCode?: string;
 }
 
-export interface PlayerModel extends Model<IPlayer> {}
+export type PlayerModel = Model<IPlayer>;
 
 const PlayerTransferHistorySchema: Schema = new Schema({
   message: String,

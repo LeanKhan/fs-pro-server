@@ -8,7 +8,7 @@ import { calculatePlayerValue } from '../../utils/players';
  * fetch multiple Players based on query
  * default behaviour is to send all players in the db
  */
-export function fetchAll(query: {} = {}) {
+export function fetchAll(query: Record<string, unknown> = {}) {
   return DB.Models.Player.find(query).lean().exec();
 }
 

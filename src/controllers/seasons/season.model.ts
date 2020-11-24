@@ -29,7 +29,7 @@ export interface ClubStandings {
   GD: number;
 }
 
-export interface SeasonModel extends Model<ISeason> {}
+export type SeasonModel = Model<ISeason>;
 
 const PlayerSeasonStats: Schema = new Schema({
   Goals: Number,

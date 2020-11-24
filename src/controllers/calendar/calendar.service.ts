@@ -4,7 +4,7 @@ import { CalendarInterface } from './calendar.model';
 /**
  * fetchAll
  */
-export function fetchAll(query: {} = {}) {
+export function fetchAll(query: unknown = {}) {
   return DB.Models.Calendar.find(query).lean().exec();
 }
 
@@ -22,7 +22,7 @@ export function fetchOneById(id: string) {
   fetch one calendar based on query
 */
 export function fetchOne(
-  query: {},
+  query: unknown,
   populate: boolean | string = false,
   paginate: { skip: number; limit: number } = { skip: 0, limit: 14 }
 ): Promise<CalendarInterface> {
@@ -42,7 +42,7 @@ export function fetchOne(
   return DB.Models.Calendar.findOne(query).lean().exec();
 }
 
-export function findOneAndUpdate(query: {}, update: any) {
+export function findOneAndUpdate(query: unknown, update: any) {
   return DB.Models.Calendar.findOneAndUpdate(query, update, { new: true })
     .lean()
     .exec();
@@ -53,7 +53,7 @@ export function findOneAndUpdate(query: {}, update: any) {
  * can use with aggregation pipeline to conditionally
  * update docs...
  */
-export function findAndUpdate(query: {}, update: any) {
+export function findAndUpdate(query: unknown, update: any) {
   return DB.Models.Calendar.updateMany(query, update, {
     multi: true,
     new: true,

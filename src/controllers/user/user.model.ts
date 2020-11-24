@@ -18,7 +18,7 @@ export declare interface IUser extends Document {
   findSession(session: string, callback: any): void;
 }
 
-export interface UserModel extends Model<IUser> {}
+export type UserModel = Model<IUser>;
 
 export class User {
   private _model: Model<IUser>;

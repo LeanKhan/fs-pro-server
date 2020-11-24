@@ -1,33 +1,38 @@
-import { Match, IMatchEvent } from '../classes/Match';
-// import ClubModel, { IClubModel } from '../models/club.model';
-import Ball, { IBall } from '../classes/Ball';
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+import { Match } from '../classes/Match';
+import Ball from '../classes/Ball';
 import Field, { IBlock } from '../state/ImmutableState/FieldGrid';
-import * as co from '../utils/coordinates';
 import { IFieldPlayer } from '../interfaces/Player';
 import { MatchSide } from '../classes/MatchSide';
-import Referee, { IReferee } from '../classes/Referee';
+import Referee from '../classes/Referee';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { matchEvents, createMatchEvent } from '../utils/events';
 import { fetchClubs } from './clubs/club.service';
 import { ClubInterface as IClub } from '../controllers/clubs/club.model';
+
 // import { EventEmitter } from 'events';
 
 // const gameLoop = 90;
 
-const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
-const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
+export const field = new Field();
+
+import * as co from '../utils/coordinates';
+
+// const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
+// const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
 
 abstract class GameClass {
   public static instances: number;
+  public static FIELD: Field;
 }
 
 // tslint:disable-next-line: max-classes-per-file
 export default class Game implements GameClass {
-  public static instances: number = 0;
-  public static FIELD: Field = new Field();
-  // public static PLAYING_FIELD: IBlock[];
-  public homePost: IBlock;
-  public awayPost: IBlock;
+  public static instances = 0;
+  public static FIELD: Field = field;
+  public homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
+  public awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
   public Referee: Referee;
   public AS?: MatchSide;
   public DS?: MatchSide;
@@ -42,15 +47,15 @@ export default class Game implements GameClass {
   constructor(
     clubs: IClub[],
     sides: { home: string; away: string },
-    hp: IBlock,
-    ap: IBlock,
+    // hp: IBlock,
+    // ap: IBlock,
     ball: Ball,
     ref: Referee,
     centerBlock: any
   ) {
     // Get the club that is meant to be home
     const homeIndex = clubs.findIndex(
-      (club) => club._id!.toString() === sides.home
+      (club) => club._id?.toString() === sides.home
     );
 
     console.log('home club =>', homeIndex);
@@ -63,13 +68,13 @@ export default class Game implements GameClass {
     this.Match = new Match(
       clubs[homeIndex],
       clubs[awayIndex],
-      ap,
-      hp,
+      this.awayPost,
+      this.homePost,
       centerBlock
     );
     this.Clubs = clubs;
-    this.homePost = hp;
-    this.awayPost = ap;
+    // this.homePost = hp;
+    // this.awayPost = ap;
 
     this.MatchBall = ball;
 
@@ -100,13 +105,13 @@ export default class Game implements GameClass {
   public setClubFormations(homeFormation: string, awayFormation: string) {
     this.Match.Home.setFormation(
       homeFormation,
-      this.MatchBall as Ball,
+      this.MatchBall,
       this.PlayingField
     );
 
     this.Match.Away.setFormation(
       awayFormation,
-      this.MatchBall as Ball,
+      this.MatchBall,
       this.PlayingField
     );
   }
@@ -121,7 +126,7 @@ export default class Game implements GameClass {
         return p.WithBall;
       })
     ) {
-      this.AS = this.Match.Home as MatchSide;
+      this.AS = this.Match.Home;
 
       // Set the activePlayer in the attacking team to be the player with
       // the ball
@@ -131,7 +136,7 @@ export default class Game implements GameClass {
 
       // console.log('Actiev player AS =>', this.ActivePlayerAS.LastName);
 
-      this.DS = this.Match.Away as MatchSide;
+      this.DS = this.Match.Away;
 
       // Set the activePlayer in the defending team to be the player closest to
       // the ball
@@ -153,7 +158,7 @@ export default class Game implements GameClass {
         return p.WithBall;
       })
     ) {
-      this.AS = this.Match.Away as MatchSide;
+      this.AS = this.Match.Away;
 
       // Set the activePlayer in the attacking team to be the player with
       // the ball
@@ -163,7 +168,7 @@ export default class Game implements GameClass {
 
       // console.log('Attacking player AS =>', this.ActivePlayerAS.LastName);
 
-      this.DS = this.Match.Home as MatchSide;
+      this.DS = this.Match.Home;
 
       // Set the activePlayer in the defending team to be the player closest to
       // the ball
@@ -233,8 +238,8 @@ export default class Game implements GameClass {
       key: this.ActivePlayerAS!.BlockPosition.key,
     })}
       ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
-      this.ActivePlayerDS!.LastName
-    } of [${this.ActivePlayerDS!.ClubCode}] at ${JSON.stringify({
+      this.ActivePlayerDS?.LastName
+    } of [${this.ActivePlayerDS?.ClubCode}] at ${JSON.stringify({
       x: this.ActivePlayerDS!.BlockPosition.x,
       y: this.ActivePlayerDS!.BlockPosition.y,
       key: this.ActivePlayerDS!.BlockPosition.key,
@@ -260,7 +265,7 @@ export default class Game implements GameClass {
     console.log('------------------ Match Over --------------------');
   }
 
-  private gameLoop(timestart: number = 0, timeend: number = 90) {
+  private gameLoop(timestart = 0, timeend = 90) {
     for (let i = timestart; i < timeend; i++) {
       console.log(`------------Loop Position ${i + 1}---------`);
       this.setPlayingSides();
@@ -307,8 +312,8 @@ export const setupGame = async (
     CurrentGame = new Game(
       teams,
       sides,
-      homePost,
-      awayPost,
+      // homePost,
+      // awayPost,
       ball,
       ref,
       centerBlock
@@ -332,7 +337,7 @@ export const setupGame = async (
 
 // }
 
-export const startGame = async () => {
+export const startGame = () => {
   try {
     CurrentGame.startHalf();
 
@@ -342,7 +347,7 @@ export const startGame = async () => {
   }
 };
 
-export const endGame = async () => {
+export const endGame = () => {
   try {
     CurrentGame = null;
 

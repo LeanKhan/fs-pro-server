@@ -20,7 +20,8 @@ import respond from '../../helpers/responseHandler';
 const router = Router();
 
 /** Get all Seasons */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', (req: Request, res: Response) => {
+  // TODO: review all these your service then, async/awaits. Thank you Jesus!
   fetchAll()
     .then((seasons) => {
       respond.success(res, 200, 'Seasons fetched successfully', seasons);
@@ -74,7 +75,7 @@ router.post(
           res,
           200,
           'Fixtures created in season successfully',
-          season!
+          season
         );
       })
       .catch((err) => {
@@ -90,7 +91,7 @@ router.patch('/:id/start', (req, res) => {
     StartDate: new Date(),
   })
     .then((season) => {
-      respond.success(res, 200, 'Season started successfully', season!);
+      respond.success(res, 200, 'Season started successfully', season);
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error starting Season', err);

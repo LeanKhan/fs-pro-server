@@ -32,7 +32,7 @@ declare interface IManager extends Document {
   isEmployed: boolean;
 }
 
-export interface ManagerModel extends Model<IManager> {}
+export type ManagerModel = Model<IManager>;
 
 export class Manager {
   private _model: Model<IManager>;

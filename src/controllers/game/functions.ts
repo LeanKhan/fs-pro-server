@@ -8,12 +8,11 @@ import {
   IMatchDetails,
   IMatchEvent,
   IMatchSideDetails,
-  Match,
 } from '../../classes/Match';
 import { ClubStandings } from '../seasons/season.model';
 import { findOneAndUpdate as updateSeason } from '../seasons/season.service';
 import { findOneAndUpdate } from '../fixtures/fixture.service';
-import { findOne, findOneAndUpdate as updateDay } from '../days/day.service';
+import { findOneAndUpdate as updateDay } from '../days/day.service';
 import { Types } from 'mongoose';
 import { CalendarMatchInterface } from '../days/day.model';
 
@@ -39,8 +38,8 @@ export function updateFixture(
   const matchDetails = {
     ...MatchDetails,
     MOTM: MatchDetails.MOTM.id,
-    Winner: MatchDetails.Winner ? MatchDetails.Winner!.id : null,
-    Loser: MatchDetails.Loser ? MatchDetails.Loser!.id : null,
+    Winner: MatchDetails.Winner ? MatchDetails.Winner.id : null,
+    Loser: MatchDetails.Loser ? MatchDetails.Loser.id : null,
   };
   const Events = events;
   const HomeSideDetails = MatchDetails.HomeTeamDetails;
@@ -247,4 +246,4 @@ export function updateStandings(
 }
 
 /** update game and calendar */
-export function updateCalendar() {}
+// export function updateCalendar() {} TODO: FINISH THIS!

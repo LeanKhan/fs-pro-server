@@ -44,7 +44,7 @@ declare interface ICalendar extends Document {
   Days: string[];
 }
 
-export interface CalendarModel extends Model<ICalendar> {}
+export type CalendarModel = Model<ICalendar>;
 
 export class Calendar {
   private _model: Model<ICalendar>;

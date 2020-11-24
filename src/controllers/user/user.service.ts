@@ -30,12 +30,16 @@ export function getUserSession(id: string, session: string) {
  * fetch a user by a query
  * @param query
  */
-export function fetchOneUser(query: {}, doc = false, populate = false) {
+export function fetchOneUser(
+  query: Record<string, unknown>,
+  doc = false,
+  populate = false
+) {
   if (doc && !populate) {
     return DB.Models.User.findOne(query).exec();
   }
 
-  if(populate) {
+  if (populate) {
     return DB.Models.User.findOne(query).populate('Clubs').lean().exec();
   }
 

@@ -18,11 +18,7 @@ import { fetchOne } from '../controllers/calendar/calendar.service';
 import { CalendarInterface } from '../controllers/calendar/calendar.model';
 import { incrementCounter } from '../utils/counter';
 
-export async function createSeason(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function createSeason(req: Request, res: Response, next: NextFunction) {
   // tslint:disable-next-line: variable-name
 
   /**
@@ -74,7 +70,7 @@ export async function createSeason(
   findCalendar()
     .then(newSeason)
     .then((season: any) => {
-      incrementCounter('season_counter');
+      void incrementCounter('season_counter');
       req.body.seasonMongoID = season._doc._id;
       return next();
     })
@@ -97,7 +93,7 @@ export async function createSeason(
  */
 
 // TODO: remove this and move to the main function...
-export async function fetchCompetitionClubs(
+export function fetchCompetitionClubs(
   req: Request,
   res: Response,
   next: NextFunction
@@ -121,7 +117,7 @@ interface GenerateFixturesBody {
   competitionId: string;
 }
 
-export async function generateFixtures(
+export function generateFixtures(
   req: Request,
   res: Response,
   next: NextFunction

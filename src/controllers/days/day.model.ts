@@ -34,7 +34,7 @@ const CalendarMatchSchema: Schema = new Schema({
   Week: Number,
 });
 
-export interface DayModel extends Model<IDay> {}
+export type DayModel = Model<IDay>;
 
 export class Day {
   private _model: Model<IDay>;

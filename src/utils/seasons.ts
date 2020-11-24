@@ -187,6 +187,8 @@ export class RoundRobin {
   private rounds: Array<{ home: number; away: number }> = [];
 
   constructor(teamsLength: number) {
+    // TODO: check this out
+    // eslint-disable-next-line prefer-spread
     this.teams = Array.apply(null, Array(teamsLength)).map((_, i) => i);
   }
 

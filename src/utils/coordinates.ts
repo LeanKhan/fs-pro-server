@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
-import Game from '../controllers/game.controller';
+import Game, { field } from '../controllers/game.controller';
 
 /**
  * Returns the tile index of the given coordinates
@@ -10,8 +12,9 @@ import Game from '../controllers/game.controller';
  * @param mapWidth
  */
 
-const PlayingField = Game.FIELD.PlayingField;
-const mapWidth = Game.FIELD.mapWidth;
+//  TODO: this is undefined??? IDK why. Thank you Jesus its solved easily. :)
+const PlayingField = field.PlayingField;
+const mapWidth = field.mapWidth;
 
 // tslint:disable-next-line: no-shadowed-variable
 function XYToIndex(x: number, y: number, mapWidth: number): number {
@@ -66,9 +69,9 @@ function findClosestPlayer(
   ref: ICoordinate,
   players: IFieldPlayer[],
   originPlayer?: IFieldPlayer,
-  closest: boolean = false,
-  position?: string
-) {
+  closest = false,
+  _position?: string
+): IFieldPlayer {
   let plyrs = players;
 
   // plyrs = players.filter(p => {
@@ -111,12 +114,12 @@ function findClosestPlayer(
  * Find the closest player to something, including the current player
  * @param ref
  * @param players
- * @param originPlayer
+ * @param _originPlayer
  */
 function findClosestPlayerInclusive(
   ref: ICoordinate,
   players: IFieldPlayer[],
-  originPlayer?: IFieldPlayer
+  _originPlayer?: IFieldPlayer
 ) {
   let plyrs = players;
 
@@ -250,12 +253,12 @@ export function findClosestPlayerByPosition(
 function findLongPlayer(
   ref: ICoordinate,
   players: IFieldPlayer[],
-  originPlayer?: IFieldPlayer
+  _originPlayer?: IFieldPlayer
 ) {
   let plyrs = players;
 
   // Find players that are 5 blocks or more away
-  plyrs = plyrs.filter((a, b) => {
+  plyrs = plyrs.filter((a, _b) => {
     return calculateDistance(ref, a.BlockPosition) >= 5;
   });
 

@@ -196,7 +196,7 @@ export class Decider {
             passer.Attributes.ShortPass +
             reciever.Attributes.Control / 2 +
             passer.Attributes.Mental / 2 -
-            interceptor!.Attributes.Tackling;
+            interceptor.Attributes.Tackling;
           result = chance > tally;
         } else {
           const tally =
@@ -212,7 +212,7 @@ export class Decider {
         // let chance = Math.round(Math.random() * 100);
         if (interceptor) {
           const tally =
-            passer.Attributes.LongPass > interceptor!.Attributes.Tackling;
+            passer.Attributes.LongPass > interceptor.Attributes.Tackling;
           result = tally && chance <= passer.Attributes.Mental;
         } else {
           const tally =
@@ -462,7 +462,7 @@ export class Decider {
     player: IFieldPlayer,
     attackingSide: MatchSide,
     distance: number,
-    ownPost: boolean = false
+    ownPost = false
   ): boolean {
     if (ownPost) {
       return (

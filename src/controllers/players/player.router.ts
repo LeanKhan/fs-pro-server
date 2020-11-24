@@ -15,7 +15,7 @@ const router = Router();
 /**
  * Fetch all Players
  */
-router.get('/all', async (req, res) => {
+router.get('/all', (req, res) => {
   let options = req.query.options || {};
   // This prevents the app from crashing if there's
   // an error parsing object :)
@@ -90,13 +90,13 @@ router.post('/new', getCurrentCounter, async (req, res) => {
 
   if (!response.error) {
     respond.success(res, 200, 'Player created successfully', response.result);
-    incrementCounter('player_counter');
+    void incrementCounter('player_counter');
   } else {
     respond.fail(res, 400, 'Error creating player', response.result);
   }
 });
 
-router.get('/appearance', async (req, res) => {
+router.get('/appearance', (req, res) => {
   fetchAppearance()
     .then((features) => {
       respond.success(res, 200, 'Fetch Appearance successfully', features);

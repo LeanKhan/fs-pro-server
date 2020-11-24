@@ -112,7 +112,7 @@ const MatchDetailsSchema: Schema = new Schema({
   MOTM: { type: Schema.Types.ObjectId, ref: 'Player' },
 });
 
-export interface FixtureModel extends Model<IFixture> {}
+export type FixtureModel = Model<IFixture>;
 
 export class Fixture {
   private _model: Model<IFixture>;

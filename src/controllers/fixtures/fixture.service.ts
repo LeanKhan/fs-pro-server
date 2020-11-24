@@ -1,12 +1,11 @@
 import DB from '../../db';
 import { incrementCounter } from '../../utils/counter';
 import { Fixture } from './fixture.model';
-import { fixtureInterface } from '@/utils/seasons';
 
 /**
  * fetchAll
  */
-export function fetchAll(query: {} = {}) {
+export function fetchAll(query: Record<string, unknown> = {}) {
   return DB.Models.Fixture.find(query).lean().exec();
 }
 
@@ -18,7 +17,7 @@ export function fetchAll(query: {} = {}) {
  */
 export function fetchOneById(
   id: string,
-  populate: string | object | boolean
+  populate: string | Record<string, unknown> | boolean
 ): Promise<Fixture> {
   if (populate) {
     return DB.Models.Fixture.findById(id).populate(populate).lean().exec();
@@ -40,7 +39,7 @@ export function createNew(data: any) {
 
   return FIXTURE.save()
     .then((fixture) => {
-      incrementCounter('fixture_counter');
+      void incrementCounter('fixture_counter');
       return { error: false, result: fixture };
     })
     .catch((error) => ({ error: true, result: error }));
@@ -54,7 +53,10 @@ export async function deleteById(id: string) {
  *
  * @param data Find one and update
  */
-export function findOneAndUpdate(query: {}, update: any): Promise<Fixture> {
+export function findOneAndUpdate(
+  query: Record<string, unknown>,
+  update: any
+): Promise<Fixture> {
   return DB.Models.Fixture.findOneAndUpdate(query, update, { new: true })
     .lean()
     .exec();

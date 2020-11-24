@@ -15,7 +15,7 @@ export default class Ball implements IBall, BallClass {
   public get created(): Date {
     return this._created;
   }
-  public static instances: number = 0;
+  public static instances = 0;
   public Color: string;
   public Position: IBlock;
   // private Observers: IFieldPlayer[] = [];

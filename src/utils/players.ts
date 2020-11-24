@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as co from './coordinates';

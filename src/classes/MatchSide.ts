@@ -15,9 +15,9 @@ import { sortFromKeeperDown } from '../utils/players';
  */
 
 export class MatchSide extends Club {
-  public AttackingForm: number = 0;
-  public DefensiveForm: number = 0;
-  public GoalsScored: number = 0;
+  public AttackingForm = 0;
+  public DefensiveForm = 0;
+  public GoalsScored = 0;
   public StartingSquad: IFieldPlayer[] = [];
   public Substitutes: IFieldPlayer[] = [];
   public MatchSquad: IPlayer[] = [];
@@ -117,7 +117,7 @@ export class MatchSide extends Club {
     return this.StartingSquad.map((p) => ({ ...p.GameStats, _id: p._id }));
   }
 
-  public setSubstitutes(subs: any[]) {
+  public setSubstitutes(subs: IFieldPlayer[]) {
     this.Substitutes = subs;
   }
 
@@ -145,6 +145,6 @@ export class MatchSide extends Club {
 
     // console.log('player =>', p.PlayerID, formationBlock, p.Position); REVERT
 
-    return { block: fp[formationBlock!.block], index };
+    return { block: fp[formationBlock.block], index };
   }
 }

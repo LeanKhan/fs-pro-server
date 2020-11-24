@@ -1,11 +1,6 @@
-import {
-  IFieldPlayer,
-  IPositions,
-  IGameStats,
-  IPlayer,
-} from '../interfaces/Player';
+import { IFieldPlayer, IPositions, IPlayer } from '../interfaces/Player';
 import Player from './Player';
-import Ball, { IBall } from './Ball';
+import Ball from './Ball';
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { coordinateToBlock } from '../utils/coordinates';
 import { ballMove } from '../utils/events';
@@ -18,8 +13,8 @@ abstract class FieldPlayerClass {
 export default class FieldPlayer
   extends Player
   implements IFieldPlayer, FieldPlayerClass {
-  public static instances: number = 0;
-  public Points: number = 0;
+  public static instances = 0;
+  public Points = 0;
   public Substitute: boolean;
   public BlockPosition: IBlock;
   public StartingPosition: IBlock;

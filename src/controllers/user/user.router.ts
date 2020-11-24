@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 // Login, Signup & Logout
 
 import { Router } from 'express';
@@ -71,7 +73,7 @@ router.post(
           return respond.fail(res, 404, 'Username does not exist');
         } else {
           // User exists... check password
-          result!.comparePassword(Password, (error: any, isMatch: boolean) => {
+          result.comparePassword(Password, (error: any, isMatch: boolean) => {
             if (error) {
               throw error;
             }
@@ -160,26 +162,26 @@ router.delete('/:id/logout', (req, res) => {
         return respond.fail(res, 404, 'Username does not exist');
       } else {
         // User exists... check password
-        user!.findSession(user!.Session, function (
-          err: any,
-          sess: Express.SessionData
-        ) {
-          if (sess) {
-            // If you find the session it means it's an old one so do this...
-            // set a new one, create a new cookie and send session data to client
-            store.destroy(user!.Session, (err: any) => {
-              if (err) {
-                throw new Error('Error in destroying Session');
-              } else {
-                return respond.success(
-                  res,
-                  200,
-                  'Client logged out successfully'
-                );
-              }
-            });
+        user.findSession(
+          user.Session,
+          function (err: any, sess: Express.SessionData) {
+            if (sess) {
+              // If you find the session it means it's an old one so do this...
+              // set a new one, create a new cookie and send session data to client
+              store.destroy(user.Session, (err: any) => {
+                if (err) {
+                  throw new Error('Error in destroying Session');
+                } else {
+                  return respond.success(
+                    res,
+                    200,
+                    'Client logged out successfully'
+                  );
+                }
+              });
+            }
           }
-        });
+        );
       }
     })
     .catch((error: any) => {

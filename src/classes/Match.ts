@@ -13,14 +13,14 @@ abstract class MatchClass {
 }
 // tslint:disable-next-line: max-classes-per-file
 export class Match implements IMatch, MatchClass {
-  public static instances: number = 0;
+  public static instances = 0;
   public Home: MatchSide;
   public Away: MatchSide;
   public CenterBlock: IBlock;
   public Details!: IMatchDetails;
   public Events: IMatchEvent[];
   public Actions: IMatchAction[] = [];
-  private CurrentTime: number = 0;
+  private CurrentTime = 0;
   private Teams: MatchSide[];
 
   /**
@@ -126,15 +126,15 @@ export class Match implements IMatch, MatchClass {
       const actionLength = this.Actions.length > 1 ? this.Actions.length : 2;
 
       if (
-        this.Actions[actionLength - 2].type === 'pass' &&
-        this.Actions[actionLength - 2].playerTeam === data.shooter.ClubCode!
+        this.Actions[actionLength - 2].type === 'goal' &&
+        this.Actions[actionLength - 2].playerTeam === data.shooter.ClubCode
       ) {
         const playerID = this.Actions[actionLength - 2].playerID;
 
         const assister = this.fetchPlayerById(playerID);
 
         assister!.GameStats.Assists++;
-        assister!.increasePoints(GamePoints.Assist);
+        assister?.increasePoints(GamePoints.Assist);
       }
 
       // subtract from keeper's points :3
@@ -458,7 +458,7 @@ export interface IMatch {
   Home: MatchSide;
   Away: MatchSide;
   Details: IMatchDetails;
-  Events: {};
+  Events: IMatchEvent[];
   getCurrentTime: number;
   setCurrentTime(time: number): any;
   report(): void;

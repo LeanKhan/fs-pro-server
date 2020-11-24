@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 import { IFieldPlayer } from '../interfaces/Player';
 import { matchEvents, createMatchEvent } from '../utils/events';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
@@ -36,10 +37,7 @@ export default class Referee {
 
   public assignMatch(match: Match) {
     this.Match = match;
-    this.Teams! = [
-      this.Match!.Home as MatchSide,
-      this.Match!.Away as MatchSide,
-    ];
+    this.Teams = [this.Match.Home, this.Match.Away];
   }
 
   /**
@@ -287,7 +285,8 @@ export default class Referee {
   public handleMatchRestart() {
     // move ball to centerBlock
     this.MatchBall.move(
-      co.calculateDifference(this.Match!.CenterBlock!, this.MatchBall.Position)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      co.calculateDifference(this.Match!.CenterBlock, this.MatchBall.Position)
     );
   }
 }

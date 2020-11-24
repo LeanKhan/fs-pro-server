@@ -1,6 +1,7 @@
+/* eslint-disable no-prototype-builtins */
+/* eslint-disable no-case-declarations */
 import { IFieldPlayer, IPositions } from '../../../interfaces/Player';
 import * as co from '../../../utils/coordinates';
-import * as prob from '../../../utils/probability';
 import * as playerFunc from '../../../utils/players';
 import { MatchSide } from '../../../classes/MatchSide';
 import { IBlock, ICoordinate } from '../../ImmutableState/FieldGrid';
@@ -67,7 +68,7 @@ export class Actions {
       activePlayerDS: this.activePlayerDS,
       defendingSide: this.defendingSide,
     } as IMatchData;
-    return data as IMatchData;
+    return data;
   }
 
   // TODO TAKE ACTION FOR ALL PLAYERS!
@@ -92,9 +93,7 @@ export class Actions {
       defendingSide,
     } as IMatchData);
 
-    let strategy: IStrategy;
-
-    strategy = this.decider.makeDecision(
+    const strategy = this.decider.makeDecision(
       attackingPlayer,
       attackingSide,
       defendingSide
@@ -302,7 +301,7 @@ export class Actions {
     if (playerFunc.findFreeBlock(around) !== undefined) {
       switch (type) {
         case 'towards ball':
-          const ball = ref as IBlock;
+          const ball = ref;
 
           console.log('Action.move : towards ball :)');
 
@@ -333,7 +332,7 @@ export class Actions {
 
           console.log('Moving Forward!');
           // r being where you want to move the player to
-          const r = ref as IBlock;
+          const r = ref;
 
           // asin x: -1 or y: 1
           const p = co.findPath(r, player.BlockPosition);

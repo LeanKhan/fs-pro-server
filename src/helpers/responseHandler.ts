@@ -15,10 +15,10 @@ import { Response } from 'express';
  */
 export function success(
   res: Response,
-  statusCode: number = 200,
+  statusCode = 200,
   message: string,
-  additionalFields: object = {}
-): object {
+  additionalFields: any = {}
+) {
   const payload = Array.isArray(additionalFields)
     ? [...additionalFields]
     : { ...additionalFields };
@@ -44,10 +44,10 @@ export function success(
  */
 export function fail(
   res: Response,
-  statusCode: number = 500,
+  statusCode = 500,
   message: string,
-  additionalFields: object = {}
-): object {
+  additionalFields: any = {}
+) {
   const payload = Array.isArray(additionalFields)
     ? [...additionalFields]
     : { ...additionalFields };
