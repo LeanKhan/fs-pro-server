@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-catch */
 import { Request, Response, NextFunction } from 'express';
 import respond from '../../helpers/responseHandler';
 import {
@@ -9,7 +10,7 @@ import { Types } from 'mongoose';
 import { Fixture } from '../fixtures/fixture.model';
 import { CalendarInterface } from './calendar.model';
 import { DayInterface, CalendarMatchInterface } from '../days/day.model';
-import { monthFromIndex, indexFromMonth } from '../../utils/seasons';
+import { indexFromMonth } from '../../utils/seasons';
 import {
   createNew,
   fetchOne,
@@ -30,7 +31,7 @@ export async function getSeasons(
    */
 
   const { month, year } = req.query;
-  const newYear = month.toUpperCase() + '-' + year;
+  const newYear = `${month.toUpperCase()}-${year}`;
   let competitions = [];
 
   try {
@@ -39,13 +40,13 @@ export async function getSeasons(
         try {
           return Types.ObjectId(c.id);
         } catch (error) {
-          throw new Error('Competition ID is worng! => ' + error);
+          throw new Error(`Competition ID is worng! => ${error}`);
         }
       }
     );
     // console.log(Types.ObjectId.re); // competitions: [{compeition'_id', 'BFC'},'_id']
   } catch (error) {
-    return respond.fail(res, 400, 'Error! => ' + error, { error });
+    return respond.fail(res, 400, `Error! => ${error}`, { error });
   }
 
   // now find the seasons with these parameters [${compCode}-${Month}-${Year}]
@@ -68,7 +69,7 @@ export async function getSeasons(
   }
 }
 
-export async function generateCalendar(
+export function generateCalendar(
   req: Request,
   res: Response,
   next: NextFunction
@@ -104,7 +105,7 @@ export async function generateCalendar(
     return createNew(calendar);
   };
 
-  const createDays = async (calendar: CalendarInterface) => {
+  const createDays = (calendar: CalendarInterface) => {
     req.body.calendarID = calendar._id;
     const competitions = req.body.competitions as [
       { id: string; code: string; division: string; type: string }
@@ -241,7 +242,7 @@ export async function generateCalendar(
     completeDays.map((day, i) => {
       // So that every day will have a number,
       // we can easily query 'get me the matches in day 34'
-      return { ...day, Day: day.Day = i + 1 };
+      return { ...day, Day: (day.Day = i + 1) };
     });
 
     return completeDays;
@@ -268,11 +269,7 @@ export async function generateCalendar(
   // Then do what you need to do with these! :)
 }
 
-export async function saveCalendar(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function saveCalendar(req: Request, res: Response, next: NextFunction) {
   const calendarDays: string[] = req.body.days;
   const calendarID: string = req.body.calendarID;
 
@@ -342,11 +339,7 @@ export async function changeCurrentDay(year: string) {
 
 // Have to delete all Days and create a new fresh Calendar. Test with that. Thank you Jesus!
 
-export async function startYear(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function startYear(req: Request, res: Response, next: NextFunction) {
   // In the future you will do a lot here tho...
   // Like reset Club money and all...
   const { year } = req.params;

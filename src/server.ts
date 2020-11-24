@@ -10,7 +10,7 @@ import cookie from 'cookie';
 import router from './routers';
 import path from 'path';
 
-import { sockets as gameSockets } from './controllers/game/game.controller';
+// import { sockets as gameSockets } from './controllers/game/game.controller';
 
 const app: Application = express();
 
@@ -199,7 +199,7 @@ io.on('connection', (socket: i.Socket) => {
 });
 
 // Game Socket connection
-io.on('connection', gameSockets);
+// io.on('connection', gameSockets);
 
 export { store, io };
 

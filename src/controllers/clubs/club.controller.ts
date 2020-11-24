@@ -9,11 +9,7 @@ import {
 } from './club.service';
 import { managers } from '@/state/PersistentState/OnlineManagers';
 
-export async function updateClubs(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function updateClubs(req: Request, res: Response, next: NextFunction) {
   const { clubs, userID } = req.body;
   updateClubsById(clubs, { User: userID })
     .then((cl) => {

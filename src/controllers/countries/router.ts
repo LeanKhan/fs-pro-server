@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import respond from '../../helpers/responseHandler';
-import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 
 const router = Router();
 

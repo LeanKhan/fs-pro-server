@@ -8,10 +8,9 @@ import {
 } from '../controllers/clubs/club.service';
 import respond from '../helpers/responseHandler';
 
-export const calculateClubRating: RequestHandler = async (
+export const calculateClubRating: RequestHandler = (
   req: Request,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   const _response = calculateClubsTotalRatings(req.params.id);
 

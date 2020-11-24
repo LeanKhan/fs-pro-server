@@ -23,12 +23,12 @@ export function uploader(request: Request, res: Response, next: NextFunction) {
         null,
         path.join(
           __dirname,
-          '../../../assets/img' + JSON.parse(request.query.path)
+          `../../../assets/img${JSON.parse(request.query.path)}`
         )
       );
     },
     filename: (req, file, cb) => {
-      cb(null, request.query.club_code + '.png');
+      cb(null, `${request.query.club_code}.png`);
     },
   });
 

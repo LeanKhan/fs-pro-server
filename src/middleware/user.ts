@@ -42,7 +42,7 @@ export function initializeSession(
  * @param res
  * @param next
  */
-export const checkSession: RequestHandler = async (
+export const checkSession: RequestHandler = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -74,57 +74,57 @@ export function findSession(req: Request, res: Response, next: NextFunction) {
 
   // This is if the cookie was not sent back, if not find the session and create a new one with the same data...
 
-  fetchOneUser({_id: userID}, true, false)
+  fetchOneUser({ _id: userID }, true, false)
     .then((user: IUser) => {
       // here find an accompanying session...
-      user!.findSession(user!.Session, function (
-        err: any,
-        sess: Express.SessionData
-      ) {
-        if (sess) {
-          // If you find the session it means it's an old one so do this...
-          // set a new one, create a new cookie and send session data to client
-          store.set(sessionID, sess, (err: any) => {
-            if (err) {
-              throw new Error('Error in setting Session'+ `${err}`);
-            } else {
-              // store.createSession(req, sess);
+      user.findSession(
+        user.Session,
+        function (err: any, sess: Express.SessionData) {
+          if (sess) {
+            // If you find the session it means it's an old one so do this...
+            // set a new one, create a new cookie and send session data to client
+            store.set(sessionID, sess, (err: any) => {
+              if (err) {
+                throw new Error('Error in setting Session' + `${err}`);
+              } else {
+                // store.createSession(req, sess);
 
-              user!.Session = req.sessionID as string;
+                user.Session = req.sessionID as string;
 
-              // Maybe here delete that old session?...
+                // Maybe here delete that old session?...
 
-              user!.save();
+                void user.save();
 
-              return responseHandler.success(
-                res,
-                200,
-                'Client Authenticated successfully',
-                { userID: user!._id, sessionID: req.sessionID }
-              );
-            }
-          });
-        } else {
-          // User exists but does not have any associated sessions...
-          req.session!.userID = user!._id;
+                return responseHandler.success(
+                  res,
+                  200,
+                  'Client Authenticated successfully',
+                  { userID: user._id, sessionID: req.sessionID }
+                );
+              }
+            });
+          } else {
+            // User exists but does not have any associated sessions...
+            req.session!.userID = user._id;
 
-          req.session!.save((err: any) => {
-            if (err) {
-              throw new Error('Error in saving new user session' + `${err}`);
-            } else {
-              user!.Session = req.sessionID as string;
-              user!.save();
+            req.session!.save((err: any) => {
+              if (err) {
+                throw new Error('Error in saving new user session' + `${err}`);
+              } else {
+                user.Session = req.sessionID as string;
+                void user.save();
 
-              return responseHandler.success(
-                res,
-                200,
-                'Client Authenticated successfully',
-                { userID: user!._id, sessionID: req.sessionID }
-              );
-            }
-          });
+                return responseHandler.success(
+                  res,
+                  200,
+                  'Client Authenticated successfully',
+                  { userID: user._id, sessionID: req.sessionID }
+                );
+              }
+            });
+          }
         }
-      });
+      );
     })
     .catch((err) => {
       console.log('eero in entering => ', err);

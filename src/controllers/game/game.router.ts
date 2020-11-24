@@ -1,17 +1,13 @@
 import { Router } from 'express';
-import App from '../app';
+// import App from '../app';
 import respond from '../../helpers/responseHandler';
-import {
-  initiateGame,
-  restPlayGame,
-  restUpdateStandings,
-} from './game.controller';
+import { restPlayGame, restUpdateStandings } from './game.controller';
 
 const router = Router();
 
-const _App = new App();
+// const _App = new App();
 
-router.post('/play', async (req, res) => {
+router.post('/play', (req, res) => {
   //   const response = fetchOneById(req.params.id);
   const clubs = req.body.clubs || ['RP', 'IB'];
 
@@ -19,7 +15,7 @@ router.post('/play', async (req, res) => {
 
   console.log('clubs => ', clubs);
 
-  const game = await _App.setupGame(clubs, sides);
+  // const game = await _App.setupGame(clubs, sides);
 
   // game.getMatch().Events.forEach((event) => {
   //   setTimeout(() => {
@@ -33,7 +29,7 @@ router.post('/play', async (req, res) => {
   //   away: game.getMatch().Away.ClubCode,
   // });
 
-  respond.success(res, 200, 'Match played', game.Referee);
+  respond.success(res, 200, 'Match played');
 });
 
 router.get('/kickoff', restPlayGame, restUpdateStandings);
@@ -70,7 +66,5 @@ router.get('/kickoff', restPlayGame, restUpdateStandings);
 //   .catch(err => {
 //     console.log('err =>',err);
 //   });
-
-router.post('/new-game', initiateGame);
 
 export default router;

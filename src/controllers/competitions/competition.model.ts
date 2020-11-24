@@ -1,6 +1,6 @@
 // tslint:disable: variable-name
 import { Schema, model, Document, Model } from 'mongoose';
-import { Club, ClubInterface } from '../clubs/club.model';
+import { ClubInterface } from '../clubs/club.model';
 
 export interface CompetitionInterface {
   _id?: string;
@@ -31,7 +31,7 @@ declare interface ICompetition extends Document {
   Seasons: [];
 }
 
-export interface CompetitionModel extends Model<ICompetition> {}
+export type CompetitionModel = Model<ICompetition>;
 
 export class Competition {
   private _model: Model<ICompetition>;

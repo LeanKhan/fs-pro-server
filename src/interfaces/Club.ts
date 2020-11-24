@@ -9,11 +9,11 @@ export interface IClub {
   /** Players */
   Players: IPlayer[];
   Rating: number;
-  Address: {};
+  Address: Record<string, unknown>;
   ClubCode: string;
   Manager: string;
-  Stadium: {};
-  Stats: {};
+  Stadium: Record<string, unknown>;
+  Stats: Record<string, unknown>;
   League?: string;
   LeagueCode?: string;
 }

@@ -7,11 +7,7 @@ import {
 import { updateClub } from '../clubs/club.service';
 import { CompetitionInterface } from './competition.model';
 
-export async function addClubToCompetition(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function addClubToCompetition(req: Request, res: Response) {
   const { id } = req.params;
   const { club } = req.body;
 

@@ -15,10 +15,10 @@ declare interface IClub extends Document {
     Stadium: string;
   };
   Rating: number;
-  Address: {};
+  Address: Record<string, unknown>;
   Manager: string;
-  Stadium: {};
-  Stats: {};
+  Stadium: Record<string, unknown>;
+  Stats: Record<string, unknown>;
   LeagueCode: string;
   League: string;
 }
@@ -63,10 +63,10 @@ export interface ClubInterface {
   };
   User?: string | IUser;
   Budget?: number;
-  Transactions?: {};
+  Transactions?: unknown; // TODO: fix, use an actual type :)
 }
 
-export interface ClubModel extends Model<IClub> {}
+export type ClubModel = Model<IClub>;
 
 export class Club {
   private _model: Model<IClub>;

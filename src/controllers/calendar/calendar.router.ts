@@ -57,7 +57,7 @@ router.get('/calendars', (req, res) => {
 });
 
 /** Get days of a Calendar by Year */
-router.get('/:year/days', async (req: Request, res: Response) => {
+router.get('/:year/days', (req: Request, res: Response) => {
   const { year } = req.params;
   const { paginate = false, populate = false, week, limit } = req.query;
 

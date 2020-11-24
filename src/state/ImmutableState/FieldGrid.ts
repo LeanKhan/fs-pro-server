@@ -7,11 +7,11 @@ export default class Field {
 
   /**
    * Create a new Playing Field
-   * 
+   *
    * @param xBlocks default is 15
    * @param yBlocks default is 11
    */
-  constructor(xBlocks: number = 15, yBlocks: number = 11) {
+  constructor(xBlocks = 15, yBlocks = 11) {
     this.PlayingField = this.createGrid(xBlocks, yBlocks);
     this.mapWidth = xBlocks;
     this.mapHeight = yBlocks;

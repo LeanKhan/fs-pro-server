@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 // tslint:disable: variable-name
 import { connect, connection, Connection, set } from 'mongoose';
 import {

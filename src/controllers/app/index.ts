@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import Ball from '../../classes/Ball';
 import Referee from '../../classes/Referee';
 import { IBlock } from '../../state/ImmutableState/FieldGrid';
@@ -6,8 +7,8 @@ import { matchEvents } from '../../utils/events';
 import { fetchClubs } from '../clubs/club.service';
 import Game from '../game.controller';
 
-const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
-const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
+// const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
+// const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
 
 export default class App {
   public Game: Game | undefined;
@@ -30,8 +31,8 @@ export default class App {
       this.Game = new Game(
         teams,
         sides,
-        homePost,
-        awayPost,
+        // homePost,
+        // awayPost,
         ball,
         ref,
         centerBlock

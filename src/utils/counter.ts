@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import respond from '../helpers/responseHandler';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import mongoose from 'mongoose';

@@ -140,7 +140,7 @@ router.post('/', getCurrentCounter, async (req, res) => {
   const response = await create(req.body.data);
 
   if (!response.error) {
-    incrementCounter('manager_counter');
+    void incrementCounter('manager_counter');
     respond.success(res, 200, 'Manger created successfully', response.result);
   } else {
     respond.fail(res, 400, 'Error creating Manager', response.result);

@@ -26,7 +26,7 @@ export interface FormationItem {
 //   ],
 // };
 
-export let formations: FormationsList = {
+export const formations: FormationsList = {
   'AWAY-433': [
     { positions: ['GK'], block: 89 },
     { positions: ['DEF'], block: 28 },

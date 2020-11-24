@@ -18,7 +18,7 @@ import { addManagerToClub, removeManagerFromClub } from './club.controller';
 const router = Router();
 
 /** Fetch all Clubs */
-router.get('/all', async (req, res) => {
+router.get('/all', (req, res) => {
   const response = fetchAllClubs();
 
   response
@@ -31,7 +31,7 @@ router.get('/all', async (req, res) => {
 });
 
 /** Fetch Club by query */
-router.get('/fetch', async (req, res) => {
+router.get('/fetch', (req, res) => {
   // fetch clubs with query and all
   let query;
   let select;
@@ -97,20 +97,18 @@ router.delete('/:id', (req, res) => {
 });
 
 /** Fetch Club by id */
-router.get('/:id', async (req, res) => {
-
+router.get('/:id', (req, res) => {
   try {
-  fetchSingleClubById(req.params.id, req.query.populate)
-  .then((club) => {
-      respond.success(res, 200, 'Club fetched successfully', club);
-    })
-    .catch((err) => {
-      respond.fail(res, 400, 'Error fetching Club', err);
-    });
+    fetchSingleClubById(req.params.id, req.query.populate)
+      .then((club) => {
+        respond.success(res, 200, 'Club fetched successfully', club);
+      })
+      .catch((err) => {
+        respond.fail(res, 400, 'Error fetching Club', err);
+      });
   } catch (err) {
-      respond.fail(res, 400, 'Error fetching Club', err);
+    respond.fail(res, 400, 'Error fetching Club', err);
   }
-    
 });
 
 /** Add Player to Club */

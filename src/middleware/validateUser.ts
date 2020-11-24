@@ -10,7 +10,7 @@ import { IUser } from '../controllers/user/user.model';
  * @param res
  * @param next
  */
-export const checkUserExists = async (
+export const checkUserExists = (
   req: Request,
   res: Response,
   next: NextFunction
@@ -25,7 +25,7 @@ export const checkUserExists = async (
         return respond.fail(res, 404, 'Username does not exist');
       } else {
         // User exists... check password
-        result!.comparePassword(Password, (error: any, isMatch: boolean) => {
+        result.comparePassword(Password, (error: any, isMatch: boolean) => {
           if (error) {
             throw error;
           }
@@ -46,7 +46,7 @@ export const checkUserExists = async (
  * @param req
  * @param res
  */
-export const checkPassword = async (
+export const checkPassword = (
   req: Request,
   res: Response,
   next: NextFunction

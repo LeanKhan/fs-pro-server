@@ -8,7 +8,9 @@ import { ManagerInterface } from './manager.model';
  * fetch multiple Players based on query
  * default behaviour is to send all players in the db
  */
-export function fetchAll(query: {} = {}): Promise<ManagerInterface[]> {
+export function fetchAll(
+  query: Record<string, unknown> = {}
+): Promise<ManagerInterface[]> {
   return DB.Models.Manager.find(query).lean().exec();
 }
 
@@ -18,8 +20,11 @@ export function fetchAll(query: {} = {}): Promise<ManagerInterface[]> {
  * Fetch a specific Manager by id
  * @param id
  */
-export function fetchOneById(id: string, populate: boolean = false): Promise<ManagerInterface> {
-  if(populate) {
+export function fetchOneById(
+  id: string,
+  populate = false
+): Promise<ManagerInterface> {
+  if (populate) {
     return DB.Models.Manager.findById(id).populate('Club').lean().exec();
   }
   return DB.Models.Manager.findById(id).lean().exec();

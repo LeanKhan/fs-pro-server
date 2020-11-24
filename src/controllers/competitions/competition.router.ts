@@ -14,7 +14,7 @@ import { addClubToCompetition } from './competition.controller';
 const router = Router();
 
 /** Get all Competitions */
-router.get('/all', async (req: Request, res: Response) => {
+router.get('/all', (req: Request, res: Response) => {
   const response = fetchAll();
 
   response
@@ -32,7 +32,7 @@ router.get('/all', async (req: Request, res: Response) => {
 });
 
 /** Get Competition by id */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', (req: Request, res: Response) => {
   const response = fetchOneById(req.params.id);
 
   response
@@ -50,7 +50,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 });
 
 /** Get all the seasons */
-router.get('/:id/seasons/all', async (req: Request, res: Response) => {
+router.get('/:id/seasons/all', (req: Request, res: Response) => {
   const response = fetchAllSeasons({ Competition: req.params.id });
 
   response
@@ -68,7 +68,7 @@ router.get('/:id/seasons/all', async (req: Request, res: Response) => {
 });
 
 /** Update Competition by id */
-router.post('/:id/update', async (req: Request, res: Response) => {
+router.post('/:id/update', (req: Request, res: Response) => {
   const response = update(req.params.id, req.body.data);
 
   response
@@ -109,7 +109,7 @@ router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
       'Competition created successfully',
       response.result
     );
-    incrementCounter('competition_counter');
+    void incrementCounter('competition_counter');
   } else {
     respond.fail(res, 400, 'Error creating competition', response.result);
   }

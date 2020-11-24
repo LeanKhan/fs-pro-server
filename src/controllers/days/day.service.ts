@@ -3,7 +3,7 @@ import { DayInterface } from './day.model';
 /**
  * fetchAll Days
  */
-export function fetchAll(query: {} = {}) {
+export function fetchAll(query: Record<string, unknown> = {}) {
   return DB.Models.Day.find(query).lean().exec();
 }
 
@@ -12,7 +12,7 @@ export function fetchAll(query: {} = {}) {
  * @param query
  */
 export function fetchMany(
-  query: {} = {},
+  query: Record<string, unknown> = {},
   populate = true,
   paginate = true,
   week = 1,
@@ -58,7 +58,7 @@ export function fetchMany(
  */
 export function fetchOneById(
   id: string,
-  populate: string | object | boolean
+  populate: string | Record<string, unknown> | boolean
 ): Promise<DayInterface> {
   if (populate) {
     return DB.Models.Day.findById(id).populate(populate).lean().exec();
@@ -75,7 +75,7 @@ export function fetchOneById(
  */
 export function findOne(
   query: any,
-  populate: string | object | boolean
+  populate: string | Record<string, unknown> | boolean
 ): Promise<DayInterface> {
   if (populate) {
     return DB.Models.Day.findOne(query).populate(populate).lean().exec();
@@ -113,7 +113,7 @@ export async function deleteById(id: string) {
  * @param update
  */
 export function findOneAndUpdate(
-  query: {},
+  query: Record<string, unknown>,
   update: any
 ): Promise<DayInterface> {
   return DB.Models.Day.findOneAndUpdate(query, update, { new: true })
