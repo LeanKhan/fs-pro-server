@@ -10,8 +10,6 @@ import cookie from 'cookie';
 import router from './routers';
 import path from 'path';
 
-// import { sockets as gameSockets } from './controllers/game/game.controller';
-
 const app: Application = express();
 
 import { Server } from 'http';
@@ -25,8 +23,9 @@ const port = process.env.PORT || 3000;
 import i = require('socket.io');
 
 import * as dotenv from 'dotenv';
+import App from './controllers/app';
+
 dotenv.config();
-// const env = process.env.NODE_ENV as string;
 
 const io = i(http);
 
@@ -104,6 +103,12 @@ app.use((req, res, next) => {
   req.io = io;
   next();
 });
+
+//  ==== THE GAME CLASS GAN GAN! EVERYTHING ABOUT THE GAME STARTS HERE! THnak you Jesus! == //
+//  ==== THE GAME CLASS GAN GAN! EVERYTHING ABOUT THE GAME STARTS HERE! THnak you Jesus! == //
+App.create();
+//  ==== THE GAME CLASS GAN GAN! EVERYTHING ABOUT THE GAME STARTS HERE! THnak you Jesus! == //
+//  ==== THE GAME CLASS GAN GAN! EVERYTHING ABOUT THE GAME STARTS HERE! THnak you Jesus! == //
 
 http.listen(port, () => {
   console.log('Game Server running successfully! on port ' + port);
@@ -198,10 +203,4 @@ io.on('connection', (socket: i.Socket) => {
   });
 });
 
-// Game Socket connection
-// io.on('connection', gameSockets);
-
 export { store, io };
-
-// tslint:disable-next-line: no-var-requires
-// require('./controllers/game.controller');

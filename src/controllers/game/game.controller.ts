@@ -1,48 +1,15 @@
 // Sockets...
 
-import { Socket } from 'socket.io';
 import { Request, Response, NextFunction } from 'express';
 import { fetchOneById } from '../fixtures/fixture.service';
 import { Fixture } from '../fixtures/fixture.model';
-import Game, {
-  setupGame,
-  startGame,
-  endGame as finishGame,
-} from '../game.controller';
-import { ClubInterface } from '../clubs/club.model';
-import { IPlayerStats } from '../../interfaces/Player';
 import { updateFixture, updateStandings } from './functions';
 import { changeCurrentDay } from '../calendar/calendar.controller';
 import responseHandler from '../../helpers/responseHandler';
 import { Match } from '../../classes/Match';
 import Ball from '../../classes/Ball';
 import FieldPlayer from '../../classes/FieldPlayer';
-const users = [];
-
-interface GameUser {
-  id: string;
-  session?: string;
-  connected: boolean;
-  ready: boolean;
-}
-
-const currentMatch: {
-  users: GameUser[];
-  fixture: string;
-  fixtureCode: string;
-  sameUser: boolean;
-  status: 'waiting' | 'not-initiated' | 'started' | 'closed';
-} = {
-  users: [],
-  fixture: '',
-  fixtureCode: '',
-  sameUser: false,
-  status: 'not-initiated',
-};
-
-let currentFixture!: Fixture | undefined;
-
-let currentGame: Game | undefined;
+import App from '../app';
 
 export async function restPlayGame(
   req: Request,
@@ -93,71 +60,77 @@ export async function restPlayGame(
   home = home.toString();
   away = away.toString();
 
-  currentGame = (await setupGame([home, away], {
-    home,
-    away,
-  })) as Game;
-
-  // eslint-disable-next-line @typescript-eslint/await-thenable
-  await startGame();
-
-  const homeObj = {
-    id: currentGame.getMatch().Home._id,
-    name: currentGame.getMatch().Home.Name,
-    clubCode: currentGame.getMatch().Home.ClubCode,
-    manager: currentGame.getMatch().Home.Manager,
-  };
-
-  const awayObj = {
-    id: currentGame.getMatch().Away._id,
-    name: currentGame.getMatch().Away.Name,
-    clubCode: currentGame.getMatch().Away.ClubCode,
-    manager: currentGame.getMatch().Away.Manager,
-  };
-
-  console.log('The Match instances', Match.instances);
-  console.log('The Ball instances', Ball.instances);
-  console.log('The FieldPlayer instances', FieldPlayer.instances);
-  console.log('The Game instances', Game.instances);
-
-  // After the match is done send the result to...
-
   try {
-    const result = await updateFixture(
-      currentGame.getMatch().Details,
-      currentGame.getMatch().Events,
-      homeObj,
-      awayObj,
-      fixture_id
-    );
-
-    if (!result) {
-      return responseHandler.fail(
-        res,
-        400,
-        'Error updating fixtures! - Match cannot be found!',
-        {
-          matchErrorResponseCode: 3,
-        }
-      );
-    }
-
-    req.body.home = homeObj;
-    req.body.away = awayObj;
-    req.body.match = result;
-    req.body.season_id = fixture.Season;
-
-    // delete currentGame;
-
-    return next();
+    await App._app.setupGame([home, away], {
+      home,
+      away,
+    });
   } catch (error) {
-    console.log('Error updating fixture...', error);
-
-    return responseHandler.fail(res, 400, 'Error updating fixtures!', {
+    console.log('Error setting up game! (in Rest) =>', error);
+    return responseHandler.fail(res, 400, 'Error starting Game!', {
       ...error,
-      matchErrorResponseCode: 2,
+      matchErrorResponseCode: 4,
     });
   }
+
+  console.log('Here in startGame!');
+  App._app
+    .startGame()
+    ?.then(async (m) => {
+      const homeObj = {
+        id: m.Home._id,
+        name: m.Home.Name,
+        clubCode: m.Home.ClubCode,
+        manager: m.Home.Manager,
+      };
+
+      const awayObj = {
+        id: m.Away._id,
+        name: m.Away.Name,
+        clubCode: m.Away.ClubCode,
+        manager: m.Away.Manager,
+      };
+
+      const result = await updateFixture(
+        m.Details,
+        m.Events,
+        homeObj,
+        awayObj,
+        fixture_id
+      );
+
+      if (!result) {
+        return responseHandler.fail(
+          res,
+          400,
+          'Error updating fixtures! - Match cannot be found!',
+          {
+            matchErrorResponseCode: 3,
+          }
+        );
+      }
+
+      req.body.home = homeObj;
+      req.body.away = awayObj;
+      req.body.match = result;
+      req.body.season_id = fixture.Season;
+
+      console.log('The Match instances', Match.instances);
+      console.log('The Ball instances', Ball.instances);
+      console.log('The FieldPlayer instances', FieldPlayer.instances);
+
+      return next();
+    })
+    .catch((err) => {
+      console.log('ERROR PLAYING MATCH!');
+
+      console.log('Error updating fixture...', err);
+
+      return responseHandler.fail(res, 400, 'Error playing match!', {
+        ...err,
+        matchErrorResponseCode: 2,
+      });
+    });
 }
 
 export function restUpdateStandings(
@@ -236,11 +209,9 @@ export function restUpdateStandings(
     )
     .finally(() => {
       // Delete CurrentMatch Instance...
-      console.log('deleted currentGame');
-      currentGame = undefined;
-      currentFixture = undefined;
-      finishGame();
-      console.log('CurrentGame after undefined =>', currentGame);
+
+      App._app.endGame();
+      console.log('GAME ENDED from App');
     });
   // Here we should check if we need to update anything else...
 }

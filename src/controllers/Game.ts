@@ -8,16 +8,12 @@ import { MatchSide } from '../classes/MatchSide';
 import Referee from '../classes/Referee';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { matchEvents, createMatchEvent } from '../utils/events';
-import { fetchClubs } from './clubs/club.service';
-import { ClubInterface as IClub } from '../controllers/clubs/club.model';
+import { ClubInterface as IClub } from './clubs/club.model';
+import CO from '../utils/coordinates';
 
 // import { EventEmitter } from 'events';
 
 // const gameLoop = 90;
-
-export const field = new Field();
-
-import * as co from '../utils/coordinates';
 
 // const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
 // const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
@@ -30,9 +26,11 @@ abstract class GameClass {
 // tslint:disable-next-line: max-classes-per-file
 export default class Game implements GameClass {
   public static instances = 0;
-  public static FIELD: Field = field;
-  public homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
-  public awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
+  // TODO: this will change... maybe create it in the constructor
+  public static FIELD: Field = new Field();
+  // TODO: pass this in the constructor
+  public homePost: IBlock = CO.co.coordinateToBlock({ x: 0, y: 5 });
+  public awayPost: IBlock = CO.co.coordinateToBlock({ x: 14, y: 5 });
   public Referee: Referee;
   public AS?: MatchSide;
   public DS?: MatchSide;
@@ -140,7 +138,7 @@ export default class Game implements GameClass {
 
       // Set the activePlayer in the defending team to be the player closest to
       // the ball
-      this.ActivePlayerDS = co.findClosestFieldPlayer(
+      this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
@@ -172,7 +170,7 @@ export default class Game implements GameClass {
 
       // Set the activePlayer in the defending team to be the player closest to
       // the ball
-      this.ActivePlayerDS = co.findClosestFieldPlayer(
+      this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
@@ -196,7 +194,7 @@ export default class Game implements GameClass {
   }
 
   public moveTowardsBall() {
-    this.ActivePlayerAS = co.findClosestFieldPlayer(
+    this.ActivePlayerAS = CO.co.findClosestFieldPlayer(
       this.MatchBall.Position,
       this.Match.Home.StartingSquad
     );
@@ -207,7 +205,7 @@ export default class Game implements GameClass {
       this.MatchBall.Position
     );
 
-    this.ActivePlayerDS = co.findClosestFieldPlayer(
+    this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
       this.MatchBall.Position,
       this.Match.Away.StartingSquad
     );
@@ -250,139 +248,50 @@ export default class Game implements GameClass {
   public startHalf() {
     createMatchEvent('Match Kick-Off', 'match');
     console.log('Half is starting!');
-    this.gamePlay();
+    return this.gamePlay();
   }
 
-  private gamePlay() {
-    this.gameLoop();
+  private async gamePlay() {
+    await this.gameLoop();
     matchEvents.emit('half-end');
     createMatchEvent('First Half Over', 'match');
     matchEvents.emit('reset-formations');
     console.log('------------------ Second Half Start ------------------');
-    this.gameLoop(90, 180);
+    await this.gameLoop(90, 180);
     matchEvents.emit('half-end');
     createMatchEvent('Match Over', 'match');
     console.log('------------------ Match Over --------------------');
+    return this.getMatch();
   }
 
   private gameLoop(timestart = 0, timeend = 90) {
-    for (let i = timestart; i < timeend; i++) {
-      console.log(`------------Loop Position ${i + 1}---------`);
-      this.setPlayingSides();
-
-      this.Match.setCurrentTime(Math.round((i + 1) / 2));
-
-      if (this.AS === undefined || this.DS === undefined) {
-        console.log('Mvng Towards ball');
-        this.moveTowardsBall();
-      } else {
-        console.log('-- TAKING ACTION --');
-        this.MatchActions.takeAction(
-          this.ActivePlayerAS as IFieldPlayer,
-          this.AS,
-          this.DS,
-          this.ActivePlayerDS as IFieldPlayer
-        );
+    // TODO: work on this, use it more and betterly
+    return new Promise((resolve, reject) => {
+      for (let i = timestart; i < timeend; i++) {
+        console.log(`------------Loop Position ${i + 1}---------`);
         this.setPlayingSides();
-        this.Match.recordPossession(this.AS);
+
+        // TODO: do error handling here, so throw any error that may arise from here.
+        // thank you Jesus!
+
+        this.Match.setCurrentTime(Math.round((i + 1) / 2));
+
+        if (this.AS === undefined || this.DS === undefined) {
+          console.log('Mvng Towards ball');
+          this.moveTowardsBall();
+        } else {
+          console.log('-- TAKING ACTION --');
+          this.MatchActions.takeAction(
+            this.ActivePlayerAS as IFieldPlayer,
+            this.AS,
+            this.DS,
+            this.ActivePlayerDS as IFieldPlayer
+          );
+          this.setPlayingSides();
+          this.Match.recordPossession(this.AS);
+        }
       }
-
-      // this.matchComments();
-    }
+      return resolve(true);
+    });
   }
 }
-
-let CurrentGame: any;
-
-export const setupGame = async (
-  clubs: string[],
-  sides: { home: string; away: string }
-) => {
-  try {
-    const teams = await fetchClubs({ _id: { $in: clubs } });
-
-    console.log('Teams => ', teams[0]._id);
-
-    const centerBlock = Game.FIELD.PlayingField[82];
-
-    const ball = new Ball('#ffffff', centerBlock);
-
-    const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
-
-    CurrentGame = new Game(
-      teams,
-      sides,
-      // homePost,
-      // awayPost,
-      ball,
-      ref,
-      centerBlock
-    );
-
-    CurrentGame.refAssignMatch();
-
-    CurrentGame.setClubPlayers();
-
-    CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
-
-    return CurrentGame;
-  } catch (err) {
-    console.log('Error setting up game! => ', err);
-    throw new Error(err);
-  }
-};
-
-// export class App {
-//   public game: Game;
-
-// }
-
-export const startGame = () => {
-  try {
-    CurrentGame.startHalf();
-
-    // After here, the game should start!
-  } catch (error) {
-    console.log('Error starting game!', error);
-  }
-};
-
-export const endGame = () => {
-  try {
-    CurrentGame = null;
-
-    // After here, the game should start!
-  } catch (error) {
-    console.log('Error ending game!', error);
-  }
-};
-
-// Getting clubs
-// getClubs();
-
-function listenForMatchEvents() {
-  matchEvents.on('set-playing-sides', () => {
-    const playingSides = CurrentGame.setPlayingSides();
-
-    matchEvents.emit('setting-playing-sides', playingSides);
-  });
-}
-
-// function attackingAction() {
-//   MatchActions.takeAction(activePlayerAS, AS, DS, activePlayerDS);
-// }
-
-// function defendingAction() {
-//   // After every attempt by the AttackingSide the defensive side should move towards the ball
-//   MatchActions.move(activePlayerDS, 'towards ball', MatchBall.Position);
-
-//   pushForward(AS);
-// }
-
-listenForMatchEvents();
-
-/**
- * TODO:
- *
- * Remove any mention of 'Players' and replace with 'Squad' after testing! - LeanKhan
- */

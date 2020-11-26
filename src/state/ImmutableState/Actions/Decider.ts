@@ -1,6 +1,6 @@
 import { IFieldPlayer } from '../../../interfaces/Player';
 import { MatchSide } from '../../../classes/MatchSide';
-import * as co from '../../../utils/coordinates';
+import CO from '../../../utils/coordinates';
 
 // Thank you Jesus!
 
@@ -326,8 +326,10 @@ export class Decider {
     distance: number
   ) {
     return (
-      co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <=
-        distance && this.gimmeAChance() <= threshold
+      CO.co.calculateDistance(
+        player.BlockPosition,
+        attackingSide.ScoringSide
+      ) <= distance && this.gimmeAChance() <= threshold
     );
   }
 
@@ -386,7 +388,7 @@ export class Decider {
     let strategy: IStrategy = { type: 'move', detail: 'normal' };
 
     if (
-      co.atExtremeBlock(player.BlockPosition) &&
+      CO.co.atExtremeBlock(player.BlockPosition) &&
       player.Attributes.LongPass > 30 &&
       player.Position !== 'ATT'
     ) {
@@ -428,7 +430,7 @@ export class Decider {
     distance: number,
     teammatePosition: boolean
   ): boolean {
-    const teammate = co.findClosestPlayer(
+    const teammate = CO.co.findClosestPlayer(
       player.BlockPosition,
       attackingSide.StartingSquad,
       player,
@@ -436,7 +438,7 @@ export class Decider {
     );
 
     const teammateIsClose =
-      co.calculateDistance(player.BlockPosition, teammate.BlockPosition) <=
+      CO.co.calculateDistance(player.BlockPosition, teammate.BlockPosition) <=
       distance;
 
     if (teammatePosition) {
@@ -466,13 +468,17 @@ export class Decider {
   ): boolean {
     if (ownPost) {
       return (
-        co.calculateDistance(player.BlockPosition, attackingSide.KeepingSide) <=
-        distance
+        CO.co.calculateDistance(
+          player.BlockPosition,
+          attackingSide.KeepingSide
+        ) <= distance
       );
     } else {
       return (
-        co.calculateDistance(player.BlockPosition, attackingSide.ScoringSide) <=
-        distance
+        CO.co.calculateDistance(
+          player.BlockPosition,
+          attackingSide.ScoringSide
+        ) <= distance
       );
     }
   }
@@ -490,7 +496,7 @@ export class Decider {
     attackingSide: MatchSide
   ): boolean {
     return (
-      co.findClosestPlayerInclusive(
+      CO.co.findClosestPlayerInclusive(
         attackingSide.ScoringSide,
         attackingSide.StartingSquad
       ) === player
@@ -512,7 +518,7 @@ export class Decider {
   ): IStrategy {
     let strategy: IStrategy = { type: 'pass', detail: 'short' };
 
-    if (co.atExtremeBlock(player.BlockPosition)) {
+    if (CO.co.atExtremeBlock(player.BlockPosition)) {
       if (this.passability(player, attackingSide, 4, true)) {
         return { type: 'pass', detail: 'short' };
       } else {

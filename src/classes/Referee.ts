@@ -4,7 +4,7 @@ import { matchEvents, createMatchEvent } from '../utils/events';
 import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import * as playerFunc from '../utils/players';
-import * as co from '../utils/coordinates';
+import CO from '../utils/coordinates';
 import { Match, IMatchData } from './Match';
 import { MatchSide } from './MatchSide';
 import { IBall } from './Ball';
@@ -114,7 +114,7 @@ export default class Referee {
     );
 
     //  Get distance from ScoringSide
-    const distance = co.calculateDistance(this.Teams![i].ScoringSide, where);
+    const distance = CO.co.calculateDistance(this.Teams![i].ScoringSide, where);
     if (distance < 2) {
       console.log('<== Penalty Kick ==>');
 
@@ -128,13 +128,13 @@ export default class Referee {
       // Move tackled
       const b1 = playerFunc.findRandomFreeBlock(foulData.object);
 
-      const p1 = co.findPath(b1, foulData.object.BlockPosition);
+      const p1 = CO.co.findPath(b1, foulData.object.BlockPosition);
       foulData.object.move(p1);
 
       // Move tackler
       const b2 = playerFunc.findRandomFreeBlock(foulData.subject);
 
-      const p2 = co.findPath(b2, foulData.subject.BlockPosition);
+      const p2 = CO.co.findPath(b2, foulData.subject.BlockPosition);
       foulData.object.move(p2);
 
       // Give him the ball :)
@@ -147,7 +147,7 @@ export default class Referee {
       );
       const taker = playerFunc.getRandomATTMID(this.Teams![teamIndex]);
 
-      const takerPath = co.calculateDifference(
+      const takerPath = CO.co.calculateDifference(
         foulData.where,
         taker.BlockPosition
       );
@@ -157,7 +157,7 @@ export default class Referee {
       // Move ball to freekick taker's position
 
       taker.Ball.move(
-        co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
+        CO.co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
       );
 
       console.log(
@@ -168,13 +168,13 @@ export default class Referee {
       // Move tackled
       const b1 = playerFunc.findRandomFreeBlock(foulData.object);
 
-      const p1 = co.findPath(b1, foulData.object.BlockPosition);
+      const p1 = CO.co.findPath(b1, foulData.object.BlockPosition);
       foulData.object.move(p1);
 
       // Move tackler
       const b2 = playerFunc.findRandomFreeBlock(foulData.subject);
 
-      const p2 = co.findPath(b2, foulData.subject.BlockPosition);
+      const p2 = CO.co.findPath(b2, foulData.subject.BlockPosition);
       foulData.subject.move(p2);
     } else {
       console.log('<== Pass Free Kick ==>');
@@ -186,7 +186,7 @@ export default class Referee {
       );
       const taker = playerFunc.getRandomATTMID(this.Teams![teamIndex]);
 
-      const takerPath = co.calculateDifference(
+      const takerPath = CO.co.calculateDifference(
         foulData.where,
         taker.BlockPosition
       );
@@ -196,7 +196,7 @@ export default class Referee {
       // Move ball to freekick taker's position
 
       taker.Ball.move(
-        co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
+        CO.co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
       );
 
       console.log(
@@ -207,13 +207,13 @@ export default class Referee {
       // Move tackled
       const b1 = playerFunc.findRandomFreeBlock(foulData.object);
 
-      const p1 = co.findPath(b1, foulData.object.BlockPosition);
+      const p1 = CO.co.findPath(b1, foulData.object.BlockPosition);
       foulData.object.move(p1);
 
       // Move tackler
       const b2 = playerFunc.findRandomFreeBlock(foulData.subject);
 
-      const p2 = co.findPath(b2, foulData.subject.BlockPosition);
+      const p2 = CO.co.findPath(b2, foulData.subject.BlockPosition);
       foulData.subject.move(p2);
     }
   }
@@ -233,12 +233,15 @@ export default class Referee {
         ) as IFieldPlayer;
 
         keeper.move(
-          co.calculateDifference(keeper.StartingPosition, keeper.BlockPosition)
+          CO.co.calculateDifference(
+            keeper.StartingPosition,
+            keeper.BlockPosition
+          )
         );
 
         // Move ball to keeper position
         keeper.Ball.move(
-          co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
+          CO.co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
         );
         // console.log('resume gameplay :)')
         // Move players to starting position
@@ -286,7 +289,10 @@ export default class Referee {
     // move ball to centerBlock
     this.MatchBall.move(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      co.calculateDifference(this.Match!.CenterBlock, this.MatchBall.Position)
+      CO.co.calculateDifference(
+        this.Match!.CenterBlock,
+        this.MatchBall.Position
+      )
     );
   }
 }
