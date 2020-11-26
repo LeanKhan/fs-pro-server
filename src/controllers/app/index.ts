@@ -1,18 +1,34 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import Coordinates from '../../utils/coordinates';
 import Ball from '../../classes/Ball';
 import Referee from '../../classes/Referee';
-import { IBlock } from '../../state/ImmutableState/FieldGrid';
-import * as co from '../../utils/coordinates';
+// import { IBlock } from '../../state/ImmutableState/FieldGrid';
 import { matchEvents } from '../../utils/events';
 import { fetchClubs } from '../clubs/club.service';
-import Game from '../game.controller';
-
-// const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
-// const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
+import Game from '../Game';
 
 export default class App {
+  public static instance: App;
+
+  public static instances = 0;
+
+  public static create() {
+    if (!App.instance) {
+      App.instance = new App();
+    }
+  }
+
+  public static get _app() {
+    return App.instance;
+  }
+
   public Game: Game | undefined;
 
+  constructor() {
+    App.instances++;
+  }
+
+  /** Setup Game => Run this first */
   public async setupGame(
     clubs: string[],
     sides: { home: string; away: string }
@@ -20,7 +36,9 @@ export default class App {
     try {
       const teams = await fetchClubs({ _id: { $in: clubs } });
 
-      console.log('Teams => ', teams[0]._id);
+      console.log('Teams => ', teams[0]._id, teams[1]._id);
+
+      new Coordinates();
 
       const centerBlock = Game.FIELD.PlayingField[82];
 
@@ -44,16 +62,19 @@ export default class App {
 
       this.Game.setClubFormations('HOME-433', 'AWAY-433');
 
+      this.listenForGameEvents();
+
       return this.Game;
     } catch (err) {
-      console.log('Error setting up game! => ', err);
+      console.log('Error setting up game! (in App) => ', err);
       throw new Error(err);
     }
   }
 
+  /** Start Game => Run this after setting up Game */
   public startGame() {
     try {
-      this.Game!.startHalf();
+      return this.Game!.startHalf();
 
       // After here, the game should start!
     } catch (error) {
@@ -61,6 +82,7 @@ export default class App {
     }
   }
 
+  /** [EXPERIMENTAL] Run this last! Thank you Jesus */
   public endGame() {
     try {
       this.Game = undefined;
@@ -79,85 +101,3 @@ export default class App {
     });
   }
 }
-
-// export const setupGame = async (
-//     clubs: string[],
-//     sides: { home: string; away: string }
-//   ) => {
-//     try {
-//       const teams = await fetchClubs({ _id: { $in: clubs } });
-
-//       console.log('Teams => ', teams[0]._id);
-
-//    const centerBlock = Game.FIELD.PlayingField[82];
-
-//       const ball = new Ball('#ffffff', centerBlock);
-
-//       const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
-
-//       CurrentGame = new Game(
-//         teams,
-//         sides,
-//         homePost,
-//         awayPost,
-//         ball,
-//         ref,
-//         centerBlock
-//       );
-
-//       CurrentGame.refAssignMatch();
-
-//       CurrentGame.setClubPlayers();
-
-//       CurrentGame.setClubFormations('HOME-433', 'AWAY-433');
-
-//       return CurrentGame;
-//     } catch (err) {
-//       console.log('Error setting up game! => ', err);
-//       throw new Error(err);
-//     }
-//   };
-
-// export const startGame = async () => {
-//     try {
-//       CurrentGame.startHalf();
-
-//       // After here, the game should start!
-//     } catch (error) {
-//       console.log('Error starting game!', error);
-//     }
-//   };
-
-//   export const endGame = async () => {
-//     try {
-//       CurrentGame = null;
-
-//       // After here, the game should start!
-//     } catch (error) {
-//       console.log('Error ending game!', error);
-//     }
-//   };
-
-//   // Getting clubs
-//   // getClubs();
-
-//   function listenForMatchEvents() {
-//     matchEvents.on('set-playing-sides', () => {
-//       const playingSides = CurrentGame.setPlayingSides();
-
-//       matchEvents.emit('setting-playing-sides', playingSides);
-//     });
-//   }
-
-//   // function attackingAction() {
-//   //   MatchActions.takeAction(activePlayerAS, AS, DS, activePlayerDS);
-//   // }
-
-//   // function defendingAction() {
-//   //   // After every attempt by the AttackingSide the defensive side should move towards the ball
-//   //   MatchActions.move(activePlayerDS, 'towards ball', MatchBall.Position);
-
-//   //   pushForward(AS);
-//   // }
-
-//   listenForMatchEvents();

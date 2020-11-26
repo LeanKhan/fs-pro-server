@@ -1,10 +1,6 @@
 import { ballMove } from '../utils/events';
-import { coordinateToBlock } from '../utils/coordinates';
+import CO from '../utils/coordinates';
 import { IBlock, ICoordinate } from '../state/ImmutableState/FieldGrid';
-// import { EventEmitter } from 'events';
-
-// TODO: [[ Problem 2 ]]
-// Make this Class keep track of Balls created
 
 class BallClass {
   public static instances: number;
@@ -44,7 +40,7 @@ export default class Ball implements IBall, BallClass {
     // this.Position.y += pos.y;
     // this.Position.key = 'P' + XYToIndex(this.Position.x, this.Position.y, 12);
 
-    this.Position = coordinateToBlock(newPos);
+    this.Position = CO.co.coordinateToBlock(newPos);
 
     console.log(
       `New Ball position ${JSON.stringify({
@@ -82,6 +78,8 @@ export default class Ball implements IBall, BallClass {
   This is what happens, the ball is meant to move from the original holder to the tackler (if successful, and this tackle was)
   but now we are seeing that the ball is at two different locations! {2,3} and {5,1}. How?
  */
+
+//  UPDATE: I believe this has been fixed! Thank you Jesus!
 
 export interface IBall {
   Color: string;

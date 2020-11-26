@@ -1,7 +1,7 @@
 /* eslint-disable no-prototype-builtins */
 /* eslint-disable no-case-declarations */
 import { IFieldPlayer, IPositions } from '../../../interfaces/Player';
-import * as co from '../../../utils/coordinates';
+import CO from '../../../utils/coordinates';
 import * as playerFunc from '../../../utils/players';
 import { MatchSide } from '../../../classes/MatchSide';
 import { IBlock, ICoordinate } from '../../ImmutableState/FieldGrid';
@@ -187,7 +187,7 @@ export class Actions {
 
     switch (type) {
       case 'short':
-        teammate = co.findClosestPlayer(
+        teammate = CO.co.findClosestPlayer(
           player.BlockPosition,
           squad.StartingSquad,
           player
@@ -195,7 +195,7 @@ export class Actions {
         break;
 
       case 'long':
-        teammate = co.findLongPlayer(
+        teammate = CO.co.findLongPlayer(
           player.BlockPosition,
           squad.StartingSquad,
           player
@@ -204,7 +204,7 @@ export class Actions {
         break;
       // Find the keeper! but keeper may alos be not gien the ball
       case 'pass to post':
-        teammate = co.findClosestPlayerByPosition(
+        teammate = CO.co.findClosestPlayerByPosition(
           squad.KeepingSide,
           'GK',
           player,
@@ -220,7 +220,7 @@ export class Actions {
     /**
      * Find an opponent closest to the teammate to intercept...
      */
-    const interceptor = co.findClosestFieldPlayer(
+    const interceptor = CO.co.findClosestFieldPlayer(
       teammate.BlockPosition,
       defendingSide.StartingSquad,
       undefined,
@@ -230,7 +230,7 @@ export class Actions {
     if (!interceptor) {
       // This player can't intercept the ball hohoho, let it pass.
       player.pass(
-        co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
+        CO.co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
       );
       matchEvents.emit('pass-made', {
         passer: player,
@@ -257,7 +257,10 @@ export class Actions {
 
       if (!fail) {
         player.pass(
-          co.calculateDifference(teammate.BlockPosition, player.BlockPosition)
+          CO.co.calculateDifference(
+            teammate.BlockPosition,
+            player.BlockPosition
+          )
         );
         matchEvents.emit('pass-made', {
           passer: player,
@@ -267,7 +270,7 @@ export class Actions {
         situation = { status: true, reason: 'Player pass successful' };
       } else {
         player.pass(
-          co.calculateDifference(
+          CO.co.calculateDifference(
             interceptor.BlockPosition,
             player.BlockPosition
           )
@@ -306,7 +309,7 @@ export class Actions {
           console.log('Action.move : towards ball :)');
 
           // Find the path to the ball
-          const path = co.findPath(ball, player.BlockPosition);
+          const path = CO.co.findPath(ball, player.BlockPosition);
 
           // Make move towards that path
           if (this.makeMove(player, path, around)) {
@@ -335,7 +338,7 @@ export class Actions {
           const r = ref;
 
           // asin x: -1 or y: 1
-          const p = co.findPath(r, player.BlockPosition);
+          const p = CO.co.findPath(r, player.BlockPosition);
 
           // If there is no marking opponent nearby just move
           // But if there is a marking opponent nearby, the opponent will try to take the ball from
@@ -438,7 +441,7 @@ export class Actions {
   }
 
   public kick(player: IFieldPlayer, direction: IBlock) {
-    player.shoot(co.calculateDifference(direction, player.BlockPosition));
+    player.shoot(CO.co.calculateDifference(direction, player.BlockPosition));
     matchEvents.emit('kick', { subject: player });
   }
 
@@ -455,7 +458,7 @@ export class Actions {
 
     if (result.goal) {
       // Shot is a goal, fine and good
-      player.shoot(co.calculateDifference(post, player.BlockPosition));
+      player.shoot(CO.co.calculateDifference(post, player.BlockPosition));
       matchEvents.emit('shot', {
         shooter: player,
         keeper,
@@ -466,7 +469,7 @@ export class Actions {
       } as IShot);
     } else if (result.onTarget && !result.goal) {
       // Shot is a miss
-      player.shoot(co.calculateDifference(post, player.BlockPosition));
+      player.shoot(CO.co.calculateDifference(post, player.BlockPosition));
       matchEvents.emit('shot', {
         shooter: player,
         keeper,
@@ -500,7 +503,9 @@ export class Actions {
 
       const landingBlock = freeBlocksAroundKeeper[randomIndex];
 
-      player.shoot(co.calculateDifference(landingBlock, player.BlockPosition));
+      player.shoot(
+        CO.co.calculateDifference(landingBlock, player.BlockPosition)
+      );
 
       console.log('Free Blocks around keeper =>', freeBlocksAroundKeeper);
 
@@ -520,9 +525,9 @@ export class Actions {
 
   public freekick(player: IFieldPlayer, ball: IBall, direction: IBlock) {
     // Move the ball to the player taking the freekick
-    ball.move(co.calculateDifference(player.BlockPosition, ball.Position));
+    ball.move(CO.co.calculateDifference(player.BlockPosition, ball.Position));
 
-    const where = co.calculateDistance(player.BlockPosition, direction);
+    const where = CO.co.calculateDistance(player.BlockPosition, direction);
 
     if (where <= 3) {
       this.shoot(player, direction, 'freekick');
@@ -589,7 +594,7 @@ export class Actions {
           if (b === undefined) {
             return false;
           } else {
-            const p = co.findPath(b, player.BlockPosition);
+            const p = CO.co.findPath(b, player.BlockPosition);
             player.move(p);
             return true;
           }
@@ -605,7 +610,7 @@ export class Actions {
           if (b === undefined) {
             return false;
           } else {
-            const p = co.findPath(b, player.BlockPosition);
+            const p = CO.co.findPath(b, player.BlockPosition);
             player.move(p);
             return true;
           }
@@ -623,7 +628,7 @@ export class Actions {
           if (b === undefined) {
             return false;
           } else {
-            const p = co.findPath(b, player.BlockPosition);
+            const p = CO.co.findPath(b, player.BlockPosition);
             player.move(p);
             return true;
           }
@@ -639,7 +644,7 @@ export class Actions {
           if (b === undefined) {
             return false;
           } else {
-            const p = co.findPath(b, player.BlockPosition);
+            const p = CO.co.findPath(b, player.BlockPosition);
             player.move(p);
             return true;
           }
@@ -682,15 +687,23 @@ export class Actions {
         `Ball birthtime: ${new Date(
           tackler.Ball.created
         ).toUTCString()}. No of instances: ${Ball.instances}`,
-        `${tackler.Ball.Position.occupant!.FirstName || 'null'} ${
-          tackler.Ball.Position.occupant!.LastName || 'null'
-        } is at [${tackler.Ball.Position.occupant!.BlockPosition.x || 'null'},${
-          tackler.Ball.Position.occupant!.BlockPosition.y || 'null'
-        }]. \n But Ball is at ${
-          tackler.Ball.Position.occupant!.Ball.Position.key || 'null'
-        } [${tackler.Ball.Position.occupant!.Ball.Position.x || 'null'}, ${
-          tackler.Ball.Position.occupant!.Ball.Position.y || 'null'
-        }]`
+        `${
+          tackler.Ball.Position.occupant
+            ? tackler.Ball.Position.occupant.FirstName
+            : 'null'
+        } ${
+          tackler.Ball.Position.occupant
+            ? tackler.Ball.Position.occupant.LastName
+            : 'null'
+        } is at [${
+          tackler.Ball.Position.occupant
+            ? tackler.Ball.Position.occupant.BlockPosition.x
+            : 'null'
+        },${
+          tackler.Ball.Position.occupant
+            ? tackler.Ball.Position.occupant.BlockPosition.y
+            : 'null'
+        }].`
       );
       console.log(
         `Player ${player.PlayerID} ${player.LastName} Ball x,y =>`,
@@ -699,7 +712,7 @@ export class Actions {
         player.Ball.Position.key
       );
       tackler.Ball.move(
-        co.calculateDifference(tackler.BlockPosition, player.BlockPosition)
+        CO.co.calculateDifference(tackler.BlockPosition, player.BlockPosition)
       );
       matchEvents.emit('tackle', {
         tackler,

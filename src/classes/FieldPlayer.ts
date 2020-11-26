@@ -2,7 +2,7 @@ import { IFieldPlayer, IPositions, IPlayer } from '../interfaces/Player';
 import Player from './Player';
 import Ball from './Ball';
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
-import { coordinateToBlock } from '../utils/coordinates';
+import CO from '../utils/coordinates';
 import { ballMove } from '../utils/events';
 
 abstract class FieldPlayerClass {
@@ -99,7 +99,7 @@ export default class FieldPlayer
       y: this.BlockPosition.y + pos.y,
     };
 
-    this.BlockPosition = coordinateToBlock(newPos);
+    this.BlockPosition = CO.co.coordinateToBlock(newPos);
 
     // Then set the Block Occupant of current block to this player
     this.setBlockOccupant(this, this.BlockPosition);
@@ -139,28 +139,28 @@ export default class FieldPlayer
     around.top =
       this.BlockPosition.y - 1 < 0
         ? undefined
-        : coordinateToBlock({
+        : CO.co.coordinateToBlock({
             x: this.BlockPosition.x,
             y: this.BlockPosition.y - 1,
           });
     around.left =
       this.BlockPosition.x - 1 < 0
         ? undefined
-        : coordinateToBlock({
+        : CO.co.coordinateToBlock({
             x: this.BlockPosition.x - 1,
             y: this.BlockPosition.y,
           });
     around.right =
       this.BlockPosition.x + 1 > 14
         ? undefined
-        : coordinateToBlock({
+        : CO.co.coordinateToBlock({
             x: this.BlockPosition.x + 1,
             y: this.BlockPosition.y,
           });
     around.bottom =
       this.BlockPosition.y + 1 > 10
         ? undefined
-        : coordinateToBlock({
+        : CO.co.coordinateToBlock({
             x: this.BlockPosition.x,
             y: this.BlockPosition.y + 1,
           });
@@ -188,7 +188,7 @@ export default class FieldPlayer
             const block =
               this.BlockPosition.y - r < 0
                 ? undefined
-                : coordinateToBlock({
+                : CO.co.coordinateToBlock({
                     x: this.BlockPosition.x,
                     y: this.BlockPosition.y - r,
                   });
@@ -202,7 +202,7 @@ export default class FieldPlayer
             const block =
               this.BlockPosition.x - r < 0
                 ? undefined
-                : coordinateToBlock({
+                : CO.co.coordinateToBlock({
                     x: this.BlockPosition.x - r,
                     y: this.BlockPosition.y,
                   });
@@ -215,7 +215,7 @@ export default class FieldPlayer
             const block =
               this.BlockPosition.x + r > 14
                 ? undefined
-                : coordinateToBlock({
+                : CO.co.coordinateToBlock({
                     x: this.BlockPosition.x + r,
                     y: this.BlockPosition.y,
                   });
@@ -228,7 +228,7 @@ export default class FieldPlayer
             const block =
               this.BlockPosition.y + r > 10
                 ? undefined
-                : coordinateToBlock({
+                : CO.co.coordinateToBlock({
                     x: this.BlockPosition.x,
                     y: this.BlockPosition.y + r,
                   });
@@ -267,6 +267,6 @@ export default class FieldPlayer
     // }
   }
   private setBlockOccupant(who: any, pos: ICoordinate): void {
-    coordinateToBlock(pos).occupant = who;
+    CO.co.coordinateToBlock(pos).occupant = who;
   }
 }

@@ -1,7 +1,6 @@
 /* eslint-disable no-prototype-builtins */
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
-import * as co from './coordinates';
 import { IPositions, IFieldPlayer, IPlayer } from '../interfaces/Player';
 import { ratingFactors, postitionFactors, ageFactors } from './player_factors';
 
