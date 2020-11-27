@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable no-useless-catch */
 import { Request, Response, NextFunction } from 'express';
 import respond from '../../helpers/responseHandler';
@@ -310,7 +311,7 @@ export function saveCalendar(req: Request, res: Response, next: NextFunction) {
  *
  * @param year Calendar year
  */
-export async function changeCurrentDay(year: string) {
+export async function changeCurrentDay(year: string, currentDay: DayInterface) {
   // Change current day...
   // Check if there is any match that day so you can move to the next day that has a match...
   // First check if all the Matches have been played...
@@ -322,12 +323,17 @@ export async function changeCurrentDay(year: string) {
   // TODO: you should also prevent matches from being played anyhow.
   // matches should be played in sequence
   const getNextDay = async () => {
-    const query = { $nor: [{ 'Matches.Played': true }] };
+    const query = {
+      $nor: [{ 'Matches.Played': true }],
+      Year: year,
+      Day: { $gt: currentDay.Day },
+    };
 
     return findDay(query, false);
   };
 
   const updateCurrentDay = async (nextfreeday: DayInterface) => {
+    // if this doesn't return a calendar, doesn't that mean all games have been played in all days?
     return updateCalendar(
       { YearString: year },
       { CurrentDay: nextfreeday.Day }

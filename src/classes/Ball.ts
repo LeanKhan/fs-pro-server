@@ -4,7 +4,6 @@ import { IBlock, ICoordinate } from '../state/ImmutableState/FieldGrid';
 
 class BallClass {
   public static instances: number;
-  // new (): IBall;
 }
 // tslint:disable-next-line: max-classes-per-file
 export default class Ball implements IBall, BallClass {

@@ -20,15 +20,11 @@ import CO from '../utils/coordinates';
 
 abstract class GameClass {
   public static instances: number;
-  public static FIELD: Field;
 }
 
 // tslint:disable-next-line: max-classes-per-file
 export default class Game implements GameClass {
   public static instances = 0;
-  // TODO: this will change... maybe create it in the constructor
-  public static FIELD: Field = new Field();
-  // TODO: pass this in the constructor
   public homePost: IBlock = CO.co.coordinateToBlock({ x: 0, y: 5 });
   public awayPost: IBlock = CO.co.coordinateToBlock({ x: 14, y: 5 });
   public Referee: Referee;
@@ -45,11 +41,10 @@ export default class Game implements GameClass {
   constructor(
     clubs: IClub[],
     sides: { home: string; away: string },
-    // hp: IBlock,
-    // ap: IBlock,
-    ball: Ball,
-    ref: Referee,
-    centerBlock: any
+    ball: { color: string; cb: IBlock },
+    ref: { fname: string; lname: string; level: string },
+    centerBlock: any,
+    playingField: Field['PlayingField']
   ) {
     // Get the club that is meant to be home
     const homeIndex = clubs.findIndex(
@@ -74,13 +69,20 @@ export default class Game implements GameClass {
     // this.homePost = hp;
     // this.awayPost = ap;
 
-    this.MatchBall = ball;
+    this.MatchBall = new Ball('#ffffff', centerBlock);
 
-    this.PlayingField = Game.FIELD.PlayingField;
+    this.PlayingField = playingField;
 
-    this.Referee = ref;
+    // this.Referee = ref;
 
-    this.MatchActions = new Actions(ref, [this.Match.Home, this.Match.Away]);
+    // let ball = new Ball('#ffffff', centerBlock);
+
+    this.Referee = new Referee('Anjus', 'Banjus', 'normal', this.MatchBall);
+
+    this.MatchActions = new Actions(this.Referee, [
+      this.Match.Home,
+      this.Match.Away,
+    ]);
 
     /* ---------- COUNT CLASS INSTANCES ----------- */
     Game.instances++;

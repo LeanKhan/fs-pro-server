@@ -1,6 +1,5 @@
 import { IBlock } from '../state/ImmutableState/FieldGrid';
-import Ball, { IBall } from '../classes/Ball';
-import { MatchSide } from '../classes/MatchSide';
+import Ball from '../classes/Ball';
 
 export interface IFieldPlayer extends IPlayer {
   Points: number;

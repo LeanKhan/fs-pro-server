@@ -14,7 +14,7 @@ import { findOneAndUpdate as updateSeason } from '../seasons/season.service';
 import { findOneAndUpdate } from '../fixtures/fixture.service';
 import { findOneAndUpdate as updateDay } from '../days/day.service';
 import { Types } from 'mongoose';
-import { CalendarMatchInterface } from '../days/day.model';
+import { CalendarMatchInterface, DayInterface } from '../days/day.model';
 
 interface Team {
   id: string;
@@ -168,6 +168,8 @@ export function updateStandings(
 
   const query = { 'Matches.Fixture': Types.ObjectId(fixture_id) };
 
+  let currentDay: DayInterface;
+
   // TODO: handle cases where there's no match that day
 
   // We need to update the Day Match to Played!
@@ -179,6 +181,7 @@ export function updateStandings(
   const getWeekAndUpdateMatch = async () => {
     return updateDay(query, { $set: { 'Matches.$.Played': true } })
       .then((day) => {
+        currentDay = day;
         console.log('Day =>', day);
 
         // Then find the array position...
@@ -234,7 +237,7 @@ export function updateStandings(
     )
       .then((res) => {
         console.log(res);
-        return { homeTable, awayTable, matches };
+        return { homeTable, awayTable, matches, currentDay };
       })
       .catch((err) => {
         console.log(err);

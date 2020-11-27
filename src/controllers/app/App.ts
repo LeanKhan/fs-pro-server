@@ -24,7 +24,10 @@ export default class App {
 
   public Game: Game | undefined;
 
+  private Coordinates!: Coordinates;
+
   constructor() {
+    // this.Coordinates = new Coordinates();
     App.instances++;
   }
 
@@ -34,26 +37,23 @@ export default class App {
     sides: { home: string; away: string }
   ) {
     try {
+      this.Coordinates = new Coordinates();
+
       const teams = await fetchClubs({ _id: { $in: clubs } });
 
       console.log('Teams => ', teams[0]._id, teams[1]._id);
 
-      new Coordinates();
-
-      const centerBlock = Game.FIELD.PlayingField[82];
-
-      const ball = new Ball('#ffffff', centerBlock);
-
-      const ref = new Referee('Anjus', 'Banjus', 'normal', ball);
+      const centerBlock = this.Coordinates.Field.PlayingField[82];
 
       this.Game = new Game(
         teams,
         sides,
         // homePost,
         // awayPost,
-        ball,
-        ref,
-        centerBlock
+        { color: '#ffffff', cb: centerBlock },
+        { fname: 'Anjus', lname: 'Banjus', level: 'normal' },
+        centerBlock,
+        this.Coordinates.Field.PlayingField
       );
 
       this.Game.refAssignMatch();

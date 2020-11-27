@@ -2,6 +2,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { fetchOneById } from '../fixtures/fixture.service';
+import { findOne as findDay } from '../days/day.service';
 import { Fixture } from '../fixtures/fixture.model';
 import { updateFixture, updateStandings } from './functions';
 import { changeCurrentDay } from '../calendar/calendar.controller';
@@ -9,7 +10,7 @@ import responseHandler from '../../helpers/responseHandler';
 import { Match } from '../../classes/Match';
 import Ball from '../../classes/Ball';
 import FieldPlayer from '../../classes/FieldPlayer';
-import App from '../app';
+import App from '../app/App';
 
 export async function restPlayGame(
   req: Request,
@@ -141,6 +142,11 @@ export function restUpdateStandings(
   // Soon we will be getting it from the fixture object...
   // THANK YOU JESUS!
 
+  const getCurrentDay = () => {
+    const q = { 'Matches.Fixture': fixture_id };
+    return findDay(q, false);
+  };
+
   const { fixture_id } = req.query;
   const { match, home, away, season_id } = req.body;
 
@@ -152,9 +158,12 @@ export function restUpdateStandings(
     away,
     season_id
   )
-    .then(({ homeTable, awayTable, matches }) => {
+    .then(({ homeTable, awayTable, matches, currentDay }) => {
       // Check if we need to update Calendar day
       const allMatchesPlayed = matches.every((m) => m.Played);
+
+      // Now that we have the currentDay, waht can we do with the data?
+      // Thank you Jesus.
 
       if (allMatchesPlayed) {
         // move current Day!
@@ -164,7 +173,7 @@ export function restUpdateStandings(
         // We have to get this from the kini...
         // TODO there should be a better way to get these constants...
         const currentYear = req.body.SeasonCode.split('-').splice(1).join('-');
-        return changeCurrentDay(currentYear)
+        return changeCurrentDay(currentYear, currentDay)
           .then(() => {
             // This marks the end of the match...
             // you should send the results and everything back... Thank you Jesus!

@@ -23,7 +23,7 @@ const port = process.env.PORT || 3000;
 import i = require('socket.io');
 
 import * as dotenv from 'dotenv';
-import App from './controllers/app';
+import App from './controllers/app/App';
 
 dotenv.config();
 

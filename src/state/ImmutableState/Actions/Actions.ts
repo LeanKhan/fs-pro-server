@@ -306,8 +306,6 @@ export class Actions {
         case 'towards ball':
           const ball = ref;
 
-          console.log('Action.move : towards ball :)');
-
           // Find the path to the ball
           const path = CO.co.findPath(ball, player.BlockPosition);
 
@@ -344,7 +342,6 @@ export class Actions {
           // But if there is a marking opponent nearby, the opponent will try to take the ball from
           // the attackingPlayer
           if (opponentBlock === undefined) {
-            console.log('OppenentBlock === undefined!');
             if (this.makeMove(player, p, around)) {
               situation = { status: true, reason: 'move forward successful' };
             } else {
@@ -565,14 +562,13 @@ export class Actions {
     for (const key in around) {
       if (around.hasOwnProperty(key) && around[key] !== undefined) {
         const block = around[key] as IBlock;
-        const occupant = block.occupant as IFieldPlayer;
-        if (occupant == null) {
-          // return undefined;
-        } else {
-          arr.push(occupant);
-        }
+        const occupant = block.occupant;
+
+        // if there is an occupant, push it!
+        occupant && arr.push(occupant);
       }
     }
+
     return arr.find((p) => {
       return p.ClubCode !== player.ClubCode;
     });
@@ -678,39 +674,6 @@ export class Actions {
     const success = Math.round(Math.random() * 12) >= 6;
 
     if (success) {
-      // Ball is now in possession of tackler :)
-      console.log(
-        `Tackler ${tackler.PlayerID} ${tackler.LastName} Ball x,y =>`,
-        tackler.Ball.Position.x,
-        tackler.Ball.Position.y,
-        tackler.Ball.Position.key,
-        `Ball birthtime: ${new Date(
-          tackler.Ball.created
-        ).toUTCString()}. No of instances: ${Ball.instances}`,
-        `${
-          tackler.Ball.Position.occupant
-            ? tackler.Ball.Position.occupant.FirstName
-            : 'null'
-        } ${
-          tackler.Ball.Position.occupant
-            ? tackler.Ball.Position.occupant.LastName
-            : 'null'
-        } is at [${
-          tackler.Ball.Position.occupant
-            ? tackler.Ball.Position.occupant.BlockPosition.x
-            : 'null'
-        },${
-          tackler.Ball.Position.occupant
-            ? tackler.Ball.Position.occupant.BlockPosition.y
-            : 'null'
-        }].`
-      );
-      console.log(
-        `Player ${player.PlayerID} ${player.LastName} Ball x,y =>`,
-        player.Ball.Position.x,
-        player.Ball.Position.y,
-        player.Ball.Position.key
-      );
       tackler.Ball.move(
         CO.co.calculateDifference(tackler.BlockPosition, player.BlockPosition)
       );
