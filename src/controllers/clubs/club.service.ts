@@ -2,6 +2,7 @@
 import DB from '../../db';
 import { Types } from 'mongoose';
 import { Club, ClubInterface } from './club.model';
+import log from '../../helpers/logger';
 
 /**
  * fetchAllClubs mate
@@ -45,8 +46,8 @@ export function fetchSingleClubById(
     try {
       po = JSON.parse(populate as string);
     } catch (err) {
-      console.error('Error parsing populate field => ', err);
-      throw new Error('Cannot parse populate query => ' + err);
+      console.error(`Error parsing populate field => ${err}`);
+      throw new Error(`Cannot parse populate query => ${err}`);
     }
 
     // Accpet object to populate fields
@@ -117,7 +118,7 @@ export function calculateClubsTotalRatings(clubId: string) {
       },
     ],
     () => {
-      console.log('Aggregate performed!');
+      log('Aggregate performed!');
     }
   );
 }

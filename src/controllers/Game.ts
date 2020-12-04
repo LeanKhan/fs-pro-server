@@ -10,6 +10,9 @@ import { Actions } from '../state/ImmutableState/Actions/Actions';
 import { matchEvents, createMatchEvent } from '../utils/events';
 import { ClubInterface as IClub } from './clubs/club.model';
 import CO from '../utils/coordinates';
+import log from '../helpers/logger';
+
+// import log from ''
 
 // import { EventEmitter } from 'events';
 
@@ -51,7 +54,7 @@ export default class Game implements GameClass {
       (club) => club._id?.toString() === sides.home
     );
 
-    console.log('home club =>', homeIndex);
+    log(`home club => ${homeIndex}`);
 
     // Get the club that is meant to be away
     const awayIndex = clubs.findIndex(
@@ -134,7 +137,7 @@ export default class Game implements GameClass {
         return p.WithBall;
       }) as IFieldPlayer;
 
-      // console.log('Actiev player AS =>', this.ActivePlayerAS.LastName);
+      // log(`Active player AS => ${this.ActivePlayerAS.LastName}`);
 
       this.DS = this.Match.Away;
 
@@ -144,7 +147,7 @@ export default class Game implements GameClass {
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
-      // console.log('Active player DS =>', this.ActivePlayerDS.LastName);
+      // log(`Active player DS => ${this.ActivePlayerDS.LastName});
 
       // return {activePlayerAS, AS, activePlayerDS, DS};
       return {
@@ -166,7 +169,7 @@ export default class Game implements GameClass {
         return p.WithBall;
       }) as IFieldPlayer;
 
-      // console.log('Attacking player AS =>', this.ActivePlayerAS.LastName);
+      // log(`Attacking player AS => ${this.ActivePlayerAS.LastName}`);
 
       this.DS = this.Match.Home;
 
@@ -177,7 +180,7 @@ export default class Game implements GameClass {
         this.DS.StartingSquad
       );
 
-      // console.log('Active player DS =>', this.ActivePlayerDS.LastName);
+      // log(`Active player DS => ${this.ActivePlayerDS.LastName});
 
       return {
         activePlayerAS: this.ActivePlayerAS,
@@ -222,14 +225,14 @@ export default class Game implements GameClass {
   }
 
   public matchComments() {
-    console.log(
+    log(
       `Ball is at ${JSON.stringify({
         x: this.MatchBall.Position.x,
         y: this.MatchBall.Position.y,
         key: this.MatchBall.Position.key,
       })}`
     );
-    console.log(`
+    log(`
       ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
       this.ActivePlayerAS!.LastName
     } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
@@ -249,7 +252,7 @@ export default class Game implements GameClass {
 
   public startHalf() {
     createMatchEvent('Match Kick-Off', 'match');
-    console.log('Half is starting!');
+    log('Half is starting!');
     return this.gamePlay();
   }
 
@@ -258,11 +261,11 @@ export default class Game implements GameClass {
     matchEvents.emit('half-end');
     createMatchEvent('First Half Over', 'match');
     matchEvents.emit('reset-formations');
-    console.log('------------------ Second Half Start ------------------');
+    log('------------------ Second Half Start ------------------');
     await this.gameLoop(90, 180);
     matchEvents.emit('half-end');
     createMatchEvent('Match Over', 'match');
-    console.log('------------------ Match Over --------------------');
+    log('------------------ Match Over --------------------');
     return this.getMatch();
   }
 
@@ -270,7 +273,7 @@ export default class Game implements GameClass {
     // TODO: work on this, use it more and betterly
     return new Promise((resolve, reject) => {
       for (let i = timestart; i < timeend; i++) {
-        console.log(`------------Loop Position ${i + 1}---------`);
+        log(`------------Loop Position ${i + 1}---------`);
         this.setPlayingSides();
 
         // TODO: do error handling here, so throw any error that may arise from here.
@@ -279,10 +282,10 @@ export default class Game implements GameClass {
         this.Match.setCurrentTime(Math.round((i + 1) / 2));
 
         if (this.AS === undefined || this.DS === undefined) {
-          console.log('Mvng Towards ball');
+          log('Mvng Towards ball');
           this.moveTowardsBall();
         } else {
-          console.log('-- TAKING ACTION --');
+          log('-- TAKING ACTION --');
           this.MatchActions.takeAction(
             this.ActivePlayerAS as IFieldPlayer,
             this.AS,

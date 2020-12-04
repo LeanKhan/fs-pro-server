@@ -45,6 +45,6 @@ export async function getCurrentSeasons(req: Request, res: Response) {
 //       return b.Points - a.Points;
 //     }
 //   });
-//   console.log(standings);
+//   log(standings);
 //   view.displayStandings(standings);
 // }

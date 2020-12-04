@@ -3,6 +3,7 @@ import { updateUser, fetchOneUser } from '../controllers/user/user.service';
 import responseHandler from '../helpers/responseHandler';
 import { store } from '../server';
 import { IUser } from '../controllers/user/user.model';
+import log from '../helpers/logger';
 
 export function initializeSession(
   req: Request,
@@ -127,7 +128,7 @@ export function findSession(req: Request, res: Response, next: NextFunction) {
       );
     })
     .catch((err) => {
-      console.log('eero in entering => ', err);
+      log(`error in entering => ${err}`);
       responseHandler.fail(res, 400, 'Error in authentication', err);
     });
 }

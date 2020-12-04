@@ -4,6 +4,7 @@ import Ball from './Ball';
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import CO from '../utils/coordinates';
 import { ballMove } from '../utils/events';
+import log from '../helpers/logger';
 
 abstract class FieldPlayerClass {
   public static instances: number;
@@ -63,17 +64,17 @@ export default class FieldPlayer
   public pass(pos: ICoordinate) {
     this.Ball.move(pos);
     this.WithBall = false;
-    console.log(`${this.LastName} passed the ball to ${JSON.stringify(pos)}`);
+    log(`${this.LastName} passed the ball to ${JSON.stringify(pos)}`);
   }
 
   public shoot(pos: ICoordinate) {
     this.Ball.move(pos);
     this.WithBall = false;
-    console.log(`${this.LastName} shot the ball to ${JSON.stringify(pos)}`);
+    log(`${this.LastName} shot the ball to ${JSON.stringify(pos)}`);
   }
 
   public updateBallPosition(pos: IBlock) {
-    console.log('New Position x,y,key =>', pos.x, pos.y, pos.key);
+    // log(`New Position x,y,key => ${pos.x}, ${pos.y}, ${pos.key}`);
     this.Ball.Position = pos;
     this.checkWithBall();
   }
@@ -106,7 +107,7 @@ export default class FieldPlayer
     if (this.WithBall) {
       this.Ball.move(pos);
     }
-    // console.log(
+    // log(
     //   `${this.FirstName} ${this.LastName} [${
     //     this.ClubCode
     //   }] moved  ${JSON.stringify(pos)} steps.
@@ -165,7 +166,7 @@ export default class FieldPlayer
             y: this.BlockPosition.y + 1,
           });
 
-    // console.log(`Players around: `, JSON.stringify(around));
+    // log(`Players around: `, JSON.stringify(around));
     return around;
   }
 
@@ -263,7 +264,7 @@ export default class FieldPlayer
       this.BlockPosition.key === this.Ball.Position.key ? true : false;
 
     // if (this.WithBall) {
-    //   console.log(`${this.LastName} is now with the ball :)`);
+    //   log(`${this.LastName} is now with the ball :)`);
     // }
   }
   private setBlockOccupant(who: any, pos: ICoordinate): void {

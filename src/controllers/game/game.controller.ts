@@ -11,6 +11,7 @@ import { Match } from '../../classes/Match';
 import Ball from '../../classes/Ball';
 import FieldPlayer from '../../classes/FieldPlayer';
 import App from '../app/App';
+import log from '../../helpers/logger';
 
 export async function restPlayGame(
   req: Request,
@@ -33,7 +34,7 @@ export async function restPlayGame(
     fixture = await fetchOneById(fixture_id, false);
     // We also need to get the associated calendar day...
   } catch (error) {
-    console.log('Error!', error);
+    log(`Error! => ${error}`);
 
     return responseHandler.fail(
       res,
@@ -67,14 +68,14 @@ export async function restPlayGame(
       away,
     });
   } catch (error) {
-    console.log('Error setting up game! (in Rest) =>', error);
+    log(`Error setting up game! (in Rest) => ${error}`);
     return responseHandler.fail(res, 400, 'Error starting Game!', {
       ...error,
       matchErrorResponseCode: 4,
     });
   }
 
-  console.log('Here in startGame!');
+  log('Here in startGame!');
   App._app
     .startGame()
     ?.then(async (m) => {
@@ -116,16 +117,16 @@ export async function restPlayGame(
       req.body.match = result;
       req.body.season_id = fixture.Season;
 
-      console.log('The Match instances', Match.instances);
-      console.log('The Ball instances', Ball.instances);
-      console.log('The FieldPlayer instances', FieldPlayer.instances);
+      log(`The Match instances ${Match.instances}`);
+      log(`The Ball instances ${Ball.instances}`);
+      log(`The FieldPlayer instances ${FieldPlayer.instances}`);
 
       return next();
     })
     .catch((err) => {
-      console.log('ERROR PLAYING MATCH!');
+      log('ERROR PLAYING MATCH!');
 
-      console.log('Error updating fixture...', err);
+      log(`Error updating fixture... ${err}`);
 
       return responseHandler.fail(res, 400, 'Error playing match!', {
         ...err,
@@ -179,7 +180,7 @@ export function restUpdateStandings(
             // you should send the results and everything back... Thank you Jesus!
             // We also need to check if the season is over...
             // Maybe send back the updated day...
-            console.log('Current Day changed successfully!');
+            log('Current Day changed successfully!');
             return responseHandler.success(
               res,
               200,
@@ -192,7 +193,7 @@ export function restUpdateStandings(
             );
           })
           .catch((err) => {
-            console.log('Error changing current Calendar Day!');
+            log('Error changing current Calendar Day!');
             return responseHandler.fail(
               res,
               400,
@@ -220,7 +221,7 @@ export function restUpdateStandings(
       // Delete CurrentMatch Instance...
 
       App._app.endGame();
-      console.log('GAME ENDED from App');
+      log('GAME ENDED from App');
     });
   // Here we should check if we need to update anything else...
 }

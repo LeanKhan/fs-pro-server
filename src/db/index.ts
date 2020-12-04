@@ -16,6 +16,7 @@ import {
 } from '../controllers/calendar/calendar.model';
 import { Day, DayModel } from '../controllers/days/day.model';
 import { Manager, ManagerModel } from '../controllers/managers/manager.model';
+import log from '../helpers/logger';
 
 declare interface IModels {
   Competition: CompetitionModel;
@@ -90,6 +91,6 @@ export default class DB {
   }
 
   private error(error: any) {
-    console.log('Error in connection to database', error);
+    console.log(`Error in connection to database => ${error}`);
   }
 }

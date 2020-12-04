@@ -9,6 +9,7 @@ import {
 } from './player.service';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { fetchAppearance } from '../../utils/appearance';
+import log from '../../helpers/logger';
 
 const router = Router();
 
@@ -24,7 +25,7 @@ router.get('/all', (req, res) => {
       options = JSON.parse(req.query.options);
     }
   } catch (err) {
-    console.log('Error parsing JSON => ', err);
+    log(`Error parsing JSON => ${err}`);
   }
 
   fetchAll(options)

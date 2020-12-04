@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import Field, { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer } from '../interfaces/Player';
-
+import log from '../helpers/logger';
 export default class Coordinates {
   public static _co: Coordinates;
   public Field: Field;
@@ -97,14 +97,15 @@ export default class Coordinates {
         : 1;
     });
 
-    console.table(
+    log(
       plyrs.map((p) => ({
         Name: p.FirstName + ' ' + p.LastName,
         PlayerPosition: p.Position,
         Club: p.ClubCode,
         Position: p.BlockPosition.key,
         Distance: this.calculateDistance(ref, p.BlockPosition),
-      }))
+      })),
+      'table'
     );
 
     /**
@@ -325,8 +326,8 @@ export default class Coordinates {
   public calculateDifference(dest: ICoordinate, pos: ICoordinate) {
     const path: ICoordinate = { x: 0, y: 0 };
 
-    console.log('Dest => ', JSON.stringify({ x: dest.x, y: dest.y }));
-    console.log('Pos => ', JSON.stringify({ x: pos.x, y: pos.y }));
+    log(`Dest => ${JSON.stringify({ x: dest.x, y: dest.y })}`);
+    log(`Pos => ${JSON.stringify({ x: pos.x, y: pos.y })}`);
 
     let x = dest.x - pos.x;
     let y = dest.y - pos.y;

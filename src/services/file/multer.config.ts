@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from 'express';
 
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
-//     console.log(req);
+//     log(req);
 //     cb(null, path.join(__dirname, "../../../assets/img"));
 //   },
 //   filename: (req, file, cb) => {

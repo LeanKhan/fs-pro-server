@@ -1,9 +1,3 @@
-/**
- * Add the ratings of all the players...
- *
- */
-// function addPlayerRatings() {
-
 import {
   IMatchDetails,
   IMatchEvent,
@@ -15,6 +9,7 @@ import { findOneAndUpdate } from '../fixtures/fixture.service';
 import { findOneAndUpdate as updateDay } from '../days/day.service';
 import { Types } from 'mongoose';
 import { CalendarMatchInterface, DayInterface } from '../days/day.model';
+import log from '../../helpers/logger';
 
 interface Team {
   id: string;
@@ -182,7 +177,7 @@ export function updateStandings(
     return updateDay(query, { $set: { 'Matches.$.Played': true } })
       .then((day) => {
         currentDay = day;
-        console.log('Day =>', day);
+        log('Day =>', day);
 
         // Then find the array position...
         const matchIndex = day.Matches.findIndex(
@@ -192,7 +187,7 @@ export function updateStandings(
         return { week: day.Matches[matchIndex].Week, matches: day.Matches };
       })
       .catch((err) => {
-        console.log('err =>', err);
+        log(`err => ${err}`);
         throw new Error(err);
       });
   };
@@ -236,11 +231,11 @@ export function updateStandings(
       options
     )
       .then((res) => {
-        console.log(res);
+        log(res);
         return { homeTable, awayTable, matches, currentDay };
       })
       .catch((err) => {
-        console.log(err);
+        log(err);
         throw new Error(err);
       });
   };

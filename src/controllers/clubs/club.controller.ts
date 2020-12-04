@@ -7,7 +7,7 @@ import {
   updateClub,
   updateClubsById,
 } from './club.service';
-import { managers } from '@/state/PersistentState/OnlineManagers';
+import log from '../../helpers/logger';
 
 export function updateClubs(req: Request, res: Response, next: NextFunction) {
   const { clubs, userID } = req.body;
@@ -97,11 +97,11 @@ export function addManagerToClub(req: Request, res: Response) {
     .then(updateManager)
     .then(_updateClub)
     .then((c) => {
-      console.log('Hired New Manager!');
+      log('Hired New Manager!');
       return respond.success(res, 200, 'Hired new manager successfully!');
     })
     .catch((err) => {
-      console.log('Error hiring new manager!');
+      log('Error hiring new manager!');
       return respond.fail(res, 400, 'Error hiring new manager!', err);
     });
 }
@@ -162,11 +162,11 @@ export function removeManagerFromClub(req: Request, res: Response) {
     .then(updateManager)
     .then(_updateClub)
     .then((c) => {
-      console.log('Removed Manager');
+      log('Removed Manager');
       return respond.success(res, 200, 'Removed Manager successfully!');
     })
     .catch((err) => {
-      console.log('Error removing Manager!');
+      log('Error removing Manager!');
       return respond.fail(res, 400, 'Error removing Manager!', err);
     });
 }

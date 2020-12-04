@@ -3,6 +3,7 @@ import respond from '../helpers/responseHandler';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import mongoose from 'mongoose';
 import DB from '../db';
+import log from '../helpers/logger';
 
 export function incrementCounter(counterName: string) {
   return DB.db.collection('counter').findOneAndUpdate(
@@ -28,7 +29,7 @@ export const getCurrentCounter: RequestHandler = (
         number = number.toString().substring(1);
         const id: string = counter.prefix + number;
 
-        console.log('Id => ', id);
+        log(`Id => ${id}`);
 
         let idField;
         switch (req.query.model) {

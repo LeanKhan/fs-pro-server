@@ -1,7 +1,7 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { store } from '../../server';
-
+import log from '../../helpers/logger';
 export declare interface IUser extends Document {
   FirstName: string;
   LastName: string;
@@ -72,7 +72,7 @@ export class User {
           next();
         })
         .catch((err) => {
-          console.log('Error while hashing password => ', err);
+          log(`Error while hashing password => ${err}`);
         });
     });
 

@@ -16,6 +16,7 @@ import {
 } from '../../../classes/Referee';
 import { Decider, IStrategy } from './Decider';
 import { IMatchData } from '../../../classes/Match';
+import log from '../../../helpers/logger';
 
 export class Actions {
   public referee: IReferee;
@@ -43,7 +44,7 @@ export class Actions {
     this.defendingSide = ds;
     this.teams = teams;
 
-    console.log('Teams => ', this.teams[0].Name);
+    log(`Teams => ${this.teams[0].Name}`);
 
     this.decider = new Decider(this.teams);
 
@@ -101,19 +102,16 @@ export class Actions {
 
     this.interruption = false;
 
-    console.log(
-      'Taking Action... \nStrategy is => ',
-      strategy.detail,
-      ' ',
-      strategy.type
+    log(
+      `Taking Action... \nStrategy is => ${strategy.detail} ${strategy.type}`
     );
-    const log = {
+    const log_data = {
       Player: attackingPlayer.FirstName + ' ' + attackingPlayer.LastName,
       Club: attackingSide.ClubCode,
       Position: attackingPlayer.Position,
     };
 
-    console.table(log);
+    log(log_data, 'table');
 
     switch (strategy.type) {
       case 'pass':
@@ -141,12 +139,12 @@ export class Actions {
         matchEvents.emit('set-playing-sides');
         break;
       case 'shoot':
-        console.log('SHOOOOOOT!!!!!');
+        log('SHOOOOOOT!!!!!');
         this.shoot(attackingPlayer, attackingSide.ScoringSide, 'shot');
         break;
 
       case 'move':
-        console.log('Move attempt');
+        log('Move attempt');
 
         this.move(attackingPlayer, 'forward', attackingSide.ScoringSide);
 
@@ -157,7 +155,7 @@ export class Actions {
 
     if (this.interruption) {
       // handle interruption
-      console.log('handling interruption...');
+      log('handling interruption...');
     } else {
       matchEvents.emit('set-playing-sides');
       //  Continue gameplay
@@ -331,7 +329,7 @@ export class Actions {
             around
           ) as IFieldPlayer;
 
-          console.log('Moving Forward!');
+          log('Moving Forward!');
           // r being where you want to move the player to
           const r = ref;
 
@@ -353,10 +351,8 @@ export class Actions {
             // If the player is with the ball and there is a bad guy around
           } else if (player.WithBall && opponentBlock !== undefined) {
             // Tackle about to happen :0
-            console.log(
-              'Ball x,y => ',
-              player.Ball.Position.x,
-              player.Ball.Position.y
+            log(
+              `Ball x,y => ${player.Ball.Position.x} ${player.Ball.Position.y}`
             );
             const success = this.decider.getDribbleResult(
               player,
@@ -401,7 +397,7 @@ export class Actions {
           break;
       }
     } else {
-      console.log('In the empty else for Actions.move, thank you Jesus!');
+      log('In the empty else for Actions.move, thank you Jesus!');
       // situation = { status: false, reason: 'move towards ball successful' };
     }
     return situation;
@@ -504,9 +500,9 @@ export class Actions {
         CO.co.calculateDifference(landingBlock, player.BlockPosition)
       );
 
-      console.log('Free Blocks around keeper =>', freeBlocksAroundKeeper);
+      log('Free Blocks around keeper =>', freeBlocksAroundKeeper);
 
-      console.log('landing block', landingBlock);
+      log('landing block =>', landingBlock);
 
       // Shot is off target
       matchEvents.emit('shot', {
@@ -669,7 +665,7 @@ export class Actions {
   }
 
   private tackle(player: IFieldPlayer, tackler: IFieldPlayer) {
-    // console.log(`${tackler.LastName} is tackling ${player.LastName}`);
+    // log(`${tackler.LastName} is tackling ${player.LastName}`);
     // const success = this.decider.getTackleResult(tackler, player);
     const success = Math.round(Math.random() * 12) >= 6;
 
@@ -706,7 +702,7 @@ export class Actions {
 
   private pushForward(team: MatchSide) {
     // const chance = Math.round(Math.random() * 100);
-    console.log('*-- Attacking Side pushing forward --*');
+    log('*-- Attacking Side pushing forward --*');
 
     const attackingPlayers = playerFunc.getATTMID(team);
 
@@ -716,7 +712,7 @@ export class Actions {
   }
 
   private pressureBall(team: MatchSide) {
-    console.log('*-- Defending Side pressuring ball --*');
+    log('*-- Defending Side pressuring ball --*');
 
     // Find midfielders and attackers
     const defendingPlayers = playerFunc.getATTMID(team);

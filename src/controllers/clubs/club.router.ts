@@ -41,7 +41,7 @@ router.get('/fetch', (req, res) => {
     select = req.query.select || {};
     select = JSON.parse(select);
   } catch (err) {
-    return respond.fail(res, 400, 'Error parsing JSON for Clubs query => ', {
+    return respond.fail(res, 400, 'Error parsing JSON for Clubs query =>', {
       error: err,
       query,
       select,

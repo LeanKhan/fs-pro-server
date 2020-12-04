@@ -10,6 +10,7 @@ import respond from '../../helpers/responseHandler';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { updateClub } from '../clubs/club.service';
 import { ManagerInterface } from './manager.model';
+import log from '../../helpers/logger';
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.get('/', (req, res) => {
       options = JSON.parse(req.query.options);
     }
   } catch (err) {
-    console.log('Error parsing JSON => ', err);
+    log(`Error parsing JSON => ${err}`);
   }
 
   fetchAll(options)

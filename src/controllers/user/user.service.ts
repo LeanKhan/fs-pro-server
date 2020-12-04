@@ -1,4 +1,5 @@
 import DB from '../../db';
+import log from '../../helpers/logger';
 
 /**
  * fetch one user by Id
@@ -19,7 +20,7 @@ export function getUserSession(id: string, session: string) {
   return DB.Models.User.findById(id).then((user) => {
     user!.findSession(session, (a: any, sess: any) => {
       if (sess) {
-        console.log('Session =>', sess);
+        log('Session =>', sess);
         return sess;
       }
     });

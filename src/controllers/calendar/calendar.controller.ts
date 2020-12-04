@@ -18,6 +18,7 @@ import {
   findOneAndUpdate as updateCalendar,
   findAndUpdate as updateCalendars,
 } from './calendar.service';
+import log from '../../helpers/logger';
 
 export async function getSeasons(
   req: Request,
@@ -45,7 +46,7 @@ export async function getSeasons(
         }
       }
     );
-    // console.log(Types.ObjectId.re); // competitions: [{compeition'_id', 'BFC'},'_id']
+    // log(Types.ObjectId.re); // competitions: [{compeition'_id', 'BFC'},'_id']
   } catch (error) {
     return respond.fail(res, 400, `Error! => ${error}`, { error });
   }
@@ -255,7 +256,7 @@ export function generateCalendar(
     .then(createMany)
     .then((days) => {
       // get ids...
-      console.log('Days created successfully!');
+      log('Days created successfully!');
       req.body.days = days.map((day) => day._id);
       return next();
     })
@@ -289,7 +290,7 @@ export function saveCalendar(req: Request, res: Response, next: NextFunction) {
 
   updateCalendar({ _id: calendarID }, { Days: calendarDays })
     .then((cal) => {
-      console.log('Calendar Updated successfully!');
+      log('Calendar Updated successfully!');
       return respond.success(
         res,
         200,
@@ -298,7 +299,7 @@ export function saveCalendar(req: Request, res: Response, next: NextFunction) {
       );
     })
     .catch((err) => {
-      console.log('Error updating Calendar!', err);
+      log(`Error updating Calendar! => ${err}`);
       return respond.fail(res, 500, 'Error adding Days to Calendar!', err);
     });
   // TODO: check if you actually found the right calendar...
@@ -389,7 +390,7 @@ export function startYear(req: Request, res: Response, next: NextFunction) {
       );
     })
     .catch((err) => {
-      console.log('Error starting year! => ', err);
+      log(`Error starting year! => ${err}`);
       return respond.fail(res, 400, 'Error starting year!', err);
     });
 }
@@ -415,7 +416,7 @@ export async function getCurrentCalendar(
   try {
     populate = JSON.parse(req.query.populate);
   } catch (error) {
-    console.log("Couldn't parse populate query param");
+    log("Couldn't parse populate query param");
     populate = false;
   }
 

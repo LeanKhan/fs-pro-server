@@ -3,6 +3,7 @@ import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IPositions, IFieldPlayer, IPlayer } from '../interfaces/Player';
 import { ratingFactors, postitionFactors, ageFactors } from './player_factors';
+import log from '../helpers/logger';
 
 /**
  * Get attackers and midfielders that are not with the ball
@@ -133,15 +134,15 @@ function calculatePlayerValue(pos: string, rating: number, age: number) {
 
   const basevalue = getBasevalue(Math.round(rating));
 
-  console.log('Basevalue =>', basevalue);
+  log(`Basevalue => ${basevalue}`);
 
   const position_multiplier = basevalue * getPositionMultiplier(pos);
 
-  console.log('Position mu =>', position_multiplier);
+  log(`Position mu => ${position_multiplier}`);
 
   const age_multiplier = basevalue * getAgeMultiplier(pos, age);
 
-  console.log('Age mu =>', age_multiplier);
+  log(`Age mu => ${age_multiplier}`);
 
   return Math.round(basevalue + position_multiplier + age_multiplier);
 }

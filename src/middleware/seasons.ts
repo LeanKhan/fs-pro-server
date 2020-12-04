@@ -17,6 +17,7 @@ import {
 import { fetchOne } from '../controllers/calendar/calendar.service';
 import { CalendarInterface } from '../controllers/calendar/calendar.model';
 import { incrementCounter } from '../utils/counter';
+import log from '../helpers/logger';
 
 export function createSeason(req: Request, res: Response, next: NextFunction) {
   // tslint:disable-next-line: variable-name
@@ -39,7 +40,7 @@ export function createSeason(req: Request, res: Response, next: NextFunction) {
   // NOTE: Before we were getting Year for Season here...
   //  req.body.data.Year
 
-  console.log(year);
+  log(year);
 
   const findCalendar = () => {
     return fetchOne({ YearString: year });

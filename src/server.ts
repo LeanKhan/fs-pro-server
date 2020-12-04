@@ -9,6 +9,11 @@ import mStore from 'connect-mongodb-session';
 import cookie from 'cookie';
 import router from './routers';
 import path from 'path';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
+import log from './helpers/logger';
 
 const app: Application = express();
 
@@ -22,10 +27,7 @@ const port = process.env.PORT || 3000;
 
 import i = require('socket.io');
 
-import * as dotenv from 'dotenv';
 import App from './controllers/app/App';
-
-dotenv.config();
 
 const io = i(http);
 
@@ -38,7 +40,7 @@ const store = new MongoStore(
   },
   (err: any) => {
     if (err) {
-      console.error('Error connecting Store to MongoDB => ', err);
+      console.error(`Error connecting Store to MongoDB => ${err}`);
     }
   }
 );
@@ -128,13 +130,13 @@ io.use((socket: any, next: any) => {
               if (process.env.NODE_ENV!.trim() === 'dev') {
                 console.log('Client authenticated successfully!');
               }
-              console.log('Cookie found');
+              log('Cookie found');
               next();
             } else {
               if (process.env.NODE_ENV!.trim() === 'dev') {
                 console.log('Invalid Cookie!');
               }
-              console.log('Invalid cookie');
+              log('Invalid cookie');
               next(new Error('Cookie is expired!'));
             }
           } else {
@@ -149,7 +151,7 @@ io.use((socket: any, next: any) => {
       next(new Error('Not authorized man!'));
     }
   } else {
-    console.log('hi there :p');
+    log('hi there :p');
   }
 });
 
@@ -168,7 +170,7 @@ io.use((socket, next) => {
 io.on('connection', (socket: i.Socket) => {
   // let sessionID = socket.handshake.session.id;
 
-  console.log('Client connected successfully! =>', socket.id);
+  console.log(`Client connected successfully! => ${socket.id}`);
 
   socket.handshake.session!.onlineStart = new Date();
   socket.handshake.session!.online = true;
@@ -176,8 +178,8 @@ io.on('connection', (socket: i.Socket) => {
 
   socket.handshake.session!.save((err: Error) => {
     if (err) {
-      console.log('Errror in saving session! =>', err);
-      console.error('Error in saving session! => ', err);
+      console.log(`Errror in saving session! => ${err}`);
+      console.error(`Error in saving session! => ${err}`);
     } else {
       console.log('Session updated :)');
     }
@@ -189,12 +191,12 @@ io.on('connection', (socket: i.Socket) => {
 
     socket.handshake.session!.save((err: Error) => {
       if (err) {
-        console.log('Errror in saving session! =>', err);
-        console.error('Error in saving session! => ', err);
+        console.log(`Error in saving session! => ${err}`);
+        console.error(`Error in saving session! => ${err}`);
       }
     });
     console.info(
-      `Disconnected client session =>  ${socket.handshake.session!.id}`
+      `Disconnected client session => ${socket.handshake.session!.id}`
     );
   });
 

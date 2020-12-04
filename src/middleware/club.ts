@@ -7,6 +7,7 @@ import {
   updateClubsById,
 } from '../controllers/clubs/club.service';
 import respond from '../helpers/responseHandler';
+import log from '../helpers/logger';
 
 export const calculateClubRating: RequestHandler = (
   req: Request,
@@ -61,7 +62,7 @@ export const calculateClubRating: RequestHandler = (
           );
         })
         .catch((err) => {
-          console.log('Error updating Club Rating =>', err);
+          log(`Error updating Club Rating => ${err}`);
           respond.fail(res, 400, 'Error updating Club Rating', err);
         });
     })

@@ -8,6 +8,7 @@ import CO from '../utils/coordinates';
 import { Match, IMatchData } from './Match';
 import { MatchSide } from './MatchSide';
 import { IBall } from './Ball';
+import log from '../helpers/logger';
 
 export default class Referee {
   public FirstName: string;
@@ -47,7 +48,7 @@ export default class Referee {
    */
   public foul(subject: IFieldPlayer, object: IFieldPlayer) {
     const chance = Math.round(Math.random() * 12);
-    console.log('Referees difficulty => ', chance);
+    log(`Referees difficulty => ${chance}`);
     let level = 0;
     switch (this.Difficulty) {
       case 'tough':
@@ -91,16 +92,16 @@ export default class Referee {
   public handleFoul(data: IFoul, matchActions: Actions) {
     switch (data.reason) {
       case 'yellow card':
-        console.log('yellow card! [Y]');
+        log('yellow card! [Y]');
         // Get freekick taker
         this.setUpSetPiece(data, data.where);
         break;
       case 'red card':
-        console.log('red card! [R]');
+        log('red card! [R]');
         this.setUpSetPiece(data, data.where);
         break;
       case 'foul':
-        console.log('foul! [FK]');
+        log('foul! [FK]');
         this.setUpSetPiece(data, data.where);
         break;
       default:
@@ -116,7 +117,7 @@ export default class Referee {
     //  Get distance from ScoringSide
     const distance = CO.co.calculateDistance(this.Teams![i].ScoringSide, where);
     if (distance < 2) {
-      console.log('<== Penalty Kick ==>');
+      log('<== Penalty Kick ==>');
 
       // Get an attacker or midfielder to take the PK
       const teamIndex = this.Teams!.findIndex(
@@ -139,7 +140,7 @@ export default class Referee {
 
       // Give him the ball :)
     } else if (distance >= 2 && distance < 5) {
-      console.log('<== Set Piece Free Kick! ==>');
+      log('<== Set Piece Free Kick! ==>');
 
       // Move freekick taker to spot
       const teamIndex = this.Teams!.findIndex(
@@ -160,7 +161,7 @@ export default class Referee {
         CO.co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
       );
 
-      console.log(
+      log(
         `${taker.FirstName} ${taker.LastName} [${taker.Position}] is taking the freekick`
       );
 
@@ -177,7 +178,7 @@ export default class Referee {
       const p2 = CO.co.findPath(b2, foulData.subject.BlockPosition);
       foulData.subject.move(p2);
     } else {
-      console.log('<== Pass Free Kick ==>');
+      log('<== Pass Free Kick ==>');
 
       // Move freekick taker to spot
 
@@ -199,7 +200,7 @@ export default class Referee {
         CO.co.calculateDifference(taker.BlockPosition, taker.Ball.Position)
       );
 
-      console.log(
+      log(
         `${taker.FirstName} ${taker.LastName} [${taker.Position}] is taking the freekick`
       );
 
@@ -243,7 +244,7 @@ export default class Referee {
         keeper.Ball.move(
           CO.co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
         );
-        // console.log('resume gameplay :)')
+        // log('resume gameplay :)')
         // Move players to starting position
 
         // Move players to starting position...
@@ -260,7 +261,7 @@ export default class Referee {
         // matchEvents.emit('set-playing-sides');
         break;
       case 'miss':
-        console.log('missed shot');
+        log('missed shot');
         // matchEvents.emit('set-playing-sides');
         createMatchEvent(
           `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] missed a shot`,
@@ -271,7 +272,7 @@ export default class Referee {
         matchEvents.emit('missed-shot', data);
         break;
       case 'save':
-        console.log('shot saved');
+        log('shot saved');
         createMatchEvent(
           `${data.keeper.FirstName} ${data.keeper.LastName} [${data.keeper.ClubCode}] saved a shot from ${data.shooter.FirstName} ${data.shooter.LastName}`,
           'save',

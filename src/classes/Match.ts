@@ -4,6 +4,8 @@ import { matchEvents, createMatchEvent, ballMove } from '../utils/events';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer, IPlayerStats } from '../interfaces/Player';
 import { IShot, IPass, GamePoints, ITackle, IDribble } from './Referee';
+import log from '../helpers/logger';
+
 /**
  * The Match Class gan gan
  */
@@ -107,7 +109,7 @@ export class Match implements IMatch, MatchClass {
     });
 
     matchEvents.on('goal!', (data: IShot) => {
-      console.log('GOAAAALLL!!!');
+      log('GOAAAALLL!!!');
 
       // add to match actions...
       this.Actions.push({
@@ -148,7 +150,7 @@ export class Match implements IMatch, MatchClass {
         this.Details.AwayTeamDetails.Goals++;
       }
 
-      console.log(
+      log(
         `Goal from ${data.shooter.FirstName} ${data.shooter.LastName} now at ${data.shooter.GameStats.Goals}`
       );
 
@@ -163,12 +165,12 @@ export class Match implements IMatch, MatchClass {
     matchEvents.on('saved-shot', (data: IShot) => {
       data.keeper.GameStats.Saves++;
       data.keeper.increasePoints(GamePoints.Save);
-      console.log('Shot was saved yo');
+      log('Shot was saved yo');
     });
 
     matchEvents.on('missed-shot', (data: IShot) => {
       data.shooter.increasePoints(-GamePoints.Goal / 2);
-      console.log('Missed shot though :(');
+      log('Missed shot though :(');
     });
 
     matchEvents.on('pass-made', (data: IPass) => {
@@ -189,13 +191,11 @@ export class Match implements IMatch, MatchClass {
       this.Home.ClubCode === data.passer.ClubCode
         ? this.Details.HomeTeamDetails.Passes++
         : this.Details.AwayTeamDetails.Passes++;
-      console.log(
-        `Pass from ${data.passer.LastName} to ${data.receiver.LastName}`
-      );
+      log(`Pass from ${data.passer.LastName} to ${data.receiver.LastName}`);
     });
 
     matchEvents.on('pass intercepted', (data) => {
-      console.log(
+      log(
         `Attempted Pass from ${data.passer} intercepted by ${data.interceptor}`
       );
     });
@@ -207,7 +207,7 @@ export class Match implements IMatch, MatchClass {
       // Remove points from Dribbled :)
       data.dribbled.increasePoints(-GamePoints.Dribble / 2);
 
-      console.log(`${data.dribbler.FirstName} ${data.dribbler.LastName} [${data.dribbler.ClubCode}] dribbled
+      log(`${data.dribbler.FirstName} ${data.dribbler.LastName} [${data.dribbler.ClubCode}] dribbled
       ${data.dribbled.FirstName} ${data.dribbled.LastName} [${data.dribbled.ClubCode}] successfully`);
     });
 
@@ -218,7 +218,7 @@ export class Match implements IMatch, MatchClass {
         data.tackler.GameStats.Tackles++;
         data.tackler.increasePoints(GamePoints.Tackle);
 
-        console.log(
+        log(
           `${data.tackler.FirstName} ${data.tackler.LastName} [with Ball? ${
             data.tackler.WithBall
           }] at ${JSON.stringify({
@@ -237,7 +237,7 @@ export class Match implements IMatch, MatchClass {
         // Subtract points hehe
         data.tackler.increasePoints(-GamePoints.Tackle / 2);
 
-        console.log(
+        log(
           `Unsuccessful tackle attempt by ${data.tackler.FirstName} ${
             data.tackler.LastName
           } at ${JSON.stringify(data.tackler.BlockPosition.key)} on ${
@@ -250,36 +250,31 @@ export class Match implements IMatch, MatchClass {
     });
 
     matchEvents.on('reset-formations', () => {
-      console.log('********Resetting formations *********');
+      log('********Resetting formations *********');
       this.resetClubFormations();
       matchEvents.emit('reset-ball-position');
     });
 
     matchEvents.on('half-end', () => {
-      console.log('First half over!');
-      console.log(
-        'Match Result => ',
-        `[${this.Home.ClubCode}] ${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore} [${this.Away.ClubCode}]`
+      log('First half over!');
+      log(
+        `Match Result => [${this.Home.ClubCode}] ${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore} [${this.Away.ClubCode}]`
       );
 
       createMatchEvent('Half Over', 'match');
 
-      // console.table(this.Events); TODO - UNCOMMENT O
+      // log(this.Events, 'table'); TODO - UNCOMMENT O
 
-      console.log('Home Team => ', this.Home.ClubCode);
+      log(`Home Team => ${this.Home.ClubCode}`);
       this.Home.StartingSquad.forEach((p) => {
-        console.log(
-          `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
-        );
-        // console.table(p.GameStats); TODO -UNCOMMENT O
+        log(`[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`);
+        // log(p.GameStats, 'table'); TODO -UNCOMMENT O
       });
 
-      console.log('Away Team => ', this.Away.ClubCode);
+      log(`Away Team => ${this.Away.ClubCode}`);
       this.Away.StartingSquad.forEach((p) => {
-        console.log(
-          `[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`
-        );
-        // console.table(p.GameStats); TODO - UNCOMMENT O
+        log(`[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`);
+        // log(p.GameStats, 'table'); TODO - UNCOMMENT O
       });
 
       this.endMatch();
@@ -345,13 +340,13 @@ export class Match implements IMatch, MatchClass {
     this.getWinners();
     this.getMOTM();
 
-    console.log('ball-moved listeners: ', ballMove.listenerCount('ball-moved'));
+    log(`ball-moved listeners: ${ballMove.listenerCount('ball-moved')}`);
     if (this.getCurrentTime === 90) {
       // Only remove the listeners at the end of the match :) Thank you Jesus!
       ballMove.removeAllListeners();
       matchEvents.removeAllListeners();
     }
-    console.log('Match Details =>', this.Details);
+    log('Match Details =>', this.Details);
   }
 
   public setCurrentTime(time: number) {
@@ -381,8 +376,7 @@ export class Match implements IMatch, MatchClass {
   }
 
   public showActions() {
-    // console.table(this.Actions); TODO: UNCOMMENT O
-    console.table('this.Actions');
+    // log(this.Actions, 'table'); TODO: UNCOMMENT O
   }
 
   public calculatePosession() {
@@ -407,7 +401,7 @@ export class Match implements IMatch, MatchClass {
     );
 
     const motm = allSquads[allSquads.length - 1];
-    // console.log('MOTM =>', motm); TODO - UNCOMMENT O
+    // log('MOTM =>', motm); TODO - UNCOMMENT O
 
     this.Details.MOTM = {
       playerID: motm.PlayerID,

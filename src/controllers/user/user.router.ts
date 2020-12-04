@@ -16,6 +16,7 @@ import { initializeSession, findSession } from '../../middleware/user';
 import { updateClubs } from '../../controllers/clubs/club.controller';
 import { IUser } from './user.model';
 import { store } from '../../server';
+import log from '../../helpers/logger';
 
 //
 const router = Router();
@@ -153,7 +154,7 @@ router.get('/:id', (req, res) => {
 router.delete('/:id/logout', (req, res) => {
   // delete user's session
   const userID = req.params.id;
-  console.log('User ID', userID);
+  log(`User ID => ${userID}`);
   const response = fetchOneUser({ _id: userID }, true);
 
   response

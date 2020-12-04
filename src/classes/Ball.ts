@@ -1,6 +1,7 @@
 import { ballMove } from '../utils/events';
 import CO from '../utils/coordinates';
 import { IBlock, ICoordinate } from '../state/ImmutableState/FieldGrid';
+import log from '../helpers/logger';
 
 class BallClass {
   public static instances: number;
@@ -25,15 +26,13 @@ export default class Ball implements IBall, BallClass {
   }
 
   public move(pos: ICoordinate) {
-    console.log(
-      `oldPos ${JSON.stringify({ x: this.Position.x, y: this.Position.y })}`
-    );
+    log(`oldPos ${JSON.stringify({ x: this.Position.x, y: this.Position.y })}`);
 
-    console.log(`sent pos ${JSON.stringify({ x: pos.x, y: pos.y })}`);
+    log(`sent pos ${JSON.stringify({ x: pos.x, y: pos.y })}`);
 
     const newPos = { x: this.Position.x + pos.x, y: this.Position.y + pos.y };
 
-    console.log(`newPos ${JSON.stringify(newPos)}`);
+    log(`newPos ${JSON.stringify(newPos)}`);
 
     // this.Position.x += pos.x;
     // this.Position.y += pos.y;
@@ -41,7 +40,7 @@ export default class Ball implements IBall, BallClass {
 
     this.Position = CO.co.coordinateToBlock(newPos);
 
-    console.log(
+    log(
       `New Ball position ${JSON.stringify({
         x: this.Position.x,
         y: this.Position.y,
