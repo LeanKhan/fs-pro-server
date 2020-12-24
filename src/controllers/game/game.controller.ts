@@ -18,7 +18,7 @@ export async function restPlayGame(
   res: Response,
   next: NextFunction
 ) {
-  const { fixture_id } = req.query;
+  const { fixture: fixture_id } = req.params;
 
   if (!fixture_id) {
     // SEND IT BACK!
@@ -93,28 +93,38 @@ export async function restPlayGame(
         manager: m.Away.Manager,
       };
 
-      const result = await updateFixture(
-        m.Details,
-        m.Events,
-        homeObj,
-        awayObj,
-        fixture_id
-      );
+      let match: Fixture;
 
-      if (!result) {
-        return responseHandler.fail(
-          res,
-          400,
-          'Error updating fixtures! - Match cannot be found!',
-          {
-            matchErrorResponseCode: 3,
-          }
+      try {
+        match = await updateFixture(
+          m.Details,
+          m.Events,
+          homeObj,
+          awayObj,
+          fixture_id
         );
+
+        if (!match) {
+          return responseHandler.fail(
+            res,
+            400,
+            'Error updating fixtures! - Match cannot be found!',
+            {
+              matchErrorResponseCode: 3,
+            }
+          );
+        }
+      } catch (error) {
+        console.error('Error updating fixture! :( => \n', error);
+
+        return responseHandler.fail(res, 400, 'Error updating fixtures!', {
+          matchErrorResponseCode: 6,
+        });
       }
 
       req.body.home = homeObj;
       req.body.away = awayObj;
-      req.body.match = result;
+      req.body.match = match;
       req.body.season_id = fixture.Season;
 
       log(`The Match instances ${Match.instances}`);
@@ -124,13 +134,13 @@ export async function restPlayGame(
       return next();
     })
     .catch((err) => {
-      log('ERROR PLAYING MATCH!');
+      console.log('ERROR PLAYING MATCH!');
 
-      log(`Error updating fixture... ${err}`);
+      console.log(`Error updating fixture...`, err);
 
       return responseHandler.fail(res, 400, 'Error playing match!', {
         ...err,
-        matchErrorResponseCode: 2,
+        matchErrorResponseCode: 5,
       });
     });
 }
@@ -143,12 +153,7 @@ export function restUpdateStandings(
   // Soon we will be getting it from the fixture object...
   // THANK YOU JESUS!
 
-  const getCurrentDay = () => {
-    const q = { 'Matches.Fixture': fixture_id };
-    return findDay(q, false);
-  };
-
-  const { fixture_id } = req.query;
+  const { fixture: fixture_id } = req.params;
   const { match, home, away, season_id } = req.body;
 
   updateStandings(
@@ -180,7 +185,7 @@ export function restUpdateStandings(
             // you should send the results and everything back... Thank you Jesus!
             // We also need to check if the season is over...
             // Maybe send back the updated day...
-            log('Current Day changed successfully!');
+            console.log('Current Day changed successfully!');
             return responseHandler.success(
               res,
               200,
@@ -193,7 +198,7 @@ export function restUpdateStandings(
             );
           })
           .catch((err) => {
-            log('Error changing current Calendar Day!');
+            console.log('Error changing current Calendar Day!', err);
             return responseHandler.fail(
               res,
               400,
@@ -209,14 +214,15 @@ export function restUpdateStandings(
         match,
       });
     })
-    .catch((err) =>
+    .catch((err) => {
+      console.log(err);
       responseHandler.fail(
         res,
         400,
         'Error Playing Match and updating Standings!',
         { ...err, matchErrorResponseCode: 2 }
-      )
-    )
+      );
+    })
     .finally(() => {
       // Delete CurrentMatch Instance...
 

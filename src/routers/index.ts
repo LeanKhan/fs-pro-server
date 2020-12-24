@@ -6,6 +6,7 @@ import seasons from '../controllers/seasons/season.router';
 import users from '../controllers/user/user.router';
 import games from '../controllers/game/game.router';
 import calendars from '../controllers/calendar/calendar.router';
+import fixtures from '../controllers/fixtures/fixture.router';
 import files from '../services/file/file.service';
 import managers from '../controllers/managers/manager.router';
 import countries from '../controllers/countries/router';
@@ -21,6 +22,8 @@ router.use('/competitions', competitions);
 router.use('/users', users);
 
 router.use('/seasons', seasons);
+
+router.use('/fixtures', fixtures);
 
 router.use('/calendar', calendars);
 

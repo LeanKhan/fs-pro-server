@@ -12,6 +12,12 @@ import { fetchMany } from '../days/day.service';
 
 const router = Router();
 
+// TODO: change route scheme for Calendars to 
+
+// /calendars/<action>
+// /calendars/<entity>/<action>
+// instead of /calendar/calendars/<entity>
+
 /** Get Calendar by id */
 router.get('/calendars/:id', (req, res) => {
   const response = fetchOneById(req.params.id);

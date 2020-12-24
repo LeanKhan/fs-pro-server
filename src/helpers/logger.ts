@@ -1,6 +1,6 @@
 // const stop = process.env.STOP_LOGGING?.trim();
 // TODO: make this in the environment variables
-const stop = false;
+const stop = true;
 // console.log(stop);
 
 export default function log(message: string | any, type: any = 'log') {

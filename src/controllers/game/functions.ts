@@ -176,6 +176,10 @@ export function updateStandings(
   const getWeekAndUpdateMatch = async () => {
     return updateDay(query, { $set: { 'Matches.$.Played': true } })
       .then((day) => {
+        if (!day) {
+          throw new Error(`Match Day does not exist!`);
+        }
+
         currentDay = day;
         log('Day =>', day);
 
@@ -220,24 +224,23 @@ export function updateStandings(
     const hw = `Standings.${week - 1}.Table.$[home]`;
     const aw = `Standings.${week - 1}.Table.$[away]`;
 
-    return updateSeason(
-      { _id: seasonID.toString() },
-      {
-        $set: {
-          [hw]: homeTable,
-          [aw]: awayTable,
+    try {
+      await updateSeason(
+        { _id: seasonID.toString() },
+        {
+          $set: {
+            [hw]: homeTable,
+            [aw]: awayTable,
+          },
         },
-      },
-      options
-    )
-      .then((res) => {
-        log(res);
-        return { homeTable, awayTable, matches, currentDay };
-      })
-      .catch((err) => {
-        log(err);
-        throw new Error(err);
-      });
+        options
+      );
+
+      return { homeTable, awayTable, matches, currentDay };
+    } catch (error) {
+      console.error('Error updating Season! :(', error);
+      throw new Error(error);
+    }
   };
 
   return getWeekAndUpdateMatch().then(updateTable);

@@ -3,6 +3,6 @@ import { restPlayGame, restUpdateStandings } from './game.controller';
 
 const router = Router();
 
-router.get('/kickoff', restPlayGame, restUpdateStandings);
+router.get('/kickoff/:fixture', restPlayGame, restUpdateStandings);
 
 export default router;

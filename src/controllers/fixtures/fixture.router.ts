@@ -6,7 +6,16 @@ const router = Router();
 
 /** Get Fixture by id */
 router.get('/:id', (req, res) => {
-  fetchOneById(req.params.id, false)
+
+	let p = false;
+
+	try {
+		p = JSON.parse(req.query.populate);
+	} catch (err) {
+		console.log('Error parsing populate string, Fixture', err)
+	}
+
+  fetchOneById(req.params.id, p)
     .then((fixture) => {
       respond.success(res, 200, 'Fixture fetched successfully', fixture);
     })
@@ -14,3 +23,5 @@ router.get('/:id', (req, res) => {
       respond.fail(res, 400, 'Error fetching Fixture', err);
     });
 });
+
+export default router;

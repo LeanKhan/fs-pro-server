@@ -3,7 +3,6 @@ import Coordinates from '../../utils/coordinates';
 import { matchEvents } from '../../utils/events';
 import { fetchClubs } from '../clubs/club.service';
 import Game from '../Game';
-import log from '../../helpers/logger';
 
 export default class App {
   public static instance: App;
@@ -62,7 +61,7 @@ export default class App {
 
       return this.Game;
     } catch (err) {
-      log('Error setting up game! (in App) =>', err);
+      console.log('Error setting up game! (in App) =>', err);
       throw new Error(err);
     }
   }
@@ -77,7 +76,7 @@ export default class App {
       // TODO: !!! SEARCH FOR THIS log(..., any) in the code
       // Done! RegExp used: log\(.*, [a-zA-Z]*\) this finds expressions
       // that look like log(..., ...)
-      log('Error starting game! =>', error);
+      console.log('Error starting game! =>', error);
     }
   }
 
@@ -88,7 +87,7 @@ export default class App {
 
       // After here, the game should start!
     } catch (error) {
-      log('Error ending game! =>', error);
+      console.log('Error ending game! =>', error);
     }
   }
 

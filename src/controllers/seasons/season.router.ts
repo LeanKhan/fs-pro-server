@@ -23,37 +23,11 @@ const router = Router();
 router.get('/', (req: Request, res: Response) => {
   // TODO: review all these your service then, async/awaits. Thank you Jesus!
   fetchAll()
-    .then((seasons) => {
+    .then((seasons: any) => {
       respond.success(res, 200, 'Seasons fetched successfully', seasons);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching Seasons', err);
-    });
-});
-
-router.put('/:id', (req, res) => {
-  // update season
-});
-
-/** Get Season by id */
-router.get('/:id', (req: Request, res: Response) => {
-  fetchOneById(req.params.id)
-    .then((season) => {
-      respond.success(res, 200, 'Season fetched successfully', season);
-    })
-    .catch((err) => {
-      respond.fail(res, 400, 'Error fetching Season', err);
-    });
-});
-
-/** Delete Season by id */
-router.delete('/:id', (req: Request, res: Response) => {
-  deleteById(req.params.id)
-    .then((season) => {
-      respond.success(res, 200, 'Season deleted successfully', season);
-    })
-    .catch((err) => {
-      respond.fail(res, 400, 'Error deleting Season', err);
     });
 });
 
@@ -70,7 +44,7 @@ router.post(
     const fixtureIds = req.body.fixtureIds;
 
     findByIdAndUpdate(req.params.id, { Fixtures: fixtureIds })
-      .then((season) => {
+      .then((season: any) => {
         respond.success(
           res,
           200,
@@ -78,7 +52,7 @@ router.post(
           season
         );
       })
-      .catch((err) => {
+      .catch((err: any) => {
         respond.fail(res, 400, 'Error setting fixtures in Season', err);
       });
   }
@@ -90,10 +64,10 @@ router.patch('/:id/start', (req, res) => {
     isStarted: true,
     StartDate: new Date(),
   })
-    .then((season) => {
+    .then((season: any) => {
       respond.success(res, 200, 'Season started successfully', season);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error starting Season', err);
     });
 });
@@ -101,7 +75,7 @@ router.patch('/:id/start', (req, res) => {
 /** Get all Fixtures in Season */
 router.get('/:id/fixtures', (req, res) => {
   fetchAllFixtures({ Season: req.params.id })
-    .then((fixtures) => {
+    .then((fixtures: any) => {
       respond.success(
         res,
         200,
@@ -109,12 +83,47 @@ router.get('/:id/fixtures', (req, res) => {
         fixtures
       );
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching Season Fixtures', err);
     });
 });
 
 /** Get current Season */
 router.get('/current', getCurrentSeasons);
+
+// I moved these endpoiints down here because it was matching 'seasons/current' causing an error.
+
+/** Get Season by id */
+router.get('/:id', (req: Request, res: Response) => {
+  fetchOneById(req.params.id)
+    .then((season: any) => {
+      respond.success(res, 200, 'Season fetched successfully', season);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error fetching Season', err);
+    });
+});
+
+// get current setInitialStandings
+router.get('/:id/standings', (req: Request, res: Response) => {
+  fetchOneById(req.params.id)
+    .then((standings: any) => {
+      respond.success(res, 200, 'Season Standings fetched successfully', standings);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error fetching Season Standings', err);
+    });
+});
+
+/** Delete Season by id */
+router.delete('/:id', (req: Request, res: Response) => {
+  deleteById(req.params.id)
+    .then((season: any) => {
+      respond.success(res, 200, 'Season deleted successfully', season);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error deleting Season', err);
+    });
+});
 
 export default router;

@@ -30,7 +30,14 @@ export function fetchAll(
  * Fetch a specific season by its id
  * @param id
  */
-export function fetchOneById(id: string) {
+export function fetchOneById(id: string, select: boolean | string = false) {
+
+  if (select) {
+    return DB.Models.Season.findById(id)
+      .select(select)
+      .lean()
+      .exec();
+  }
   return DB.Models.Season.findById(id).populate('Fixtures').lean().exec();
 }
 

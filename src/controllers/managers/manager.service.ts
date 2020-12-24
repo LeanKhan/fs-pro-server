@@ -1,4 +1,3 @@
-import { managers } from '@/state/PersistentState/OnlineManagers';
 import DB from '../../db';
 import { ManagerInterface } from './manager.model';
 

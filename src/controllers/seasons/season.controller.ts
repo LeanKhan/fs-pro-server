@@ -13,14 +13,23 @@ export async function getCurrentSeasons(req: Request, res: Response) {
    * 4. Thank you Jesus...
    */
 
-  const { year } = req.query;
+  const year = process.env.CURRENT_YEAR!.trim() || req.query.year;
+
+  let populate;
+
+   try {
+    populate = JSON.parse(req.query.populate);
+  } catch (error) {
+    console.log("Couldn't parse populate query param for Seasons");
+    populate = false;
+  }
 
   // now find the seasons with these parameters [${compCode}-${Month}-${Year}]
   // const seasons = findAll
   // Find the seasons that are in these competitions and this year
   const query = { Year: year, isFinished: false, Status: 'started' };
   try {
-    const seasons = await fetchAll(query, 'Fixtures Competition', false);
+    const seasons = await fetchAll(query, populate, false);
     if (seasons.length === 0) {
       return respond.fail(res, 404, 'No Seasons found!', seasons);
     }
