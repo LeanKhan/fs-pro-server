@@ -47,9 +47,23 @@ FSPro game server is written in TypeScript.
 - Node + Express - Typescript
 - MongoDB for database
 
+There is an incomplete (like this) Client app tho https://github.com/LeanKhan/fs-pro-server
+
+You can check it out too...
+
 ### HOW TO CONTRIBUTE
 
-Goto the repo and read the CONTRIBUTING.md file to get started
+Goto the repo and read the CONTRIBUTING.md file to get started.
+TBH just do anything you want if it makes sense :)
+
+### Important...
+
+So you might need images for your clubs and for the app. Download this .zip file and unpack it in the /assets folder (create it if not there already).
+So that you have assets/img/... don't forget to move the img folder inside the zip to the assets folder gan
+
+This folder has the game logo and club logos. Of course, you can use your own club logos.
+
+The folder: https://drive.google.com/file/d/1ZohZLDTaT9owSKY_OWA7Y5UgBqvghR0q/view?usp=sharing
 
 ### License
 
