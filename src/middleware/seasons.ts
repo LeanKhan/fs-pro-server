@@ -35,7 +35,7 @@ export function createSeason(req: Request, res: Response, next: NextFunction) {
   // In client request for a list of all the Calendars available
   const year = process.env.CURRENT_YEAR!.trim().toUpperCase();
 
-  const seasonCode = req.body.data.CompetitionCode + ':' + year;
+  const seasonCode = req.body.data.CompetitionCode + '-' + year;
 
   // NOTE: Before we were getting Year for Season here...
   //  req.body.data.Year
@@ -102,11 +102,11 @@ export function fetchCompetitionClubs(
   const { competitionId } = req.body.data as GenerateFixturesBody;
 
   fetchCompetition(competitionId)
-    .then((value) => {
+    .then((value: any) => {
       req.body.competition = value;
       next();
     })
-    .catch((error) => {
+    .catch((error: any) => {
       respond.fail(res, 400, 'Error fetching competition', error);
     });
 }
@@ -177,6 +177,7 @@ export function generateFixtures(
       index,
       matchesPerWeek,
       type: competition.Type.toLowerCase(),
+      isFinalMatch: (index + 1) === rounds.length,
     } as fixtureInterface;
     return generateFixtureObject(data);
   });
@@ -227,10 +228,10 @@ export function setInitialStandings(
   }
 
   findByIdAndUpdate(seasonId, { Standings: weeks })
-    .then((season) => {
+    .then((season: any) => {
       next();
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error creating Fixtures', err);
     });
 }

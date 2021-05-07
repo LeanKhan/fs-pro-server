@@ -1,4 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/restrict-plus-operands */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { ClubInterface as IClub } from '../controllers/clubs/club.model';
+import {
+  ClubStandings,
+  SeasonInterface,
+} from '../controllers/seasons/season.model';
 
 /**
  * Returns the short name of the month based on its index
@@ -144,6 +151,7 @@ export interface fixtureInterface {
   index: number;
   matchesPerWeek: number;
   type: 'league' | 'cup' | 'tournament' | 'friendly';
+  isFinalMatch: boolean;
 }
 
 /**
@@ -175,6 +183,7 @@ export function generateFixtureObject(data: fixtureInterface) {
     Stadium: data.stadium,
     Type: data.type,
     Week: Math.ceil((data.index + 1) / data.matchesPerWeek),
+    isFinalMatch: data.isFinalMatch,
   };
 }
 
@@ -229,4 +238,65 @@ export class RoundRobin {
 
 function progression(n: number, a: number, d: number) {
   return a + (n - 1) * d;
+}
+
+function sumStandings(
+  standings: SeasonInterface['Standings']
+): ClubStandings[] {
+  return standings.reduce((acc: any, week) => acc.concat(week.Table), []);
+}
+
+function sortStandings(standings: ClubStandings[]) {
+  return standings.sort((a, b) => {
+    if (b.Points === a.Points) {
+      if (b.GD === b.GD) {
+        return b.GF - a.GF;
+      } else {
+        return b.GD - a.GD;
+      }
+    }
+    return b.Points - a.Points;
+  });
+}
+
+export function compileStandings(standings: SeasonInterface['Standings']) {
+  const allStandings = sumStandings(standings);
+
+  const sum: any[] = [];
+
+  Array.from(new Set(allStandings.map((x) => x.ClubCode))).forEach((x) => {
+    sum.push(
+      allStandings
+        .filter((y) => y.ClubCode === x)
+        .reduce((output: any, item: any) => {
+          const pnts = output['Points'] === undefined ? 0 : output['Points'];
+          const gd = output['GD'] === undefined ? 0 : output['GD'];
+          const ga = output['GA'] === undefined ? 0 : output['GA'];
+          const gf = output['GF'] === undefined ? 0 : output['GF'];
+          const plyd = output['Played'] === undefined ? 0 : output['Played'];
+          const w = output['Wins'] === undefined ? 0 : output['Wins'];
+          const l = output['Losses'] === undefined ? 0 : output['Losses'];
+          const d = output['Draws'] === undefined ? 0 : output['Draws'];
+
+          output['ClubCode'] = x;
+          output['Points'] = item.Points + pnts;
+          output['GD'] = item.GD + gd;
+          output['GA'] = item.GA + ga;
+          output['GF'] = item.GF + gf;
+          output['Played'] = item.Played + plyd;
+          output['Wins'] = item.Wins + w;
+          output['Losses'] = item.Losses + l;
+          output['Draws'] = item.Draws + d;
+
+          return output;
+        }, {})
+    );
+  });
+  return sortStandings(sum);
+}
+
+/** promote or relegate */
+
+export function prolegate(standings: SeasonInterface['Standings']) {
+  // What kind of season is it?
 }

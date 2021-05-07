@@ -34,7 +34,7 @@ export async function restPlayGame(
     fixture = await fetchOneById(fixture_id, false);
     // We also need to get the associated calendar day...
   } catch (error) {
-    log(`Error! => ${error}`);
+    console.error('Error! Fetching Fixture to play match =>', error);
 
     return responseHandler.fail(
       res,
@@ -168,9 +168,9 @@ export function restUpdateStandings(
       // Check if we need to update Calendar day
       const allMatchesPlayed = matches.every((m) => m.Played);
 
-      // Now that we have the currentDay, waht can we do with the data?
-      // Thank you Jesus.
-
+      /** If all matches in the Day have been played, we can change the
+       * CurrentDay...
+       */
       if (allMatchesPlayed) {
         // move current Day!
         req.body.homeTable = homeTable;

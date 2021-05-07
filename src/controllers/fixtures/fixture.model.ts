@@ -29,6 +29,9 @@ export interface Fixture {
   HomeSideDetails: IMatchSideDetails;
   AwaySideDetails: IMatchSideDetails;
   Events: IMatchEvent[];
+  HomeManager: string;
+  AwayManager: string;
+  isFinalMatch: boolean;
 }
 
 declare interface IFixture extends Document {
@@ -148,6 +151,10 @@ export class Fixture {
         AwaySideDetails: MatchSideDetailsSchema,
         HomeManager: { type: Schema.Types.ObjectId, ref: 'Manager' },
         AwayManager: { type: Schema.Types.ObjectId, ref: 'Manager' },
+        isFinalMatch: {
+          type: Boolean,
+          default: false,
+        },
       },
       { timestamps: true }
     );

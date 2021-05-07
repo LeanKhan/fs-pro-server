@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Router, Request, Response } from 'express';
 import {
   fetchAll,
@@ -5,7 +7,11 @@ import {
   deleteById,
   findByIdAndUpdate,
 } from './season.service';
-import { fetchAll as fetchAllFixtures } from '../fixtures/fixture.service';
+import { SeasonInterface } from './season.model';
+import {
+  fetchAll as fetchAllFixtures,
+  deleteAll as deleteManyFixtures,
+} from '../fixtures/fixture.service';
 import {
   createSeason,
   fetchCompetitionClubs,
@@ -14,7 +20,8 @@ import {
 } from '../../middleware/seasons';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { addSeasonToCompetition } from '../competitions/competition.controller';
-import { getCurrentSeasons } from './season.controller';
+import { update as updateComp } from '../competitions/competition.service';
+import { finishSeason, getCurrentSeasons } from './season.controller';
 import respond from '../../helpers/responseHandler';
 
 const router = Router();
@@ -24,10 +31,10 @@ router.get('/', (req: Request, res: Response) => {
   // TODO: review all these your service then, async/awaits. Thank you Jesus!
   fetchAll()
     .then((seasons: any) => {
-      respond.success(res, 200, 'Seasons fetched successfully', seasons);
+      return respond.success(res, 200, 'Seasons fetched successfully', seasons);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching Seasons', err);
+      return respond.fail(res, 400, 'Error fetching Seasons', err);
     });
 });
 
@@ -72,6 +79,9 @@ router.patch('/:id/start', (req, res) => {
     });
 });
 
+/** FINISH SEASON */
+router.patch('/:id/finish', finishSeason);
+
 /** Get all Fixtures in Season */
 router.get('/:id/fixtures', (req, res) => {
   fetchAllFixtures({ Season: req.params.id })
@@ -95,12 +105,22 @@ router.get('/current', getCurrentSeasons);
 
 /** Get Season by id */
 router.get('/:id', (req: Request, res: Response) => {
-  fetchOneById(req.params.id)
+  const id = req.params.id;
+
+  // Use validators here...
+  if (!id) {
+    return respond.fail(res, 404, 'Please provide valid Season ID!');
+  }
+
+  fetchOneById(id)
     .then((season: any) => {
-      respond.success(res, 200, 'Season fetched successfully', season);
+      if (!season.Title)
+        return respond.success(res, 404, 'Season not found!', season);
+
+      return respond.success(res, 200, 'Season fetched successfully', season);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching Season', err);
+      return respond.fail(res, 400, 'Error fetching Season', err);
     });
 });
 
@@ -108,7 +128,12 @@ router.get('/:id', (req: Request, res: Response) => {
 router.get('/:id/standings', (req: Request, res: Response) => {
   fetchOneById(req.params.id)
     .then((standings: any) => {
-      respond.success(res, 200, 'Season Standings fetched successfully', standings);
+      respond.success(
+        res,
+        200,
+        'Season Standings fetched successfully',
+        standings
+      );
     })
     .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching Season Standings', err);
@@ -117,12 +142,38 @@ router.get('/:id/standings', (req: Request, res: Response) => {
 
 /** Delete Season by id */
 router.delete('/:id', (req: Request, res: Response) => {
-  deleteById(req.params.id)
-    .then((season: any) => {
-      respond.success(res, 200, 'Season deleted successfully', season);
+  // fifrst delete the season, then remove the ref of the season from the competitions array
+  const id = req.params.id;
+
+  // Use validators here...
+  if (!id) {
+    return respond.fail(res, 404, 'Please provide valid Season ID!');
+  }
+
+  const deleteSeason = () => {
+    return deleteById(id);
+  };
+
+  const deleteFixtures = () => {
+    const q = { Season: id };
+
+    return deleteManyFixtures(q);
+  };
+
+  const removeSeasonFromComp = (season: SeasonInterface) => {
+    const q = { _id: season.Competition };
+
+    return updateComp(season.Competition, { $pull: { Seasons: id } });
+  };
+
+  deleteSeason()
+    .then(removeSeasonFromComp)
+    .then(deleteFixtures)
+    .then((done) => {
+      return respond.success(res, 200, 'Season deleted successfully');
     })
-    .catch((err: any) => {
-      respond.fail(res, 400, 'Error deleting Season', err);
+    .catch((err) => {
+      return respond.fail(res, 400, 'Error deleting Season', err);
     });
 });
 

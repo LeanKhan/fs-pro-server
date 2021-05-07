@@ -289,7 +289,7 @@ export function saveCalendar(req: Request, res: Response, next: NextFunction) {
   // };
 
   updateCalendar({ _id: calendarID }, { Days: calendarDays })
-    .then((cal) => {
+    .then((cal: any) => {
       log('Calendar Updated successfully!');
       return respond.success(
         res,
@@ -298,7 +298,7 @@ export function saveCalendar(req: Request, res: Response, next: NextFunction) {
         cal
       );
     })
-    .catch((err) => {
+    .catch((err: any) => {
       log(`Error updating Calendar! => ${err}`);
       return respond.fail(res, 500, 'Error adding Days to Calendar!', err);
     });
@@ -333,13 +333,13 @@ export async function changeCurrentDay(year: string, currentDay: DayInterface) {
     return findDay(query, false);
   };
 
-  const updateCurrentDay = async (nextfreeday: DayInterface) => {
+  function updateCurrentDay(nextfreeday: DayInterface) {
     // if this doesn't return a calendar, doesn't that mean all games have been played in all days?
     return updateCalendar(
       { YearString: year },
       { CurrentDay: nextfreeday.Day }
     );
-  };
+  }
 
   return getNextDay().then(updateCurrentDay);
 }
@@ -366,7 +366,7 @@ export function startYear(req: Request, res: Response, next: NextFunction) {
     });
   };
 
-  const startCalendarYear = async (seasons: any) => {
+  const startCalendarYear = (seasons: any) => {
     // This means the Seasons were not found and updated :o
     if (seasons.n === 0 && seasons.nModified === 0) {
       throw new Error('No seasons found!');
@@ -380,7 +380,7 @@ export function startYear(req: Request, res: Response, next: NextFunction) {
 
   fetchSeasons()
     .then(startCalendarYear)
-    .then((response) => {
+    .then((response: any) => {
       // Updated calendar!
       return respond.success(
         res,
@@ -389,7 +389,7 @@ export function startYear(req: Request, res: Response, next: NextFunction) {
         response
       );
     })
-    .catch((err) => {
+    .catch((err: any) => {
       log(`Error starting year! => ${err}`);
       return respond.fail(res, 400, 'Error starting year!', err);
     });

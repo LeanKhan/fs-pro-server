@@ -61,3 +61,7 @@ export function findOneAndUpdate(
     .lean()
     .exec();
 }
+
+export function deleteAll(query: Record<string, unknown>) {
+  return DB.Models.Fixture.deleteMany(query);
+}
