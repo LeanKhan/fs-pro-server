@@ -103,7 +103,7 @@ export function createNew(data: any) {
  * Delete a Day by its id
  * @param id
  */
-export async function deleteById(id: string) {
+export function deleteById(id: string) {
   return DB.Models.Day.findByIdAndDelete(id).lean().exec();
 }
 

@@ -71,3 +71,7 @@ export function toggleSigned(
     .lean()
     .exec();
 }
+
+export function updatePlayers(query: any, update: any) {
+  return DB.Models.Player.updateMany(query, update);
+}

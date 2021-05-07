@@ -281,6 +281,33 @@ export class Decider {
   }
 
   /**
+   * GetTackleResult
+   *
+   * Determine if the Tackler
+   *
+   * @param tackler
+   * @param ballHolder
+   * @returns {boolean} true/false
+   */
+  public chanceOfTackling(
+    tackler: IFieldPlayer,
+    ballHolder: IFieldPlayer
+  ): boolean {
+    const chance = this.gimmeAChance();
+    // TODO: Improve the distribution of attributes here...
+    const tally =
+      tackler.Attributes.Tackling / 2 +
+      tackler.Attributes.Strength / 2 -
+      (ballHolder.Attributes.Strength / 2 + ballHolder.Attributes.Control / 2);
+
+    if (tally < 0) {
+      return chance > Math.abs(tally);
+    } else {
+      return chance < tally;
+    }
+  }
+
+  /**
    * GetShotResult
    *
    * Returns the result of a goal attempt
@@ -580,8 +607,32 @@ export class Decider {
 
     return strategy;
   }
+
+  /**
+   * get result of decision
+   * @param i In favor total, should be <= 100
+   * @param a Against total, should be <= 100
+   */
+  private getResult(i: deciderPart[], a: deciderPart[]) {
+    const p = i.reduce(
+      (sum, variable) => (sum += variable.weight * (variable.value / 100)),
+      0
+    );
+
+    const n = a.reduce(
+      (sum, variable) => (sum += variable.weight * (variable.value / 100)),
+      0
+    );
+
+    return p >= n;
+  }
 }
 
+interface deciderPart {
+  attribute: string;
+  weight: number;
+  value: number;
+}
 export interface IStrategy {
   type: 'pass' | 'move' | 'shoot';
   detail?: string;

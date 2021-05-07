@@ -6,6 +6,7 @@ import {
   fetchOneById,
   updateById,
   deletePlayer,
+  updatePlayers,
 } from './player.service';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { fetchAppearance } from '../../utils/appearance';
@@ -29,10 +30,10 @@ router.get('/all', (req, res) => {
   }
 
   fetchAll(options)
-    .then((players) => {
+    .then((players: any) => {
       respond.success(res, 200, 'Players fetched successfully', players);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching players', err);
     });
 });
@@ -45,10 +46,10 @@ router.get('/:id', (req, res) => {
   const { id } = req.params;
 
   fetchOneById(id)
-    .then((player) => {
+    .then((player: any) => {
       respond.success(res, 200, 'Player fetched successfully', player);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching Player', err);
     });
 });
@@ -61,10 +62,10 @@ router.post('/:id/update', (req, res) => {
   const { data } = req.body;
 
   updateById(id, data)
-    .then((player) => {
+    .then((player: any) => {
       respond.success(res, 200, 'Player updated successfully', player);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error updating Player', err);
     });
 });
@@ -74,10 +75,10 @@ router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
   deletePlayer(id)
-    .then((player) => {
+    .then((player: any) => {
       respond.success(res, 200, 'Player deleted successfully', player);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error deleting Player', err);
     });
 });
@@ -100,10 +101,25 @@ router.post('/new', getCurrentCounter, async (req, res) => {
 router.get('/appearance', (req, res) => {
   fetchAppearance()
     .then((features) => {
-      respond.success(res, 200, 'Fetch Appearance successfully', features);
+      respond.success(res, 200, 'Fetched Appearance successfully', features);
     })
     .catch((err) => {
       respond.fail(res, 400, 'Error fetching appearance features', err);
+    });
+});
+
+router.patch('/update-many', (req, res) => {
+  const { update, query } = req.body;
+
+  if (!update || !query)
+    return respond.fail(res, 400, 'Please provide a Query or Update !');
+
+  updatePlayers(query, update)
+    .then((updated: any) => {
+      respond.success(res, 200, 'Updated many players successfully!', updated);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error updating many players', err);
     });
 });
 

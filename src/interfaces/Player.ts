@@ -64,6 +64,10 @@ export interface IPlayerAttributes {
   Stamina: number;
   SetPiece: number;
   Dribbling: number;
+  Vision: number;
+  ShotPower: number;
+  Aggression: number;
+  Interception: number;
   PreferredFoot: string;
   AttackingMindset: boolean;
   DefensiveMindset: boolean;
@@ -86,3 +90,7 @@ export interface IGameStats extends IPlayerStats {
   Points: number;
   Dribbles: number;
 }
+
+/**
+ * db.collection.updateMany({rand: { $exists: false }}, [{$set: { rand: { $function: { body: function() { return Math.random(); }, args: [], lang: "js" } } } }])
+ */

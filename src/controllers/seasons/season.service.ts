@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import DB from '../../db';
+import { Season, SeasonInterface } from './season.model';
 // import { incrementCounter } from '../../utils/counter';
 
 /**
@@ -30,15 +33,54 @@ export function fetchAll(
  * Fetch a specific season by its id
  * @param id
  */
-export function fetchOneById(id: string, select: boolean | string = false) {
-
+export function fetchOneById(
+  id: string,
+  select: boolean | string = false,
+  populate = true
+) {
   if (select) {
+    return DB.Models.Season.findById(id).select(select).lean().exec();
+  }
+
+  if (select && populate) {
     return DB.Models.Season.findById(id)
+      .populate('Fixtures')
       .select(select)
       .lean()
       .exec();
   }
+
   return DB.Models.Season.findById(id).populate('Fixtures').lean().exec();
+}
+
+/**
+ * fetchSeason
+ *
+ * Fetch a specific season by query
+ * @param query
+ */
+export function fetchSeason(
+  query: any,
+  select: boolean | string = false,
+  populate = true
+) {
+  if (select && !populate) {
+    return DB.Models.Season.findOne(query).select(select).lean().exec();
+  }
+
+  if (populate && !select) {
+    return DB.Models.Season.findOne(query).populate('Fixtures').lean().exec();
+  }
+
+  if (select && populate) {
+    return DB.Models.Season.findOne(query)
+      .populate('Fixtures')
+      .select(select)
+      .lean()
+      .exec();
+  }
+
+  return DB.Models.Season.findOne(query).lean().exec();
 }
 
 export function findByIdAndUpdate(id: string, update: any) {
@@ -55,7 +97,7 @@ export function findOneAndUpdate(
   query: Record<string, unknown>,
   update: any,
   options: any
-) {
+): Promise<any> {
   return DB.Models.Season.findOneAndUpdate(query, update, {
     new: true,
     ...options,
@@ -84,6 +126,6 @@ export function createNew(data: any) {
   return SEASON.save();
 }
 
-export async function deleteById(id: string) {
+export function deleteById(id: string): Promise<SeasonInterface> {
   return DB.Models.Season.findByIdAndDelete(id).lean().exec();
 }

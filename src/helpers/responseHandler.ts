@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Response } from 'express';
 
 /**
@@ -48,9 +49,21 @@ export function fail(
   message: string,
   additionalFields: any = {}
 ) {
-  const payload = Array.isArray(additionalFields)
-    ? [...additionalFields]
-    : { ...additionalFields };
+  let payload;
+
+  if (Array.isArray(additionalFields) || additionalFields instanceof Object) {
+    payload = Array.isArray(additionalFields)
+      ? [...additionalFields]
+      : { ...additionalFields };
+  } else {
+    try {
+      payload = additionalFields.stack || additionalFields.toString();
+    } catch (error) {
+      console.log('Could not parse error object');
+      payload = 'meh :shrug:';
+    }
+  }
+
   return res
     .status(statusCode)
     .contentType('json')

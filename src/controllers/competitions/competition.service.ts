@@ -20,9 +20,9 @@ export function fetchOneById(id: string) {
     .lean();
 }
 
-export function fetchCompetition(id: string) {
+export function fetchCompetition(id: string, select = '-Seasons') {
   return DB.Models.Competition.findById(id)
-    .select('-Seasons')
+    .select(select)
     .populate('Clubs', 'ClubCode Name Address Stadium')
     .lean()
     .exec();

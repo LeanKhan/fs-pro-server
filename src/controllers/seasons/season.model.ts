@@ -1,4 +1,24 @@
 import { Schema, Document, model, Model } from 'mongoose';
+import { Fixture } from '../fixtures/fixture.model';
+
+export interface SeasonInterface {
+  SeasonID: string;
+  SeasonCode: string;
+  Title: string;
+  Competition: string;
+  CompetitionCode: string;
+  Winner: string;
+  Promoted: string[];
+  Relegated: string[];
+  isFinished: boolean;
+  isStarted: boolean;
+  Status: string;
+  StartDate: Date;
+  EndDate: Date;
+  Fixtures: Fixture[];
+  Standings: WeekStandings[];
+  PlayerStats: any[];
+}
 
 declare interface ISeason extends Document {
   SeasonID: string;
@@ -7,13 +27,15 @@ declare interface ISeason extends Document {
   Competition: string;
   CompetitionCode: string;
   Winner: string;
+  Promoted: string[];
+  Relegated: string[];
   isFinished: boolean;
   isStarted: boolean;
   Status: string;
   StartDate: Date;
   EndDate: Date;
   Fixtures: [];
-  Standings: [];
+  Standings: WeekStandings[];
   PlayerStats: any[];
 }
 
@@ -27,6 +49,11 @@ export interface ClubStandings {
   GF: number;
   GA: number;
   GD: number;
+}
+
+interface WeekStandings {
+  Week: number;
+  Table: ClubStandings[];
 }
 
 export type SeasonModel = Model<ISeason>;
@@ -73,7 +100,9 @@ export class Season {
         Title: { type: String },
         StartDate: { type: Date },
         EndDate: { type: Date },
-        Winner: { type: String },
+        Winner: { type: Schema.Types.ObjectId, ref: 'Club' },
+        Promoted: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
+        Relegated: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
         isFinished: { type: Boolean, default: false },
         isStarted: { type: Boolean, default: false },
         Status: { type: String, default: 'Pending' },
