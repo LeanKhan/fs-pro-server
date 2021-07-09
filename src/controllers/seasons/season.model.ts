@@ -1,11 +1,12 @@
 import { Schema, Document, model, Model } from 'mongoose';
+import { CompetitionInterface } from '../competitions/competition.model';
 import { Fixture } from '../fixtures/fixture.model';
 
 export interface SeasonInterface {
   SeasonID: string;
   SeasonCode: string;
   Title: string;
-  Competition: string;
+  Competition: string | CompetitionInterface;
   CompetitionCode: string;
   Winner: string;
   Promoted: string[];
@@ -41,6 +42,7 @@ declare interface ISeason extends Document {
 
 export interface ClubStandings {
   ClubCode: string;
+  ClubID: string;
   Points: number;
   Played: number;
   Wins: number;
@@ -70,6 +72,12 @@ const PlayerSeasonStats: Schema = new Schema({
   PlayerID: String,
   Player: String,
   MOTM: Number,
+});
+
+const Log: Schema = new Schema({
+  title: String,
+  content: String,
+  date: Date,
 });
 
 const WeekStandingsSchema: Schema = new Schema({
@@ -113,6 +121,7 @@ export class Season {
         Fixtures: [{ type: Schema.Types.ObjectId, ref: 'Fixture' }],
         Standings: [WeekStandingsSchema],
         PlayerStats: [PlayerSeasonStats],
+        Logs: [Log],
       },
       { timestamps: true }
     );

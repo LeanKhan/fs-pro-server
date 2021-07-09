@@ -68,3 +68,8 @@ The folder: https://drive.google.com/file/d/1ZohZLDTaT9owSKY_OWA7Y5UgBqvghR0q/vi
 ### License
 
 ISC License
+
+### Issues
+
+- Attackers chance to shoot should be determined by a percentage
+- Tackling is imporved

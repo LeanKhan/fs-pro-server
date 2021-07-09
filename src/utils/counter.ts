@@ -58,3 +58,26 @@ export const getCurrentCounter: RequestHandler = (
       }
     });
 };
+
+export function getCurrentCounter2(model: string) {
+  const counterName = model + '_counter';
+
+  // TODO: Make this more flexible and robust :))
+  // TODO: (9/07/21) - Omo, this tin was wasting my time so I made the increment kini random
+  return mongoose.connection.db
+    .collection('counter')
+    .findOne({ _id: counterName })
+    .then(async (counter) => {
+      let number =
+        1000000 +
+        (await counter.sequence_value) +
+        Math.round(Math.random() * 10);
+      number = number.toString().substring(1);
+      const id: string = counter.prefix + number;
+      console.log('id => ', id);
+      return id;
+    })
+    .catch((c) => {
+      throw new Error(`${model} Counter not found!`);
+    });
+}

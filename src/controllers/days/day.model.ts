@@ -13,8 +13,8 @@ export interface DayInterface {
   Matches: CalendarMatchInterface[];
   isFree: boolean;
   Day?: number;
-  Year: string;
-  Calendar: string;
+  Year?: string;
+  Calendar?: string;
 }
 
 declare interface IDay extends Document {

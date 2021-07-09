@@ -23,6 +23,7 @@ import { addSeasonToCompetition } from '../competitions/competition.controller';
 import { update as updateComp } from '../competitions/competition.service';
 import { finishSeason, getCurrentSeasons } from './season.controller';
 import respond from '../../helpers/responseHandler';
+import { compileStandings } from '../../utils/seasons';
 
 const router = Router();
 
@@ -126,8 +127,10 @@ router.get('/:id', (req: Request, res: Response) => {
 
 // get current setInitialStandings
 router.get('/:id/standings', (req: Request, res: Response) => {
-  fetchOneById(req.params.id)
-    .then((standings: any) => {
+  fetchOneById(req.params.id, 'Standings')
+    .then((s: any) => {
+      const standings = compileStandings(s.Standings);
+
       respond.success(
         res,
         200,
@@ -162,8 +165,9 @@ router.delete('/:id', (req: Request, res: Response) => {
 
   const removeSeasonFromComp = (season: SeasonInterface) => {
     const q = { _id: season.Competition };
+    const cmp = season.Competition as string;
 
-    return updateComp(season.Competition, { $pull: { Seasons: id } });
+    return updateComp(cmp, { $pull: { Seasons: id } });
   };
 
   deleteSeason()

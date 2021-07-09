@@ -139,6 +139,7 @@ export class Player {
         Value: {
           type: Number,
         },
+        Form: { type: Number, default: 6 },
         Appearance: PlayerAppearanceSchema,
         TransferHistory: [PlayerTransferHistorySchema],
         /** Maybe this should be updated at the end of every season... */

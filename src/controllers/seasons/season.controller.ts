@@ -5,9 +5,11 @@ import respond from '../../helpers/responseHandler';
 import {
   fetchAll,
   fetchSeason,
+  findByIdAndUpdate,
 } from '../../controllers/seasons/season.service';
 import { SeasonInterface } from './season.model';
 import { compileStandings } from '../../utils/seasons';
+import { CompetitionInterface } from '../competitions/competition.model';
 // import { monthFromIndex } from '../../utils/seasons';
 
 export async function getCurrentSeasons(req: Request, res: Response) {
@@ -93,7 +95,7 @@ export async function finishSeason(req: Request, res: Response) {
     // tho, part of the query should be the year. Year should be the CurrentYear
     season = await fetchSeason(
       q,
-      'SeasonID SeasonCode Competition Standings Fixtures PlayerStats',
+      'SeasonID SeasonCode Competition Standings',
       true
     );
     // We also need to get the associated calendar day...
@@ -167,17 +169,53 @@ export async function finishSeason(req: Request, res: Response) {
     // To find who won, just find who is at the top of the table
 
     const standings = compileStandings(season.Standings);
-    /**
-     * this standings are already sorted... so the winner of the season is the club
-     * at the top of the table. duh :)
-     *
-     * to check who is getting promoted, check the type of league if it is a second division league
-     * then mark the top two clubs and record that they are getting promoted.
-     * Season should have logs...
-     *
-     * to relegate clubs find the last two clubs in a top division league and take them down :)
-     * - to get who the player of the year is, find the average of all player points for all matches in the season, then pick the highest...
-     *  */
+    const cmp = season.Competition as CompetitionInterface;
+    let prolegated;
+
+    if (cmp.Division == 1 && cmp.League) {
+      // find the last two clubs on compiled table...
+      const p = [
+        standings[standings.length - 2].ClubID,
+        standings[standings.length - 1].ClubID,
+      ];
+
+      // g should look like: ['3efcieurgiejrv', '5sfusdjifevw']
+
+      prolegated = {
+        Relegated: p,
+      };
+    } else if (cmp.Division == 2 && cmp.League) {
+      // the first two clubs on the compiled table...
+      const p = [standings[0].ClubID, standings[1].ClubID];
+
+      // const g = p.map(c => cmp.Clubs.find(f => c.ClubID == f));
+
+      // p should look like: ['3efcieurgiejrv', '5sfusdjifevw']
+
+      prolegated = {
+        Promoted: p,
+      };
+    }
+
+    // nOW THE Season has been confirmed to be over... Update it!
+    findByIdAndUpdate(season_id, {
+      isStarted: true,
+      isFinished: true,
+      $push: {
+        Log: {
+          title: `Season finished`,
+          content: 'Season finished!',
+          date: new Date(),
+        },
+      },
+      $set: prolegated,
+    })
+      .then((season: any) => {
+        console.log('Season has been updated successfully!');
+      })
+      .catch((err: any) => {
+        respond.fail(res, 400, 'Error starting Season', err);
+      });
 
     return respond.success(res, 200, 'Found Standings', standings);
   } catch (error) {

@@ -7,12 +7,16 @@ import {
   saveCalendar,
   getCurrentCalendar,
   startYear,
+  createCalendarYear,
+  startYear2,
+  doAll,
 } from './calendar.controller';
 import { fetchMany } from '../days/day.service';
+import { incrementCounter } from '../../utils/counter';
 
 const router = Router();
 
-// TODO: change route scheme for Calendars to 
+// TODO: change route scheme for Calendars to
 
 // /calendars/<action>
 // /calendars/<entity>/<action>
@@ -23,10 +27,10 @@ router.get('/calendars/:id', (req, res) => {
   const response = fetchOneById(req.params.id);
 
   response
-    .then((fixture) => {
+    .then((fixture: any) => {
       respond.success(res, 200, 'Fixtured fetched successfully', fixture);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching Fixture', err);
     });
 });
@@ -49,7 +53,7 @@ router.get('/calendars', (req, res) => {
   const response = fetchAll();
 
   response
-    .then((calendars) => {
+    .then((calendars: any) => {
       respond.success(
         res,
         200,
@@ -57,7 +61,7 @@ router.get('/calendars', (req, res) => {
         calendars
       );
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching all Calendars', err);
     });
 });
@@ -74,7 +78,7 @@ router.get('/:year/days', (req: Request, res: Response) => {
     week,
     limit
   )
-    .then((days) => {
+    .then((days: any) => {
       return respond.success(
         res,
         200,
@@ -82,7 +86,7 @@ router.get('/:year/days', (req: Request, res: Response) => {
         days
       );
     })
-    .catch((err) => {
+    .catch((err: any) => {
       return respond.fail(res, 400, 'Error fetching days in calendar', err);
     });
 });
@@ -92,6 +96,16 @@ router.get('/current', getCurrentCalendar);
 
 /** Create new Calendar year */
 router.post('/new', getSeasons, generateCalendar, saveCalendar);
+
+router.post('/new-2', createCalendarYear);
+router.post('/:year/:id/start-2', startYear2);
+// router.post('/:year/:id/start-2', doAll, startYear2);
+
+router.get('/test', async (req, res) => {
+  const p = await incrementCounter('season_counter');
+
+  return respond.success(res, 200, 'test carried out successfully', p);
+});
 
 /** Start Calendar Year... */
 router.post('/:year/start', startYear);

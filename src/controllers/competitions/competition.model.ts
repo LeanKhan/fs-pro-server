@@ -14,7 +14,7 @@ export interface CompetitionInterface {
   Division: 1 | 2 | 3 | 0;
   NumberOfTeams: number;
   NumberOfWeeks: number;
-  Clubs: ClubInterface[];
+  Clubs: ClubInterface[] | string[];
   Seasons: [];
 }
 

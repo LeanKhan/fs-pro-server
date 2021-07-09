@@ -1,6 +1,7 @@
 import { IFieldPlayer } from '../../../interfaces/Player';
 import { MatchSide } from '../../../classes/MatchSide';
 import CO from '../../../utils/coordinates';
+import { getResult } from '../../../utils/probability';
 
 // Thank you Jesus!
 
@@ -74,8 +75,8 @@ export class Decider {
             this.chanceToShoot(
               player,
               attackingSide,
-              player.Attributes.Shooting,
-              2
+              player.Attributes.AttackingMindset ? 90 : 60,
+              3
             )
           ) {
             this.strategy = { type: 'shoot', detail: 'normal' };
@@ -83,8 +84,8 @@ export class Decider {
             this.chanceToShoot(
               player,
               attackingSide,
-              player.Attributes.Shooting,
-              3
+              player.Attributes.AttackingMindset ? 60 : 40,
+              5
             )
           ) {
             // If not close to the post, what can he do? Move forward!
@@ -122,7 +123,7 @@ export class Decider {
           if (player.Attributes.AttackingMindset) {
             if (this.chanceToShoot(player, attackingSide, 40, 3)) {
               this.strategy = { type: 'shoot', detail: 'normal' };
-            } else if (this.chanceToShoot(player, attackingSide, 60, 4)) {
+            } else if (this.chanceToShoot(player, attackingSide, 70, 5)) {
               // If not close to the post, what can he do? Move forward!
               this.strategy = { type: 'shoot', detail: 'long' };
             } else if (this.isClosestToPost(player, attackingSide)) {
@@ -192,12 +193,16 @@ export class Decider {
     switch (type) {
       case 'short':
         if (interceptor) {
-          const tally =
-            passer.Attributes.ShortPass +
-            reciever.Attributes.Control / 2 +
-            passer.Attributes.Mental / 2 -
-            interceptor.Attributes.Tackling;
-          result = chance > tally;
+          result = getResult(
+            [
+              { v: passer.Attributes.ShortPass, p: 50 },
+              { v: passer.Attributes.Mental, p: 25 },
+              { v: reciever.Attributes.Control, p: 25 },
+            ],
+            [interceptor.Attributes.Tackling],
+            80,
+            80
+          );
         } else {
           const tally =
             passer.Attributes.ShortPass +
@@ -206,22 +211,41 @@ export class Decider {
             chance;
 
           result = chance > tally;
+
+          result = getResult(
+            [
+              { v: passer.Attributes.ShortPass, p: 75 },
+              { v: passer.Attributes.Mental, p: 25 },
+            ],
+            [30],
+            80,
+            50
+          );
         }
         break;
       case 'long':
         // let chance = Math.round(Math.random() * 100);
         if (interceptor) {
-          const tally =
-            passer.Attributes.LongPass > interceptor.Attributes.Tackling;
-          result = tally && chance <= passer.Attributes.Mental;
+          result = getResult(
+            [passer.Attributes.LongPass, passer.Attributes.Mental],
+            [interceptor.Attributes.Tackling],
+            70,
+            60
+          );
         } else {
-          const tally =
-            passer.Attributes.LongPass +
-            (reciever.Attributes.Control / 2 +
-              passer.Attributes.Mental / 2 -
-              chance);
+          // TODO: Chance would be form...
 
-          result = chance > tally;
+          // compare the passers passing skill to a random number
+          // TODO: come up with better criteria)
+          result = getResult(
+            [
+              { v: passer.Attributes.LongPass, p: 75 },
+              { v: passer.Attributes.Mental, p: 25 },
+            ],
+            [30],
+            70,
+            50
+          );
         }
         break;
 
@@ -250,7 +274,7 @@ export class Decider {
       dribbler.Attributes.Dribbling / 2 +
       dribbler.Attributes.Speed / 2 -
       opponent.Attributes.Tackling;
-    return chance < tally;
+    return chance <= tally;
   }
 
   /**
@@ -266,45 +290,16 @@ export class Decider {
     tackler: IFieldPlayer,
     ballHolder: IFieldPlayer
   ): boolean {
-    const chance = this.gimmeAChance();
     // TODO: Improve the distribution of attributes here...
-    const tally =
-      tackler.Attributes.Tackling / 2 +
-      tackler.Attributes.Strength / 2 -
-      (ballHolder.Attributes.Strength / 2 + ballHolder.Attributes.Control / 2);
 
-    if (tally < 0) {
-      return chance > Math.abs(tally);
-    } else {
-      return chance < tally;
-    }
-  }
+    const result = getResult(
+      [tackler.Attributes.Tackling, tackler.Attributes.Strength],
+      [ballHolder.Attributes.Dribbling, ballHolder.Attributes.Control],
+      80,
+      70
+    );
 
-  /**
-   * GetTackleResult
-   *
-   * Determine if the Tackler
-   *
-   * @param tackler
-   * @param ballHolder
-   * @returns {boolean} true/false
-   */
-  public chanceOfTackling(
-    tackler: IFieldPlayer,
-    ballHolder: IFieldPlayer
-  ): boolean {
-    const chance = this.gimmeAChance();
-    // TODO: Improve the distribution of attributes here...
-    const tally =
-      tackler.Attributes.Tackling / 2 +
-      tackler.Attributes.Strength / 2 -
-      (ballHolder.Attributes.Strength / 2 + ballHolder.Attributes.Control / 2);
-
-    if (tally < 0) {
-      return chance > Math.abs(tally);
-    } else {
-      return chance < tally;
-    }
+    return result;
   }
 
   /**
@@ -318,18 +313,21 @@ export class Decider {
     // Let's see what happens.
     // What determines a goal? Shooter's shooting (duh), ball control, Keepers keeping and the *le randomness* :)
     const onTarget = this.getShotTarget(shooter);
-    const chance = this.gimmeAChance();
+
+    // TODO: consider distance of shot...
 
     if (!keeper && onTarget) {
       return { onTarget, goal: true };
     } else {
       if (onTarget) {
-        const tally =
-          shooter.Attributes.Shooting +
-          shooter.Attributes.Mental -
-          keeper.Attributes.Keeping;
+        const result = getResult(
+          [shooter.Attributes.Shooting, shooter.Attributes.Mental],
+          [keeper.Attributes.Keeping, keeper.Attributes.Control],
+          80,
+          70
+        );
 
-        return { onTarget, goal: chance <= tally };
+        return { onTarget, goal: result };
       } else {
         return { onTarget, goal: false };
       }
@@ -426,7 +424,7 @@ export class Decider {
       }
     }
 
-    const closest = this.isClosestToPost(player, attackingSide);
+    // const closest = this.isClosestToPost(player, attackingSide);
 
     const pos = player.Position === 'ATT';
 
@@ -606,25 +604,6 @@ export class Decider {
     }
 
     return strategy;
-  }
-
-  /**
-   * get result of decision
-   * @param i In favor total, should be <= 100
-   * @param a Against total, should be <= 100
-   */
-  private getResult(i: deciderPart[], a: deciderPart[]) {
-    const p = i.reduce(
-      (sum, variable) => (sum += variable.weight * (variable.value / 100)),
-      0
-    );
-
-    const n = a.reduce(
-      (sum, variable) => (sum += variable.weight * (variable.value / 100)),
-      0
-    );
-
-    return p >= n;
   }
 }
 

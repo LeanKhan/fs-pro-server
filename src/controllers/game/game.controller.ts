@@ -12,6 +12,8 @@ import Ball from '../../classes/Ball';
 import FieldPlayer from '../../classes/FieldPlayer';
 import App from '../app/App';
 import log from '../../helpers/logger';
+import { SeasonInterface } from '../seasons/season.model';
+import { fetchSeason } from '../seasons/season.service';
 
 export async function restPlayGame(
   req: Request,
@@ -164,7 +166,7 @@ export function restUpdateStandings(
     away,
     season_id
   )
-    .then(({ homeTable, awayTable, matches, currentDay }) => {
+    .then(async ({ homeTable, awayTable, matches, currentDay }) => {
       // Check if we need to update Calendar day
       const allMatchesPlayed = matches.every((m) => m.Played);
 
@@ -179,23 +181,25 @@ export function restUpdateStandings(
         // We have to get this from the kini...
         // TODO there should be a better way to get these constants...
         const currentYear = req.body.SeasonCode.split('-').splice(1).join('-');
-        return changeCurrentDay(currentYear, currentDay)
+        changeCurrentDay(currentYear, currentDay)
           .then(() => {
             // This marks the end of the match...
             // you should send the results and everything back... Thank you Jesus!
             // We also need to check if the season is over...
             // Maybe send back the updated day...
             console.log('Current Day changed successfully!');
-            return responseHandler.success(
-              res,
-              200,
-              'Match Played successfully!',
-              {
-                homeTable,
-                awayTable,
-                match,
-              }
-            );
+            App._app.endGame();
+            log('GAME ENDED from App');
+            // return responseHandler.success(
+            //   res,
+            //   200,
+            //   'Match Played successfully!',
+            //   {
+            //     homeTable,
+            //     awayTable,
+            //     match,
+            //   }
+            // );
           })
           .catch((err) => {
             console.log('Error changing current Calendar Day!', err);
@@ -208,11 +212,41 @@ export function restUpdateStandings(
           });
       }
 
-      return responseHandler.success(res, 200, 'Match Played successfully!', {
-        homeTable,
-        awayTable,
-        match,
-      });
+      // check the fixture position...
+      let season: SeasonInterface;
+      let lastMatchOfSeason;
+
+      // season.Competition maybe find the competition and do the needful...
+
+      try {
+        const q = { _id: season_id, isStarted: true, isFinished: false };
+        // get fixture and its details...
+        // tho, part of the query should be the year. Year should be the CurrentYear
+        season = await fetchSeason(q, 'Fixtures', false);
+        // We also need to get the associated calendar day...
+        if (season) {
+          //  if this fixture's
+          lastMatchOfSeason =
+            season.Fixtures.findIndex((f) => fixture_id == f) ==
+            season.Fixtures.length - 1;
+        }
+
+        // THIS SHOULD BE THE LAST THING!
+        App._app.endGame();
+        log('GAME ENDED from App');
+        return responseHandler.success(res, 200, 'Match Played successfully!', {
+          homeTable,
+          awayTable,
+          match,
+          lastMatchOfSeason,
+        });
+      } catch (error) {
+        console.log(`Error! => ${error}`);
+
+        console.log(
+          'Could not check if Season is over, you should do that manually!'
+        );
+      }
     })
     .catch((err) => {
       console.log(err);
@@ -230,4 +264,9 @@ export function restUpdateStandings(
       log('GAME ENDED from App');
     });
   // Here we should check if we need to update anything else...
+
+  // NEW
+  /**
+   * Update the Players...
+   */
 }

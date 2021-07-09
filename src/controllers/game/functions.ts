@@ -107,6 +107,7 @@ export function updateStandings(
 
   const homeTable: ClubStandings = {
     ClubCode: home.clubCode,
+    ClubID: home.id,
     Points: 0,
     Played: 1,
     Wins: 0,
@@ -118,6 +119,7 @@ export function updateStandings(
   };
   const awayTable: ClubStandings = {
     ClubCode: away.clubCode,
+    ClubID: away.id,
     Points: 0,
     Played: 1,
     Wins: 0,

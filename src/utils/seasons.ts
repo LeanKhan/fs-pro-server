@@ -264,10 +264,10 @@ export function compileStandings(standings: SeasonInterface['Standings']) {
 
   const sum: any[] = [];
 
-  Array.from(new Set(allStandings.map((x) => x.ClubCode))).forEach((x) => {
+  Array.from(new Set(allStandings.map((x) => x.ClubID))).forEach((x) => {
     sum.push(
       allStandings
-        .filter((y) => y.ClubCode === x)
+        .filter((y) => y.ClubID === x)
         .reduce((output: any, item: any) => {
           const pnts = output['Points'] === undefined ? 0 : output['Points'];
           const gd = output['GD'] === undefined ? 0 : output['GD'];
@@ -278,7 +278,8 @@ export function compileStandings(standings: SeasonInterface['Standings']) {
           const l = output['Losses'] === undefined ? 0 : output['Losses'];
           const d = output['Draws'] === undefined ? 0 : output['Draws'];
 
-          output['ClubCode'] = x;
+          output['ClubID'] = x;
+          output['ClubCode'] = item.ClubCode;
           output['Points'] = item.Points + pnts;
           output['GD'] = item.GD + gd;
           output['GA'] = item.GA + ga;

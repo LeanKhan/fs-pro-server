@@ -37,6 +37,8 @@ export interface IPlayer {
   Attributes: IPlayerAttributes;
   Stats?: IPlayerStats;
   Value: number;
+  /** This is the average players points in previous matches. It resets at the end of the season... */
+  Form: number;
   isSigned: boolean;
   ClubCode?: string;
 }

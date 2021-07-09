@@ -4,7 +4,10 @@ import {
   createNew,
   findByIdAndUpdate,
 } from '../controllers/seasons/season.service';
-import { fetchCompetition } from '../controllers/competitions/competition.service';
+import {
+  addSeason,
+  fetchCompetition,
+} from '../controllers/competitions/competition.service';
 import { CompetitionInterface } from '../controllers/competitions/competition.model';
 import { createFixtures } from '../controllers/fixtures/fixture.service';
 import {
@@ -16,14 +19,163 @@ import {
 } from '../utils/seasons';
 import { fetchOne } from '../controllers/calendar/calendar.service';
 import { CalendarInterface } from '../controllers/calendar/calendar.model';
-import { incrementCounter } from '../utils/counter';
+import { getCurrentCounter2, incrementCounter } from '../utils/counter';
 import log from '../helpers/logger';
+import { ClubInterface } from '../controllers/clubs/club.model';
+
+/**
+ * Create Season :)
+ *
+ * @param competitionCode
+ * @param competitionID
+ */
+export async function create(
+  competitionCode: string,
+  competitionID: string,
+  year: string
+) {
+  const SeasonID = await getCurrentCounter2('season');
+  const p = await incrementCounter('season_counter');
+  console.log('Counter incremented successfully!');
+
+  const seasonCode = competitionCode.toUpperCase() + '-' + year;
+
+  log(year);
+
+  const findCalendar = () => {
+    return fetchOne({ YearString: year });
+  };
+
+  const newSeason = (cal: CalendarInterface) => {
+    if (!cal) {
+      throw new Error('Calendar does not exist!');
+    }
+
+    const data = {
+      SeasonCode: seasonCode,
+      CompetitionCode: competitionCode,
+      Competition: competitionID,
+      Calendar: cal._id,
+      Year: cal.YearString,
+      SeasonID,
+      Title: `NewSeason-${competitionCode}-${year}-${Math.round(
+        Math.random() * 10
+      )}`,
+    };
+
+    return createNew(data).catch((err) => {
+      throw err;
+    });
+  };
+
+  let season_id: string;
+  let season_code: string;
+
+  const addSeasonToComp = (season: any) => {
+    season_id = season._doc._id;
+    season_code = season._doc.SeasonCode;
+
+    return addSeason(competitionID, season_id);
+  };
+
+  let competition: CompetitionInterface;
+
+  const generateFixtures2 = async () => {
+    competition = await fetchCompetition(competitionID);
+
+    const matchesPerWeek = competition.Clubs.length / 2;
+
+    const roundrobin = new RoundRobin(competition.Clubs.length);
+
+    const rounds = roundrobin.generateFixtures();
+
+    const fixtureObjects = rounds.map((fixture, index) => {
+      const home = competition.Clubs[fixture.home] as ClubInterface;
+      const away = competition.Clubs[fixture.away] as ClubInterface;
+      const data = {
+        homeId: home._id,
+        awayId: away._id,
+        homeCode: home.ClubCode,
+        awayCode: away.ClubCode,
+        homeName: home.Name,
+        awayName: away.Name,
+        seasonCode: season_code,
+        seasonId: season_id,
+        leagueCode: competition.CompetitionCode.toUpperCase(),
+        stadium: home.Stadium!.Name,
+        index,
+        matchesPerWeek,
+        type: competition.Type.toLowerCase(),
+        isFinalMatch: index + 1 === rounds.length,
+      } as fixtureInterface;
+      return generateFixtureObject(data);
+    });
+
+    return fixtureObjects;
+  };
+
+  const createF = async (fixtureObjects: any) => {
+    // respond.success(res, 200, 'Success creating Fixtures', fixtureObjects);
+
+    return createFixtures(fixtureObjects)
+      .then((fixtures) => {
+        const fixtureIds: string[] = fixtures.map((fixture) => {
+          return fixture._id;
+        });
+
+        return fixtureIds;
+      })
+      .catch((err) => {
+        throw err;
+      });
+  };
+
+  const saveFixtures = (fixtureIds: string[]) => {
+    return findByIdAndUpdate(season_id, { Fixtures: fixtureIds });
+  };
+
+  const setInitialStandings = () => {
+    const numberOfMatches: number =
+      (competition.Clubs.length - 1) * competition.Clubs.length;
+
+    const matchesPerWeek = Math.round(competition.Clubs.length / 2);
+
+    const numberOfWeeks: number = numberOfMatches / matchesPerWeek;
+
+    const weeks = [];
+
+    for (let i = 1; i <= numberOfWeeks; i++) {
+      const week: { Week: number; Table: any[] } = {
+        Week: i,
+        Table: [],
+      };
+
+      week.Table = generateWeekTable(competition.Clubs as ClubInterface[]);
+
+      weeks.push(week);
+    }
+
+    /**
+     * This is the Updated Season! Thank you Jesus!
+     */
+    return findByIdAndUpdate(season_id, { Standings: weeks });
+  };
+
+  return findCalendar()
+    .then(newSeason)
+    .then(addSeasonToComp)
+    .then(generateFixtures2)
+    .then(createF)
+    .then(saveFixtures)
+    .then(setInitialStandings);
+}
 
 export function createSeason(req: Request, res: Response, next: NextFunction) {
   // tslint:disable-next-line: variable-name
 
   /**
-   * CompetitionCode,
+   * Get list of all competitions and create seasons for them based on the current year,
+   * then update the Calendar by adding dates!
    *
    */
 
@@ -161,8 +313,8 @@ export function generateFixtures(
   const rounds = roundrobin.generateFixtures();
 
   const fixtureObjects = rounds.map((fixture, index) => {
-    const home = competition.Clubs[fixture.home];
-    const away = competition.Clubs[fixture.away];
+    const home = competition.Clubs[fixture.home] as ClubInterface;
+    const away = competition.Clubs[fixture.away] as ClubInterface;
     const data = {
       homeId: home._id,
       awayId: away._id,
@@ -177,7 +329,7 @@ export function generateFixtures(
       index,
       matchesPerWeek,
       type: competition.Type.toLowerCase(),
-      isFinalMatch: (index + 1) === rounds.length,
+      isFinalMatch: index + 1 === rounds.length,
     } as fixtureInterface;
     return generateFixtureObject(data);
   });
@@ -222,7 +374,7 @@ export function setInitialStandings(
       Table: [],
     };
 
-    week.Table = generateWeekTable(competition.Clubs);
+    week.Table = generateWeekTable(competition.Clubs as ClubInterface[]);
 
     weeks.push(week);
   }
