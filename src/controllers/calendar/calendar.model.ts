@@ -57,6 +57,7 @@ export class Calendar {
         YearDigits: String,
         CurrentDay: Number, // the index of the day...
         isActive: { type: Boolean, default: false },
+        allSeasonsCompleted: { type: Boolean, default: false },
         Days: [{ type: Schema.Types.ObjectId, ref: 'Day' }],
       },
       { timestamps: true }

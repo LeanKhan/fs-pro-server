@@ -170,36 +170,22 @@ export function restUpdateStandings(
       // Check if we need to update Calendar day
       const allMatchesPlayed = matches.every((m) => m.Played);
 
+      // move current Day!
+      req.body.homeTable = homeTable;
+      req.body.awayTable = awayTable;
+
       /** If all matches in the Day have been played, we can change the
        * CurrentDay...
        */
       if (allMatchesPlayed) {
-        // move current Day!
-        req.body.homeTable = homeTable;
-        req.body.awayTable = awayTable;
-
         // We have to get this from the kini...
         // TODO there should be a better way to get these constants...
         const currentYear = req.body.SeasonCode.split('-').splice(1).join('-');
         changeCurrentDay(currentYear, currentDay)
           .then(() => {
-            // This marks the end of the match...
-            // you should send the results and everything back... Thank you Jesus!
-            // We also need to check if the season is over...
-            // Maybe send back the updated day...
             console.log('Current Day changed successfully!');
             App._app.endGame();
             log('GAME ENDED from App');
-            // return responseHandler.success(
-            //   res,
-            //   200,
-            //   'Match Played successfully!',
-            //   {
-            //     homeTable,
-            //     awayTable,
-            //     match,
-            //   }
-            // );
           })
           .catch((err) => {
             console.log('Error changing current Calendar Day!', err);

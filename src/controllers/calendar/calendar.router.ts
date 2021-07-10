@@ -2,14 +2,12 @@ import { Router, Request, Response } from 'express';
 import respond from '../../helpers/responseHandler';
 import { fetchOneById, fetchAll, deleteById } from './calendar.service';
 import {
-  getSeasons,
-  generateCalendar,
-  saveCalendar,
   getCurrentCalendar,
   startYear,
   createCalendarYear,
-  startYear2,
-  doAll,
+  setupDaysInYear,
+  createSeasonsInTheYear,
+  endYear,
 } from './calendar.controller';
 import { fetchMany } from '../days/day.service';
 import { incrementCounter } from '../../utils/counter';
@@ -40,10 +38,10 @@ router.delete('/calendars/:id', (req, res) => {
   const response = deleteById(req.params.id);
 
   response
-    .then((calendar) => {
+    .then((calendar: any) => {
       respond.success(res, 200, 'Calendar deleted successfully :)', calendar);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error deleting Calendar', err);
     });
 });
@@ -94,20 +92,21 @@ router.get('/:year/days', (req: Request, res: Response) => {
 /** Get current Calendar */
 router.get('/current', getCurrentCalendar);
 
-/** Create new Calendar year */
-router.post('/new', getSeasons, generateCalendar, saveCalendar);
+/** Create Calendar Year! */
+router.post('/new', createCalendarYear);
 
-router.post('/new-2', createCalendarYear);
-router.post('/:year/:id/start-2', startYear2);
-// router.post('/:year/:id/start-2', doAll, startYear2);
-
-router.get('/test', async (req, res) => {
-  const p = await incrementCounter('season_counter');
-
-  return respond.success(res, 200, 'test carried out successfully', p);
-});
+/**
+ * After a Year has been created, we must add Seasons to it and add Days to the Year
+ * - Then the Calendar process is complete!
+ * - A Calendar Year ends when a new one Starts
+ * - Next, Start the Calendar and go and play matches! :) Thank you Jesus
+ */
+router.post('/:year/:id/setup', createSeasonsInTheYear, setupDaysInYear);
 
 /** Start Calendar Year... */
 router.post('/:year/start', startYear);
+
+/** End Calendar Year... */
+router.post('/:year/:id/end', endYear);
 
 export default router;

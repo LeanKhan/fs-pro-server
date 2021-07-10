@@ -3,6 +3,7 @@ import { CompetitionInterface } from '../competitions/competition.model';
 import { Fixture } from '../fixtures/fixture.model';
 
 export interface SeasonInterface {
+  _id?: string;
   SeasonID: string;
   SeasonCode: string;
   Title: string;
@@ -16,6 +17,8 @@ export interface SeasonInterface {
   Status: string;
   StartDate: Date;
   EndDate: Date;
+  Year: string;
+  Calendar: string;
   Fixtures: Fixture[];
   Standings: WeekStandings[];
   PlayerStats: any[];
@@ -85,6 +88,7 @@ const WeekStandingsSchema: Schema = new Schema({
   Table: [
     {
       ClubCode: String,
+      ClubID: String,
       Points: Number,
       Played: Number,
       Wins: Number,

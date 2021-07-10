@@ -42,7 +42,10 @@ export function fetchOne(
   return DB.Models.Calendar.findOne(query).lean().exec();
 }
 
-export function findOneAndUpdate(query: unknown, update: any) {
+export function findOneAndUpdate(
+  query: unknown,
+  update: any
+): Promise<CalendarInterface> {
   return DB.Models.Calendar.findOneAndUpdate(query, update, { new: true })
     .lean()
     .exec();
@@ -83,6 +86,6 @@ export function createNew(data: any) {
   return Calendar.save();
 }
 
-export async function deleteById(id: string) {
+export function deleteById(id: string) {
   return DB.Models.Calendar.findByIdAndDelete(id).lean().exec();
 }

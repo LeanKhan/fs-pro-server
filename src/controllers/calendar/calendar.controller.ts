@@ -26,6 +26,7 @@ import { CompetitionInterface } from '../competitions/competition.model';
 import { SeasonInterface } from '../seasons/season.model';
 import { fetchAll } from '../competitions/competition.service';
 import { create } from '../../middleware/seasons';
+import { prolegate } from '../seasons/season.controller';
 
 /**
  * Create Calendar Year
@@ -61,15 +62,55 @@ export function createCalendarYear(req: Request, res: Response) {
     });
 }
 
-/** NEW
- * Start Calendar Year...
- *
- * Add Days to Calendar
+/** NEW */
+/**
+ * Create all the Seasons of Competitions in the Year
  * @param req
  * @param res
  * @param next
  */
-export function startYear2(req: Request, res: Response) {
+export async function createSeasonsInTheYear(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const competitions: CompetitionInterface[] = await fetchAll();
+  const year: string = req.params.year.trim().toUpperCase();
+
+  Promise.all([
+    create(
+      competitions[0].CompetitionCode,
+      competitions[0]._id as string,
+      year
+    ),
+    create(
+      competitions[1].CompetitionCode,
+      competitions[1]._id as string,
+      year
+    ),
+  ])
+    .then(() => {
+      console.log('Seasons created Successfully!');
+      return next();
+    })
+
+    .catch((err) => {
+      console.log('Could not create season!');
+      console.error(err);
+
+      return respond.fail(res, 404, 'Error creating Seasons', err);
+    });
+}
+
+/** NEW
+ * Start Calendar Year...
+ *
+ * Add Days to Calendar filled by Fixtures
+ * @param req
+ * @param res
+ * @param next
+ */
+export function setupDaysInYear(req: Request, res: Response) {
   const fetchCalendar = () => {
     // this is the Calendar ID!
     return fetchOneById(req.params.id);
@@ -371,32 +412,59 @@ function getSkip(page: number, length: number) {
   return --page * length;
 }
 
-/** NEW */
-export async function doAll(req: Request, res: Response, next: NextFunction) {
-  const competitions: CompetitionInterface[] = await fetchAll();
-  const year: string = req.params.year.trim().toUpperCase();
+export async function endYear(req: Request, res: Response) {
+  const year = req.params.year;
+  const id = req.params.id;
 
-  Promise.all([
-    create(
-      competitions[0].CompetitionCode,
-      competitions[0]._id as string,
-      year
-    ),
-    create(
-      competitions[1].CompetitionCode,
-      competitions[1]._id as string,
-      year
-    ),
-  ])
-    .then(() => {
-      console.log('Seasons created Successfully!');
-      return next();
-    })
+  const all_seasons: SeasonInterface[] = await fetchAllSeasons({
+    Calendar: id,
+    Year: year,
+  });
 
-    .catch((err) => {
-      console.log('Could not create season!');
-      console.error(err);
+  const all_finished = all_seasons.every((s) => s.isFinished && s.isStarted);
 
-      return respond.fail(res, 404, 'Error creating Seasons', err);
-    });
+  if (!(all_seasons.length > 0)) {
+    return respond.fail(res, 400, 'Seasons in Calendar Year not found!');
+  }
+
+  console.log(all_seasons);
+  console.log(all_finished);
+
+  if (all_finished) {
+    // Means all seasons are over! Yay! Thank you Jesus!
+    // You can tell the Client that the Year is Over!
+    // Update Calendar!
+    // await fin(season.Calendar, { allSeasonsCompleted: true });
+
+    const t = all_seasons.map((s) => prolegate(s._id as string));
+
+    Promise.all(t)
+      .then((r) => {
+        console.log('Seasons prolegated Successfully!');
+        // No, time to update Calendar!
+
+        updateCalendar({ _id: id }, { isActive: false })
+          .then((c) => {
+            console.log('Calendar Year Ended Successfully! :)');
+            return respond.success(
+              res,
+              200,
+              'Calendar Year Ended successfully!',
+              c
+            );
+          })
+          .catch((e) => {
+            console.error(e);
+            return respond.fail(res, 400, 'Error prolegating Seasons!', e);
+          });
+      })
+      .catch((err) => {
+        console.error(err);
+        console.log('Could not prolegate Seasons...');
+
+        return respond.fail(res, 400, 'Error prolegating Seasons!', err);
+      });
+  } else {
+    return respond.fail(res, 400, 'All Seasons in Year are not yet completed!');
+  }
 }

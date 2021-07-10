@@ -1,15 +1,20 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 //   const { month, year } = req.query;
 //   const newYear = month.toUpperCase() + '-' + year;
 import { Request, Response } from 'express';
 import respond from '../../helpers/responseHandler';
 import {
   fetchAll,
+  fetchOneById,
   fetchSeason,
   findByIdAndUpdate,
 } from '../../controllers/seasons/season.service';
 import { SeasonInterface } from './season.model';
 import { compileStandings } from '../../utils/seasons';
 import { CompetitionInterface } from '../competitions/competition.model';
+import { findOneAndUpdate } from '../calendar/calendar.service';
+import { findOne, update } from '../competitions/competition.service';
+import { updateClub } from '../clubs/club.service';
 // import { monthFromIndex } from '../../utils/seasons';
 
 export async function getCurrentSeasons(req: Request, res: Response) {
@@ -46,36 +51,13 @@ export async function getCurrentSeasons(req: Request, res: Response) {
   }
 }
 
-// TODO: sort standings
-// Should we sort when the season is being saved or when it is fetched?
-// ------------ //
-// sortStandings(standings_array) {
-//   standings = standings_array.sort((a, b) => {
-//     if (b.Points == a.Points) {
-//       if (b.GD == b.GD) {
-//         return b.GF - a.GF;
-//       } else {
-//         b.GD - a.GD;
-//       }
-//     } else {
-//       return b.Points - a.Points;
-//     }
-//   });
-//   log(standings);
-//   view.displayStandings(standings);
-// }
-
+/**
+ * Finish Season!
+ * @param req
+ * @param res
+ * @returns
+ */
 export async function finishSeason(req: Request, res: Response) {
-  // do stuff...
-  // To get the last match of the season, we should check the Season and
-  // fetch the Fixtures, then get the last element in the Fixtures array.
-  // Then we compare it's Day to the Day of the Current Match...
-  // o tan... thank you Jesus!
-  // ----- //
-  // or we could just add a check in fixtures and if it passes we know this fixture is the last season, but we
-  // also need to check if the other seasons are finished...
-  // so fetch the season, not the fixture. plus populate
-
   const { id: season_id } = req.params;
 
   if (!season_id) {
@@ -95,8 +77,8 @@ export async function finishSeason(req: Request, res: Response) {
     // tho, part of the query should be the year. Year should be the CurrentYear
     season = await fetchSeason(
       q,
-      'SeasonID SeasonCode Competition Standings',
-      true
+      'SeasonID SeasonCode Competition Standings Fixtures',
+      'Competition Fixtures'
     );
     // We also need to get the associated calendar day...
   } catch (error) {
@@ -145,81 +127,172 @@ export async function finishSeason(req: Request, res: Response) {
       );
     }
 
-    // now do what you want with the season...
-    /**
-     * We need to:
-     * - Update Player Stats [nah, at the end of the year?]
-     * - Mark promoted and relegated... so that at the end of the year, we can put them in their place!
-     * - Mark another thing like Competitions to play and all
-     * - Get Player of the Year (season), Manager of the Year (?), Get Starting XI of the year [could be at the end of the year?]
-     * - Send all of this to the client...
-     *
-     * The most important pieces of information are:
-     - Who won?
-     - Who is getting promoted (if applicable)
-     - Who is getting relegated
-     - Who is the player of the year
-     - Who is manager of the year [not urgent]
-     - What prizes were won, if any... [not urgent]
-      Thank you Jesus!
-  
-      Generate all this into a report and save it, then send it to client.
-     */
-
-    // To find who won, just find who is at the top of the table
-
     const standings = compileStandings(season.Standings);
     const cmp = season.Competition as CompetitionInterface;
-    let prolegated;
 
-    if (cmp.Division == 1 && cmp.League) {
-      // find the last two clubs on compiled table...
-      const p = [
-        standings[standings.length - 2].ClubID,
-        standings[standings.length - 1].ClubID,
-      ];
-
-      // g should look like: ['3efcieurgiejrv', '5sfusdjifevw']
-
-      prolegated = {
-        Relegated: p,
-      };
-    } else if (cmp.Division == 2 && cmp.League) {
-      // the first two clubs on the compiled table...
-      const p = [standings[0].ClubID, standings[1].ClubID];
-
-      // const g = p.map(c => cmp.Clubs.find(f => c.ClubID == f));
-
-      // p should look like: ['3efcieurgiejrv', '5sfusdjifevw']
-
-      prolegated = {
-        Promoted: p,
-      };
-    }
+    // Get a compiled list of best players in the Season?
 
     // nOW THE Season has been confirmed to be over... Update it!
-    findByIdAndUpdate(season_id, {
-      isStarted: true,
-      isFinished: true,
-      $push: {
-        Log: {
-          title: `Season finished`,
-          content: 'Season finished!',
-          date: new Date(),
+    /**
+     * - Check if all Seasons are over
+     * - Update Calendar & notify Client that the Year is finished
+     * - Compile Player stats, Clubs stats maybe idk...
+     * - Send Comipled Table, Updated Season and other Info back to Client (after updating the Season o)
+     * - O tan!
+     *
+     * NEXT => Finish Year!
+     */
+
+    const updateSeason = () => {
+      const prolegated: any =
+        cmp.Division == 1 && cmp.League
+          ? {
+              Relegated: [
+                standings[standings.length - 2].ClubID,
+                standings[standings.length - 1].ClubID,
+              ],
+            }
+          : {
+              Promoted: [standings[0].ClubID, standings[1].ClubID],
+            };
+
+      return findByIdAndUpdate(season_id, {
+        isStarted: true,
+        isFinished: true,
+        Status: 'finished',
+        EndDate: new Date(),
+        Winner: standings[0].ClubID, // Winner of the League
+        $push: {
+          Logs: [
+            {
+              title: `Season finished`,
+              content: 'Season finished!',
+              date: new Date(),
+            },
+            {
+              title: `Winner of Season`,
+              content: 'This team won',
+              date: new Date(),
+            },
+          ],
         },
-      },
-      $set: prolegated,
-    })
-      .then((season: any) => {
-        console.log('Season has been updated successfully!');
-      })
-      .catch((err: any) => {
-        respond.fail(res, 400, 'Error starting Season', err);
+        $set: prolegated,
+      });
+    };
+
+    const checkOtherSeasons = async (season: SeasonInterface) => {
+      // Find all seasons in the year
+      const all_seasons: SeasonInterface[] = await fetchAll({
+        Calendar: season.Calendar,
+        Year: season.Year,
       });
 
-    return respond.success(res, 200, 'Found Standings', standings);
+      const all_finished = all_seasons.every(
+        (s) => s.isFinished && s.isStarted
+      );
+
+      console.log(`All Seasons Finished => `, all_finished);
+
+      if (all_finished) {
+        // Means all seasons are over! Yay! Thank you Jesus!
+        // You can tell the Client that the Year is Over!
+        // Update Calendar!
+        await findOneAndUpdate(season.Calendar, { allSeasonsCompleted: true });
+      }
+    };
+
+    updateSeason()
+      .then(checkOtherSeasons)
+      .then(() => {
+        return respond.success(res, 200, 'Season Ended Successfully!', {
+          standings,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        console.log('Error ending Season!');
+
+        return respond.fail(res, 400, 'Error ending Season!', err);
+      });
   } catch (error) {
     console.error(error);
     return respond.fail(res, 400, 'Error doing something', error);
+  }
+}
+
+export async function prolegate(season_id: string) {
+  const season: SeasonInterface = await fetchOneById(
+    season_id,
+    '-Fixtures',
+    'Competition'
+  );
+
+  const moveClub = async (
+    club_id: string,
+    old_comp: CompetitionInterface,
+    type: 'up' | 'down'
+  ) => {
+    let diff: number;
+
+    console.log('Inside MoveClub');
+
+    switch (type) {
+      case 'up':
+        diff = -1;
+        console.log('Promoting Club...', club_id);
+        break;
+      case 'down':
+        diff = 1;
+        console.log('Relegating Club...', club_id);
+    }
+
+    // find the new Competition that is higher thnan current comp.
+    const new_comp: CompetitionInterface = await findOne({
+      Division: old_comp.Division + diff,
+    });
+
+    const record_msg = `Got ${type == 'up' ? 'Promoted' : 'Relegated'} to ${
+      new_comp.Title
+    }`;
+
+    try {
+      //  Remove from old... add to new
+      await update(old_comp._id as string, { $pull: { Clubs: club_id } });
+
+      await update(new_comp._id as string, { $push: { Clubs: club_id } });
+
+      // update Club also..
+      await updateClub(club_id, {
+        League: new_comp._id,
+        LeagueCode: new_comp.CompetitionCode,
+        $push: {
+          Records: {
+            title: 'League Movement',
+            content: record_msg,
+            date: new Date(),
+          },
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  };
+
+  const cmp = season.Competition as CompetitionInterface;
+  let move_type: 'up' | 'down';
+  switch (cmp.Division) {
+    case 1:
+      move_type = 'down';
+
+      return Promise.all(
+        season.Relegated.map((c) => moveClub(c, cmp, move_type))
+      );
+    case 2:
+      move_type = 'up';
+
+      return Promise.all(
+        season.Promoted.map((c) => moveClub(c, cmp, move_type))
+      );
   }
 }

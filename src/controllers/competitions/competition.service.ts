@@ -8,6 +8,15 @@ export function fetchAll() {
 }
 
 /**
+ * Find One Competition that matches the Query
+ * @param query
+ * @returns
+ */
+export function findOne(query: Record<string, any>) {
+  return DB.Models.Competition.findOne(query).lean().exec();
+}
+
+/**
  * FetchOneById
  *
  * Fetch a specific competition by its id
@@ -65,6 +74,20 @@ export function addClub(competitionId: string, clubId: string) {
     },
     { new: true }
   )
+    .lean()
+    .exec();
+}
+
+/**
+ * Update Competition by ID
+ */
+export function updateCompetition(
+  competitionId: string,
+  update: Record<string, never>
+) {
+  return DB.Models.Competition.findByIdAndUpdate(competitionId, update, {
+    new: true,
+  })
     .lean()
     .exec();
 }

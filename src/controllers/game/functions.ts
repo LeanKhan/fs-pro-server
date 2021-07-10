@@ -183,7 +183,6 @@ export function updateStandings(
         }
 
         currentDay = day;
-        log('Day =>', day);
 
         // Then find the array position...
         const matchIndex = day.Matches.findIndex(
@@ -225,6 +224,8 @@ export function updateStandings(
 
     const hw = `Standings.${week - 1}.Table.$[home]`;
     const aw = `Standings.${week - 1}.Table.$[away]`;
+
+    console.log(week);
 
     try {
       await updateSeason(

@@ -259,6 +259,13 @@ function sortStandings(standings: ClubStandings[]) {
   });
 }
 
+/**
+ *  Array.from(new Set(allStandings.map((x) => x.ClubID))).forEach((x) => {
+    sum.push(
+      allStandings
+        .filter((y) => y.ClubID === x)
+        .reduce((output: any, item: any) => {
+ */
 export function compileStandings(standings: SeasonInterface['Standings']) {
   const allStandings = sumStandings(standings);
 

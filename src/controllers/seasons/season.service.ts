@@ -36,18 +36,18 @@ export function fetchAll(
 export function fetchOneById(
   id: string,
   select: boolean | string = false,
-  populate = true
+  populate: boolean | string = 'Fixtures'
 ) {
-  if (select) {
-    return DB.Models.Season.findById(id).select(select).lean().exec();
-  }
-
   if (select && populate) {
     return DB.Models.Season.findById(id)
-      .populate('Fixtures')
       .select(select)
+      .populate(populate)
       .lean()
       .exec();
+  }
+
+  if (select) {
+    return DB.Models.Season.findById(id).select(select).lean().exec();
   }
 
   return DB.Models.Season.findById(id).populate('Fixtures').lean().exec();
@@ -62,7 +62,7 @@ export function fetchOneById(
 export function fetchSeason(
   query: any,
   select: boolean | string = false,
-  populate = true
+  populate: boolean | string = 'Fixtures'
 ) {
   if (select && !populate) {
     return DB.Models.Season.findOne(query).select(select).lean().exec();
@@ -74,7 +74,7 @@ export function fetchSeason(
 
   if (select && populate) {
     return DB.Models.Season.findOne(query)
-      .populate('Fixtures')
+      .populate(populate)
       .select(select)
       .lean()
       .exec();
@@ -83,7 +83,10 @@ export function fetchSeason(
   return DB.Models.Season.findOne(query).lean().exec();
 }
 
-export function findByIdAndUpdate(id: string, update: any) {
+export function findByIdAndUpdate(
+  id: string,
+  update: any
+): Promise<SeasonInterface> {
   return DB.Models.Season.findByIdAndUpdate(id, update, { new: true })
     .lean()
     .exec();
