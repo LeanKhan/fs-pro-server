@@ -5,7 +5,7 @@ import { ClubInterface } from '../clubs/club.model';
 export interface CompetitionInterface {
   _id?: string;
   Type: string;
-  Title: string;
+  Name: string;
   CompetitionID: string;
   CompetitionCode: string;
   League: boolean;
@@ -20,7 +20,7 @@ export interface CompetitionInterface {
 
 declare interface ICompetition extends Document {
   Type: 'league' | 'cup' | 'tournament';
-  Title: string;
+  Name: string;
   CompetitionID: string;
   CompetitionCode: string;
   League: boolean;

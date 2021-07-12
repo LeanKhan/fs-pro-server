@@ -11,7 +11,6 @@ import {
 import { CompetitionInterface } from '../controllers/competitions/competition.model';
 import { createFixtures } from '../controllers/fixtures/fixture.service';
 import {
-  monthFromIndex,
   generateWeekTable,
   generateFixtureObject,
   RoundRobin,
@@ -57,8 +56,9 @@ export async function create(
       Competition: competitionID,
       Calendar: cal._id,
       Year: cal.YearString,
+      Status: 'pending',
       SeasonID,
-      Title: `NewSeason-${competitionCode}-${year}-${Math.round(
+      Title: `Season-${competitionCode}-${year}-${Math.round(
         Math.random() * 10
       )}`,
     };

@@ -26,6 +26,10 @@ export interface CalendarInterface {
   CurrentDay?: number;
   /** If the Calendar is the active one */
   isActive: boolean;
+  /** See if Calendar has been ended pata pata */
+  isEnded: boolean;
+  /** Are all Seasons completed? */
+  allSeasonsCompleted: boolean;
   /** Array of the ids of Days */
   Days: string[];
 }
@@ -40,7 +44,10 @@ declare interface ICalendar extends Document {
   CurrentDay?: number;
   /** If the Calendar is the active one */
   isActive: boolean;
-  /** Array of the ids of Days */
+  /** See if Calendar has been ended pata pata */
+  isEnded: boolean;
+  /** Are all Seasons completed? */
+  allSeasonsCompleted: boolean;  /** Array of the ids of Days */
   Days: string[];
 }
 
@@ -57,6 +64,7 @@ export class Calendar {
         YearDigits: String,
         CurrentDay: Number, // the index of the day...
         isActive: { type: Boolean, default: false },
+        isEnded: { type: Boolean, default: false },
         allSeasonsCompleted: { type: Boolean, default: false },
         Days: [{ type: Schema.Types.ObjectId, ref: 'Day' }],
       },

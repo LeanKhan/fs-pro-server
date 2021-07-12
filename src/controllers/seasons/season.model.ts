@@ -117,6 +117,7 @@ export class Season {
         Relegated: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
         isFinished: { type: Boolean, default: false },
         isStarted: { type: Boolean, default: false },
+        // allMatchesPlayed: { type: Boolean, default: false },
         Status: { type: String, default: 'Pending' },
         Year: String,
         Calendar: { type: Schema.Types.ObjectId, ref: 'Calendar' },

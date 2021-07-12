@@ -18,6 +18,9 @@ export function fetchMany(
   week = 1,
   limit = 7
 ) {
+
+  week = week <= 0 ? 1 : week;
+
   if (populate && paginate) {
     return DB.Models.Day.find(query)
       .limit(limit * 1)

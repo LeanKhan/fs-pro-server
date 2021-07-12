@@ -34,8 +34,11 @@ router.get('/calendars/:id', (req, res) => {
 });
 
 /** Delete Calendar by id */
-router.delete('/calendars/:id', (req, res) => {
-  const response = deleteById(req.params.id);
+router.delete('/calendars/:id', async (req, res) => {
+  const response = await deleteById(req.params.id);
+
+  // also, delete all associated Days, Seasons and Fixtures...
+
 
   response
     .then((calendar: any) => {
@@ -85,6 +88,8 @@ router.get('/:year/days', (req: Request, res: Response) => {
       );
     })
     .catch((err: any) => {
+      console.log(err);
+      console.error(err);
       return respond.fail(res, 400, 'Error fetching days in calendar', err);
     });
 });
@@ -100,13 +105,19 @@ router.post('/new', createCalendarYear);
  * - Then the Calendar process is complete!
  * - A Calendar Year ends when a new one Starts
  * - Next, Start the Calendar and go and play matches! :) Thank you Jesus
+ * This endpoint, setups Year and Activates it ! Thank you Jesus!
  */
-router.post('/:year/:id/setup', createSeasonsInTheYear, setupDaysInYear);
+router.post(
+  '/:year/:id/setup',
+  createSeasonsInTheYear,
+  setupDaysInYear,
+  startYear
+);
 
 /** Start Calendar Year... */
-router.post('/:year/start', startYear);
+router.post('/:year/:id/start', startYear);
 
 /** End Calendar Year... */
-router.post('/:year/:id/end', endYear);
+router.post('/:id/end', endYear);
 
 export default router;

@@ -69,7 +69,7 @@ export function fetchSeason(
   }
 
   if (populate && !select) {
-    return DB.Models.Season.findOne(query).populate('Fixtures').lean().exec();
+    return DB.Models.Season.findOne(query).populate(populate).lean().exec();
   }
 
   if (select && populate) {

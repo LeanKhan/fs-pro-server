@@ -81,7 +81,7 @@ router.patch('/:id/start', (req, res) => {
 });
 
 /** FINISH SEASON */
-router.patch('/:id/finish', finishSeason);
+router.post('/:id/finish', finishSeason);
 
 /** Get all Fixtures in Season */
 router.get('/:id/fixtures', (req, res) => {
@@ -100,7 +100,7 @@ router.get('/:id/fixtures', (req, res) => {
 });
 
 /** Get current Season */
-router.get('/current', getCurrentSeasons);
+router.get('/:year/current', getCurrentSeasons);
 
 // I moved these endpoiints down here because it was matching 'seasons/current' causing an error.
 
@@ -117,6 +117,8 @@ router.get('/:id', (req: Request, res: Response) => {
     .then((season: any) => {
       if (!season.Title)
         return respond.success(res, 404, 'Season not found!', season);
+
+        season.CompiledStandings = compileStandings(season.Standings);
 
       return respond.success(res, 200, 'Season fetched successfully', season);
     })

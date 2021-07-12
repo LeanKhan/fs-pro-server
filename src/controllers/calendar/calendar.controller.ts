@@ -47,6 +47,8 @@ export function createCalendarYear(req: Request, res: Response) {
     YearString,
     YearDigits,
     isActive: false,
+    isEnded: false,
+    allSeasonsCompleted: false,
     Days: [],
   };
 
@@ -110,7 +112,11 @@ export async function createSeasonsInTheYear(
  * @param res
  * @param next
  */
-export function setupDaysInYear(req: Request, res: Response) {
+export function setupDaysInYear(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const fetchCalendar = () => {
     // this is the Calendar ID!
     return fetchOneById(req.params.id);
@@ -247,12 +253,17 @@ export function setupDaysInYear(req: Request, res: Response) {
       .then((cal: any) => {
         log('Calendar Updated successfully!');
         console.log('Calendar Updated successfully! ', cal);
-        return respond.success(
-          res,
-          200,
-          'New Calendar created successfully!',
-          cal
-        );
+
+        // this can just go next tho :)
+        req.body.new_cal = cal;
+
+        return next();
+        // return respond.success(
+        //   res,
+        //   200,
+        //   'New Calendar created successfully!',
+        //   cal
+        // );
       })
       .catch((err: any) => {
         log(`Error updating Calendar! => ${err}`);
@@ -298,10 +309,12 @@ export async function changeCurrentDay(year: string, currentDay: DayInterface) {
   // TODO: also a day that is higher than the current day...
   // TODO: you should also prevent matches from being played anyhow.
   // matches should be played in sequence
+  // Added in JUl-11-21: Also, a day that actually has matches shey?
   const getNextDay = async () => {
     const query = {
       $nor: [{ 'Matches.Played': true }],
       Year: year,
+      isFree: false,
       Day: { $gt: currentDay.Day },
     };
 
@@ -310,6 +323,15 @@ export async function changeCurrentDay(year: string, currentDay: DayInterface) {
 
   function updateCurrentDay(nextfreeday: DayInterface) {
     // if this doesn't return a calendar, doesn't that mean all games have been played in all days?
+
+    if(nextfreeday == null) {
+      // If there is no nextFreeDay (last playable match of the Year), so maybe just keep the Calendat CurrentDay
+return updateCalendar(
+      { YearString: year },
+      { CurrentDay: currentDay.Day }
+    );
+    }
+
     return updateCalendar(
       { YearString: year },
       { CurrentDay: nextfreeday.Day }
@@ -323,12 +345,21 @@ export function startYear(req: Request, res: Response) {
   const { year } = req.params;
 
   if (!year) {
-    return respond.fail(res, 400, 'No year provided!');
+    return respond.fail(
+      res,
+      400,
+      'Could Not Start Calendar Year - No year provided!'
+    );
   }
 
   const fetchSeasons = () => {
     // this is the wrong query. Fetch seasons that have not started and are 'pending' state
-    const query = { Year: year, Status: 'pending', isFinished: false };
+    const query = {
+      Year: year,
+      Status: 'pending',
+      isStarted: false,
+      isFinished: false,
+    };
 
     return updateManySeasons(query, {
       isStarted: true,
@@ -369,11 +400,7 @@ export function startYear(req: Request, res: Response) {
 // TODO: add the _id of Calendar to Season
 
 export async function getCurrentCalendar(req: Request, res: Response) {
-  // Get the current year calendar...
-  // ERR! Use the month and year passed from the front end
 
-  const year = process.env.CURRENT_YEAR?.trim() || req.query.year;
-  // We can use the CURRENT_YEAR env variable
   const skip = getSkip(parseInt(req.query.page || 1), 14);
   const limit = parseInt(req.query.limit || 14);
   let response;
@@ -388,23 +415,24 @@ export async function getCurrentCalendar(req: Request, res: Response) {
   }
 
   try {
-    response = await fetchOne({ YearString: year }, populate, {
+    response = await fetchOne({ isActive: true }, populate, {
       skip,
       limit,
     });
   } catch (error) {
-    return respond.fail(res, 400, 'Failed to fetch current calendar', error);
+    return respond.success(res, 404, 'Current Calendar not found!', error);
   }
 
   if (response) {
     return respond.success(
       res,
       200,
-      'Fetched current calendar successfully! :)',
+      'Fetched current Calendar successfully! :)',
       response
     );
   } else {
-    return respond.fail(res, 404, 'Found none :/', {});
+    // This actually means that there is no Current Calendar! Thank you Jesus
+    return respond.success(res, 200, 'No current Calendar Year! You can start a new one :) Thank you Jesus!', null);
   }
 }
 
@@ -413,22 +441,27 @@ function getSkip(page: number, length: number) {
 }
 
 export async function endYear(req: Request, res: Response) {
-  const year = req.params.year;
   const id = req.params.id;
 
+  const currentCalendar = await fetchOneById(id);
+
+  if(!currentCalendar.isActive && currentCalendar.isEnded) {
+    // Calendar must already be ended.
+
+        return respond.fail(res, 400, 'Calendar is already ended!', currentCalendar);
+  }
+
   const all_seasons: SeasonInterface[] = await fetchAllSeasons({
-    Calendar: id,
-    Year: year,
+    Calendar: id
   });
+
+  // actually check if Calendar is not already ended :)
 
   const all_finished = all_seasons.every((s) => s.isFinished && s.isStarted);
 
   if (!(all_seasons.length > 0)) {
     return respond.fail(res, 400, 'Seasons in Calendar Year not found!');
   }
-
-  console.log(all_seasons);
-  console.log(all_finished);
 
   if (all_finished) {
     // Means all seasons are over! Yay! Thank you Jesus!
@@ -442,8 +475,8 @@ export async function endYear(req: Request, res: Response) {
       .then((r) => {
         console.log('Seasons prolegated Successfully!');
         // No, time to update Calendar!
-
-        updateCalendar({ _id: id }, { isActive: false })
+        // TODO: This should get Player of the Year etc... thank you Jesus!
+        updateCalendar({ _id: id }, { isActive: false, isEnded: true })
           .then((c) => {
             console.log('Calendar Year Ended Successfully! :)');
             return respond.success(

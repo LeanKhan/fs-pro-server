@@ -25,7 +25,7 @@ export async function getCurrentSeasons(req: Request, res: Response) {
    * 4. Thank you Jesus...
    */
 
-  const year = process.env.CURRENT_YEAR!.trim() || req.query.year;
+  const year = req.params.year;
 
   let populate;
 
@@ -39,10 +39,10 @@ export async function getCurrentSeasons(req: Request, res: Response) {
   // now find the seasons with these parameters [${compCode}-${Month}-${Year}]
   // const seasons = findAll
   // Find the seasons that are in these competitions and this year
-  const query = { Year: year, isFinished: false, Status: 'started' };
+  const query = { Year: year };
   try {
     const seasons = await fetchAll(query, populate, false);
-    if (seasons.length === 0) {
+    if (seasons.length == 0) {
       return respond.fail(res, 404, 'No Seasons found!', seasons);
     }
     return respond.success(res, 200, 'Found seasons', seasons);
@@ -77,7 +77,7 @@ export async function finishSeason(req: Request, res: Response) {
     // tho, part of the query should be the year. Year should be the CurrentYear
     season = await fetchSeason(
       q,
-      'SeasonID SeasonCode Competition Standings Fixtures',
+      false,
       'Competition Fixtures'
     );
     // We also need to get the associated calendar day...
@@ -129,19 +129,7 @@ export async function finishSeason(req: Request, res: Response) {
 
     const standings = compileStandings(season.Standings);
     const cmp = season.Competition as CompetitionInterface;
-
-    // Get a compiled list of best players in the Season?
-
-    // nOW THE Season has been confirmed to be over... Update it!
-    /**
-     * - Check if all Seasons are over
-     * - Update Calendar & notify Client that the Year is finished
-     * - Compile Player stats, Clubs stats maybe idk...
-     * - Send Comipled Table, Updated Season and other Info back to Client (after updating the Season o)
-     * - O tan!
-     *
-     * NEXT => Finish Year!
-     */
+    // TODO: Do Best Player etc...
 
     const updateSeason = () => {
       const prolegated: any =
@@ -169,11 +157,6 @@ export async function finishSeason(req: Request, res: Response) {
               content: 'Season finished!',
               date: new Date(),
             },
-            {
-              title: `Winner of Season`,
-              content: 'This team won',
-              date: new Date(),
-            },
           ],
         },
         $set: prolegated,
@@ -191,21 +174,20 @@ export async function finishSeason(req: Request, res: Response) {
         (s) => s.isFinished && s.isStarted
       );
 
-      console.log(`All Seasons Finished => `, all_finished);
-
       if (all_finished) {
-        // Means all seasons are over! Yay! Thank you Jesus!
-        // You can tell the Client that the Year is Over!
-        // Update Calendar!
-        await findOneAndUpdate(season.Calendar, { allSeasonsCompleted: true });
+        await findOneAndUpdate({_id: season.Calendar}, { allSeasonsCompleted: true });
       }
+
+      return season;
     };
 
     updateSeason()
       .then(checkOtherSeasons)
-      .then(() => {
+      .then((updatedSeason: any) => {
         return respond.success(res, 200, 'Season Ended Successfully!', {
+          // this should also have the Season object to send back to the Client...
           standings,
+          season: updatedSeason
         });
       })
       .catch((err) => {
@@ -220,6 +202,14 @@ export async function finishSeason(req: Request, res: Response) {
   }
 }
 
+/**
+ * Prolegate: (Pro)mote or Re(legate)
+ *
+ * This function promotes or relegates the clubs in the Season...
+ * Thank you Jesus
+ * @param season_id
+ * @returns
+ */
 export async function prolegate(season_id: string) {
   const season: SeasonInterface = await fetchOneById(
     season_id,
@@ -243,6 +233,8 @@ export async function prolegate(season_id: string) {
         break;
       case 'down':
         diff = 1;
+        // adding becasue the lower leagues have higher division numbers i.e
+        // League 1 is higehr than League 2
         console.log('Relegating Club...', club_id);
     }
 
@@ -252,7 +244,7 @@ export async function prolegate(season_id: string) {
     });
 
     const record_msg = `Got ${type == 'up' ? 'Promoted' : 'Relegated'} to ${
-      new_comp.Title
+      new_comp.Name
     }`;
 
     try {

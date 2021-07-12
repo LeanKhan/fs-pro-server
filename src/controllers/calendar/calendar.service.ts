@@ -87,5 +87,11 @@ export function createNew(data: any) {
 }
 
 export function deleteById(id: string) {
-  return DB.Models.Calendar.findByIdAndDelete(id).lean().exec();
+  /** 
+  * Delete the Calendar, then Days, Seasons & Fixtures, then
+  */
+
+  const todelete = [ DB.Models.Calendar.findByIdAndDelete(id).lean().exec(), DB.Models.Day.deleteMany({Calendar: id}).lean().exec()];
+
+  return Promise.all(todelete);
 }

@@ -182,6 +182,7 @@ export function generateFixtureObject(data: fixtureInterface) {
     AwayTeam: data.awayId,
     Stadium: data.stadium,
     Type: data.type,
+    MatchDay: data.index + 1,
     Week: Math.ceil((data.index + 1) / data.matchesPerWeek),
     isFinalMatch: data.isFinalMatch,
   };
