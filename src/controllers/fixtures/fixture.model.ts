@@ -70,38 +70,6 @@ const MatchEventSchema: Schema = new Schema({
   data: {},
 });
 
-const PlayerMatchStatsSchema: Schema = new Schema({
-  _id: { type: Schema.Types.ObjectId, ref: 'Player' },
-  Goals: Number,
-  Saves: Number,
-  YellowCards: Number,
-  Fouls: Number,
-  RedCards: Number,
-  Passes: Number,
-  Tackles: Number,
-  Assists: Number,
-  CleanSheets: Number,
-  Points: Number,
-  Dribbles: Number,
-});
-
-const MatchSideDetailsSchema: Schema = new Schema({
-  Score: Number,
-  TimesWithBall: Number,
-  Possession: Number,
-  Goals: Number,
-  ShotsOnTarget: Number,
-  ShotsOffTarget: Number,
-  Fouls: Number,
-  YellowCards: Number,
-  RedCards: Number,
-  Passes: Number,
-  PlayerStats: [PlayerMatchStatsSchema],
-  Won: { type: Boolean, default: false },
-  Drew: { type: Boolean, default: false },
-  Events: [MatchEventSchema],
-});
-
 // Custom Schemas (Subdocuments)
 // ... MatchDetails ...
 const MatchDetailsSchema: Schema = new Schema({
@@ -131,10 +99,14 @@ export class Fixture {
         Season: { type: Schema.Types.ObjectId, ref: 'Season' },
         Stadium: String,
         Played: { type: Boolean, default: false },
-        Status: {
+        Tie: {
           type: String,
-          default: 'regular',
-          enum: ['friendly', 'first-leg', 'second-leg', 'regular'],
+          enum: ['first-leg', 'second-leg', 'friendly'],
+        },
+        Stage: {
+          type: String,
+          default: 'lg-match',
+          enum: ['qt-final', 'sm-final', 'final', 'lg-match', 'gp-stage'],
         },
         ReverseFixture: { type: Schema.Types.ObjectId, ref: 'Fixture' },
         PlayedAt: Date,
@@ -147,8 +119,14 @@ export class Fixture {
         Type: {
           type: String,
         },
-        HomeSideDetails: MatchSideDetailsSchema,
-        AwaySideDetails: MatchSideDetailsSchema,
+        HomeSideDetails: {
+          type: Schema.Types.ObjectId,
+          ref: 'ClubMatchDetails',
+        },
+        AwaySideDetails: {
+          type: Schema.Types.ObjectId,
+          ref: 'ClubMatchDetails',
+        },
         HomeManager: { type: Schema.Types.ObjectId, ref: 'Manager' },
         AwayManager: { type: Schema.Types.ObjectId, ref: 'Manager' },
         isFinalMatch: {

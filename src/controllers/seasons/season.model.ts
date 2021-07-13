@@ -21,7 +21,6 @@ export interface SeasonInterface {
   Calendar: string;
   Fixtures: Fixture[];
   Standings: WeekStandings[];
-  PlayerStats: any[];
 }
 
 declare interface ISeason extends Document {
@@ -40,7 +39,6 @@ declare interface ISeason extends Document {
   EndDate: Date;
   Fixtures: [];
   Standings: WeekStandings[];
-  PlayerStats: any[];
 }
 
 export interface ClubStandings {
@@ -62,20 +60,6 @@ interface WeekStandings {
 }
 
 export type SeasonModel = Model<ISeason>;
-
-const PlayerSeasonStats: Schema = new Schema({
-  Goals: Number,
-  Saves: Number,
-  YellowCards: Number,
-  RedCards: Number,
-  Passes: Number,
-  Tackles: Number,
-  Assists: Number,
-  CleanSheets: Number,
-  PlayerID: String,
-  Player: String,
-  MOTM: Number,
-});
 
 const Log: Schema = new Schema({
   title: String,
@@ -117,7 +101,7 @@ export class Season {
         Relegated: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
         isFinished: { type: Boolean, default: false },
         isStarted: { type: Boolean, default: false },
-        // allMatchesPlayed: { type: Boolean, default: false },
+        // TODO: still deciding... allMatchesPlayed: { type: Boolean, default: false },
         Status: { type: String, default: 'Pending' },
         Year: String,
         Calendar: { type: Schema.Types.ObjectId, ref: 'Calendar' },
@@ -125,7 +109,6 @@ export class Season {
         CompetitionCode: { type: String },
         Fixtures: [{ type: Schema.Types.ObjectId, ref: 'Fixture' }],
         Standings: [WeekStandingsSchema],
-        PlayerStats: [PlayerSeasonStats],
         Logs: [Log],
       },
       { timestamps: true }
