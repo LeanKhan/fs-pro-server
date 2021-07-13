@@ -10,7 +10,7 @@ import {
   endYear,
 } from './calendar.controller';
 import { fetchMany } from '../days/day.service';
-import { incrementCounter } from '../../utils/counter';
+// import { incrementCounter } from '../../utils/counter';
 
 const router = Router();
 
@@ -34,13 +34,8 @@ router.get('/calendars/:id', (req, res) => {
 });
 
 /** Delete Calendar by id */
-router.delete('/calendars/:id', async (req, res) => {
-  const response = await deleteById(req.params.id);
-
-  // also, delete all associated Days, Seasons and Fixtures...
-
-
-  response
+router.delete('/calendars/:id', (req, res) => {
+  deleteById(req.params.id)
     .then((calendar: any) => {
       respond.success(res, 200, 'Calendar deleted successfully :)', calendar);
     })

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Request, Response, NextFunction } from 'express';
 import respond from '../helpers/responseHandler';
 import {
