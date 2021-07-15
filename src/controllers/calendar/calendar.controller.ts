@@ -13,7 +13,11 @@ import { createMany, findOne as findDay } from '../days/day.service';
 import { Fixture } from '../fixtures/fixture.model';
 import { CalendarInterface } from './calendar.model';
 import { DayInterface, CalendarMatchInterface } from '../days/day.model';
-import { indexFromMonth, monthFromIndex } from '../../utils/seasons';
+import {
+  indexFromMonth,
+  monthFromIndex,
+  randomCode,
+} from '../../utils/seasons';
 import {
   createNew,
   fetchOne,
@@ -34,14 +38,19 @@ import { prolegate } from '../seasons/season.controller';
 export function createCalendarYear(req: Request, res: Response) {
   const now = new Date();
 
-  // const { year, month } = req.query;
-  const month = monthFromIndex(now.getMonth());
+  const month = req.query.override_month
+    ? randomCode(3)
+    : monthFromIndex(now.getMonth());
   const year = now.getFullYear();
 
   const YearString = `${month}-${year}`;
 
-  const YearDigits = `${indexFromMonth(month) + 1}-${year}`;
-
+  const YearDigits = `${
+    req.query.override_month
+      ? Math.round(Math.random() * 99)
+      : indexFromMonth(month) + 1
+  }-${year}`;
+  // TODO: lowks, YearDigits is useless :)
   const calendar: CalendarInterface = {
     Name: `${YearString}:fspro`,
     YearString,
@@ -252,8 +261,6 @@ export function setupDaysInYear(
     updateCalendar({ _id: calendarID }, { Days: calendarDays })
       .then((cal: any) => {
         log('Calendar Updated successfully!');
-        console.log('Calendar Updated successfully! ', cal);
-
         // this can just go next tho :)
         req.body.new_cal = cal;
 
@@ -324,12 +331,12 @@ export async function changeCurrentDay(year: string, currentDay: DayInterface) {
   function updateCurrentDay(nextfreeday: DayInterface) {
     // if this doesn't return a calendar, doesn't that mean all games have been played in all days?
 
-    if(nextfreeday == null) {
+    if (nextfreeday == null) {
       // If there is no nextFreeDay (last playable match of the Year), so maybe just keep the Calendat CurrentDay
-return updateCalendar(
-      { YearString: year },
-      { CurrentDay: currentDay.Day }
-    );
+      return updateCalendar(
+        { YearString: year },
+        { CurrentDay: currentDay.Day }
+      );
     }
 
     return updateCalendar(
@@ -400,7 +407,6 @@ export function startYear(req: Request, res: Response) {
 // TODO: add the _id of Calendar to Season
 
 export async function getCurrentCalendar(req: Request, res: Response) {
-
   const skip = getSkip(parseInt(req.query.page || 1), 14);
   const limit = parseInt(req.query.limit || 14);
   let response;
@@ -432,7 +438,12 @@ export async function getCurrentCalendar(req: Request, res: Response) {
     );
   } else {
     // This actually means that there is no Current Calendar! Thank you Jesus
-    return respond.success(res, 200, 'No current Calendar Year! You can start a new one :) Thank you Jesus!', null);
+    return respond.success(
+      res,
+      200,
+      'No current Calendar Year! You can start a new one :) Thank you Jesus!',
+      null
+    );
   }
 }
 
@@ -445,14 +456,19 @@ export async function endYear(req: Request, res: Response) {
 
   const currentCalendar = await fetchOneById(id);
 
-  if(!currentCalendar.isActive && currentCalendar.isEnded) {
+  if (!currentCalendar.isActive && currentCalendar.isEnded) {
     // Calendar must already be ended.
 
-        return respond.fail(res, 400, 'Calendar is already ended!', currentCalendar);
+    return respond.fail(
+      res,
+      400,
+      'Calendar is already ended!',
+      currentCalendar
+    );
   }
 
   const all_seasons: SeasonInterface[] = await fetchAllSeasons({
-    Calendar: id
+    Calendar: id,
   });
 
   // actually check if Calendar is not already ended :)

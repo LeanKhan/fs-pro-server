@@ -103,7 +103,7 @@ router.post('/new', createCalendarYear);
  * This endpoint, setups Year and Activates it ! Thank you Jesus!
  */
 router.post(
-  '/:year/:id/setup',
+  '/:year/:id/setup-and-start',
   createSeasonsInTheYear,
   setupDaysInYear,
   startYear

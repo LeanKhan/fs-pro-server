@@ -1,5 +1,5 @@
 import { Schema, Document, model, Model } from 'mongoose';
-import { IPlayerAttributes, IPlayerStats } from '../../interfaces/Player';
+import { IPlayerAttributes } from '../../interfaces/Player';
 
 declare interface IPlayer extends Document {
   /** Name of the Player! */
@@ -14,7 +14,6 @@ declare interface IPlayer extends Document {
   ShirtNumber: string;
   /** Collecting of Player's attributes */
   Attributes: IPlayerAttributes;
-  Stats: IPlayerStats;
   isSigned: boolean;
   /** Monetary value of Player */
   Value: number;
@@ -124,17 +123,6 @@ export class Player {
         },
         /** overall Player rating over 100 - e.g 88 */
         Rating: Number,
-        /** We may not need to record this though... We can use an aggregate function to calculate all this. */
-        Stats: {
-          type: Object,
-          Goals: { type: Number, default: 0 },
-          Saves: { type: Number, default: 0 },
-          YellowCards: { type: Number, default: 0 },
-          RedCards: { type: Number, default: 0 },
-          Assists: { type: Number, default: 0 },
-          CleanSheets: { type: Number, default: 0 },
-          MOTM: { type: Number, default: 0 },
-        },
         ShirtNumber: String,
         Value: {
           type: Number,

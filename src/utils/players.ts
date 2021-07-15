@@ -2,7 +2,7 @@
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IPositions, IFieldPlayer, IPlayer } from '../interfaces/Player';
-import { ratingFactors, postitionFactors, ageFactors } from './player_factors';
+import { ratingFactors, postitionFactors, ageFactors } from './player-factors';
 import log from '../helpers/logger';
 
 /**

@@ -35,10 +35,9 @@ export interface IPlayer {
   GameStats: IGameStats;
   Position: string;
   Attributes: IPlayerAttributes;
-  Stats?: IPlayerStats;
   Value: number;
   /** This is the average players points in previous matches. It resets at the end of the season... */
-  Form: number;
+  Form?: number;
   isSigned: boolean;
   ClubCode?: string;
 }
@@ -89,10 +88,7 @@ export interface IPlayerStats {
 }
 
 export interface IGameStats extends IPlayerStats {
+  Fouls: number;
   Points: number;
   Dribbles: number;
 }
-
-/**
- * db.collection.updateMany({rand: { $exists: false }}, [{$set: { rand: { $function: { body: function() { return Math.random(); }, args: [], lang: "js" } } } }])
- */

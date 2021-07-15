@@ -35,7 +35,6 @@ const MatchSchema: Schema = new Schema(
       Loser: String,
       HomeTeamDetails: {
         ClubCode: String,
-        Score: { type: Number, default: 0 },
         Possession: { type: Number, default: 0 },
         Goals: { type: Number, default: 0 },
         TotalShots: { type: Number, default: 0 },
@@ -46,7 +45,6 @@ const MatchSchema: Schema = new Schema(
       },
       AwayTeamDetails: {
         ClubCode: String,
-        Score: { type: Number, default: 0 },
         Possession: { type: Number, default: 0 },
         TimesWithBall: { type: Number, default: 0 },
         Goals: { type: Number, default: 0 },

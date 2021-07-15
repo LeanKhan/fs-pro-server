@@ -5,6 +5,7 @@ import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer, IPlayerStats } from '../interfaces/Player';
 import { IShot, IPass, GamePoints, ITackle, IDribble } from './Referee';
 import log from '../helpers/logger';
+import { PlayerMatchDetailsInterface } from '../controllers/player-match/player-match.model';
 
 /**
  * The Match Class gan gan
@@ -52,7 +53,7 @@ export class Match implements IMatch, MatchClass {
       TotalPasses: 0,
       Goals: 0,
       HomeTeamDetails: {
-        Score: 0,
+        Club: this.Home._id,
         Possession: 0,
         TimesWithBall: 0,
         Goals: 0,
@@ -65,7 +66,7 @@ export class Match implements IMatch, MatchClass {
         Passes: 0,
       },
       AwayTeamDetails: {
-        Score: 0,
+        Club: this.Away._id,
         Possession: 0,
         TimesWithBall: 0,
         Goals: 0,
@@ -459,7 +460,8 @@ export interface IMatch {
 }
 
 export interface IMatchSideDetails {
-  Score: number;
+  Club: string;
+  Fixture?: string;
   TimesWithBall: number;
   Possession: number;
   Goals: number;
@@ -471,7 +473,7 @@ export interface IMatchSideDetails {
   RedCards: number;
   Passes: number;
   Events: IMatchEvent[];
-  PlayerStats: IPlayerStats[];
+  PlayerStats: PlayerMatchDetailsInterface[] | string[];
   Won: boolean;
   Drew: boolean;
   [key: string]: any;

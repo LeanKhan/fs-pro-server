@@ -10,6 +10,9 @@ import { findOneAndUpdate as updateDay } from '../days/day.service';
 import { Types } from 'mongoose';
 import { CalendarMatchInterface, DayInterface } from '../days/day.model';
 import log from '../../helpers/logger';
+import { createMany as insertManyPlayerMatchStats } from '../player-match/player-match.service';
+import { PlayerMatchDetailsInterface } from '../player-match/player-match.model';
+import { createNew } from '../club-match/club-match.service';
 
 interface Team {
   id: string;
@@ -23,7 +26,7 @@ interface Team {
 /**
  * Maybe we will update a player's rating only at the end of the season...
  */
-export function updateFixture(
+export async function updateFixture(
   MatchDetails: IMatchDetails,
   events: IMatchEvent[],
   home: Team,
@@ -40,6 +43,8 @@ export function updateFixture(
   const HomeSideDetails = MatchDetails.HomeTeamDetails;
   const AwaySideDetails = MatchDetails.AwayTeamDetails;
 
+  // Save PlayerStats then save it in Club Details...
+
   if (matchDetails.Draw) {
     HomeSideDetails.Won = false;
     AwaySideDetails.Won = false;
@@ -50,41 +55,53 @@ export function updateFixture(
     AwaySideDetails.Won = MatchDetails.Winner!.id === away.id;
   }
 
-  /**
-   * Things we need to update:
-   * Played: true,
-   * PlayedAt: new Date(),
-   * Details: MatchDetails,
-   * Events: MatchEvents,
-   * HomeSideDetails:,
-   * AwaySideDetails:,
-   */
-
-  /**
-   * We also need to update the CalendarDayMatch for this match to 'Played: true'
-   * - We also need to update the Week standings for both clubs...
-   * - We need both information from the calendar day and from the Match...
-   * - Each CalendarMatch has the week that they belong to though, so we can easily
-   * (by God's grace) grab
-   * the week from Seasons.Standings and update...
-   *
-   */
-
   //  { _id: fixture_id, Played: false }, TODO - Change back to this!
   //  Find that particular fixture that has not been played of course...
-  return findOneAndUpdate(
-    { _id: fixture_id },
-    {
-      Played: true,
-      PlayedAt: new Date(),
-      Details: matchDetails,
-      Events,
-      HomeSideDetails,
-      AwaySideDetails,
-      HomeManager: home.manager,
-      AwayManager: away.manager,
-    }
-  );
+
+  const savePlayerStats = async (club: IMatchSideDetails) => {
+    // thank you Jesus!
+
+    club.PlayerStats = club.PlayerStats.map((p: any) => ({
+      ...p,
+      Fixture: fixture_id,
+    }));
+
+    const res = await insertManyPlayerMatchStats(
+      club.PlayerStats as PlayerMatchDetailsInterface[]
+    );
+    // res is the ids...
+    club.PlayerStats = res.map((r) => r._id) as string[];
+
+    // then we save this one too lol and
+
+    return (await createNew({ ...club, Fixture: fixture_id })).result._doc._id;
+  };
+
+  const [homeMatchDetailsID, awayMatchDetailsID] = await Promise.all([
+    savePlayerStats(HomeSideDetails),
+    savePlayerStats(AwaySideDetails),
+  ]);
+
+  // const homeMatchDetailsID = await savePlayerStats(HomeSideDetails);
+  // const awayMatchDetailsID = await savePlayerStats(AwaySideDetails);
+
+  return {
+    fixture: await findOneAndUpdate(
+      { _id: fixture_id },
+      {
+        Played: true,
+        PlayedAt: new Date(),
+        Details: matchDetails,
+        Events,
+        HomeSideDetails: homeMatchDetailsID,
+        AwaySideDetails: awayMatchDetailsID,
+        HomeManager: home.manager,
+        AwayManager: away.manager,
+      }
+    ),
+    HomeSideDetails,
+    AwaySideDetails,
+  };
 
   // Here we just need to save this data in the database...
 }
@@ -225,8 +242,6 @@ export function updateStandings(
     const hw = `Standings.${week - 1}.Table.$[home]`;
     const aw = `Standings.${week - 1}.Table.$[away]`;
 
-    console.log(week);
-
     try {
       await updateSeason(
         { _id: seasonID.toString() },
@@ -248,6 +263,3 @@ export function updateStandings(
 
   return getWeekAndUpdateMatch().then(updateTable);
 }
-
-/** update game and calendar */
-// export function updateCalendar() {} TODO: FINISH THIS!

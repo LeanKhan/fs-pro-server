@@ -117,7 +117,7 @@ export class MatchSide extends Club {
   }
 
   public getPlayerStats() {
-    return this.StartingSquad.map((p) => ({ ...p.GameStats, _id: p._id }));
+    return this.StartingSquad.map((p) => ({ ...p.GameStats, Player: p._id }));
   }
 
   public setSubstitutes(subs: IFieldPlayer[]) {

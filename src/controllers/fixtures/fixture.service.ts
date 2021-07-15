@@ -6,7 +6,9 @@ import { Fixture } from './fixture.model';
  * fetchAll
  */
 export function fetchAll(query: Record<string, unknown> = {}) {
-  return DB.Models.Fixture.find(query).lean().exec();
+  const h = { path: 'HomeSideDetails', populate: { path: 'PlayerStats' } };
+  const a = { path: 'AwaySideDetails', populate: { path: 'PlayerStats' } };
+  return DB.Models.Fixture.find(query).populate(h).populate(a).lean().exec();
 }
 
 /**
@@ -17,13 +19,23 @@ export function fetchAll(query: Record<string, unknown> = {}) {
  */
 export function fetchOneById(
   id: string,
-  populate: string | Record<string, unknown> | boolean
+  populate: string | Record<string, unknown> | boolean = {
+    path: 'ClubMatchDetails',
+  }
 ): Promise<Fixture> {
+  const h = { path: 'HomeSideDetails', populate: { path: 'PlayerStats' } };
+  const a = { path: 'AwaySideDetails', populate: { path: 'PlayerStats' } };
+
   if (populate) {
-    return DB.Models.Fixture.findById(id).populate(populate).lean().exec();
+    return DB.Models.Fixture.findById(id)
+      .populate(populate)
+      .populate(h)
+      .populate(a)
+      .lean()
+      .exec();
   }
 
-  return DB.Models.Fixture.findById(id).lean().exec();
+  return DB.Models.Fixture.findById(id).populate(h).populate(a).lean().exec();
 }
 
 export function createFixtures(fixtures: any[]) {
@@ -45,7 +57,7 @@ export function createNew(data: any) {
     .catch((error) => ({ error: true, result: error }));
 }
 
-export async function deleteById(id: string) {
+export function deleteById(id: string) {
   return DB.Models.Fixture.findByIdAndDelete(id).lean().exec();
 }
 

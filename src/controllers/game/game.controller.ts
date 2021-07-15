@@ -96,9 +96,15 @@ export async function restPlayGame(
       };
 
       let match: Fixture;
+      let HomeSideDetails;
+      let AwaySideDetails;
 
       try {
-        match = await updateFixture(
+        const {
+          fixture: matchFixture,
+          HomeSideDetails,
+          AwaySideDetails,
+        } = await updateFixture(
           m.Details,
           m.Events,
           homeObj,
@@ -106,7 +112,7 @@ export async function restPlayGame(
           fixture_id
         );
 
-        if (!match) {
+        if (!fixture) {
           return responseHandler.fail(
             res,
             400,
@@ -116,6 +122,17 @@ export async function restPlayGame(
             }
           );
         }
+
+        req.body.home = homeObj;
+        req.body.away = awayObj;
+        req.body.match = matchFixture;
+        req.body.HomeSideDetails = HomeSideDetails;
+        req.body.AwaySideDetails = AwaySideDetails;
+        req.body.season_id = fixture.Season;
+
+        log(`The Match instances ${Match.instances}`);
+        log(`The Ball instances ${Ball.instances}`);
+        log(`The FieldPlayer instances ${FieldPlayer.instances}`);
       } catch (error) {
         console.error('Error updating fixture! :( => \n', error);
 
@@ -123,15 +140,6 @@ export async function restPlayGame(
           matchErrorResponseCode: 6,
         });
       }
-
-      req.body.home = homeObj;
-      req.body.away = awayObj;
-      req.body.match = match;
-      req.body.season_id = fixture.Season;
-
-      log(`The Match instances ${Match.instances}`);
-      log(`The Ball instances ${Ball.instances}`);
-      log(`The FieldPlayer instances ${FieldPlayer.instances}`);
 
       return next();
     })
@@ -156,11 +164,18 @@ export function restUpdateStandings(
   // THANK YOU JESUS!
 
   const { fixture: fixture_id } = req.params;
-  const { match, home, away, season_id } = req.body;
+  const {
+    match,
+    home,
+    away,
+    season_id,
+    HomeSideDetails,
+    AwaySideDetails,
+  } = req.body;
 
   updateStandings(
-    match.HomeSideDetails,
-    match.AwaySideDetails,
+    HomeSideDetails,
+    AwaySideDetails,
     fixture_id,
     home,
     away,

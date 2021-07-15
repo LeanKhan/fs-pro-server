@@ -7,6 +7,33 @@ import {
   SeasonInterface,
 } from '../controllers/seasons/season.model';
 
+const alphabet = [
+  'a',
+  'b',
+  'c',
+  'd',
+  'e',
+  'f',
+  'g',
+  'h',
+  'i',
+  'j',
+  'k',
+  'l',
+  'm',
+  'n',
+  'o',
+  'p',
+  'q',
+  'r',
+  's',
+  't',
+  'u',
+  'x',
+  'y',
+  'z',
+];
+
 /**
  * Returns the short name of the month based on its index
  * @param index
@@ -112,6 +139,21 @@ export function indexFromMonth(month: string): number {
   }
 
   return index;
+}
+
+/**
+ * Returns a random n-length code!
+ * @param length
+ * @returns
+ */
+export function randomCode(length: number) {
+  let code = '';
+  for (let index = 0; index < length; index++) {
+    const i = Math.round(Math.random() * alphabet.length);
+    code = code.concat(alphabet[i]);
+  }
+
+  return code.toUpperCase();
 }
 
 /**
