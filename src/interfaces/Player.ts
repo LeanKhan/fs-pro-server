@@ -92,3 +92,85 @@ export interface IGameStats extends IPlayerStats {
   Points: number;
   Dribbles: number;
 }
+
+export enum IPlayingPosition {
+  'ATT',
+  'DEF',
+  'GK',
+  'MID',
+}
+
+export const AttackerMultipliers: Multipliers = {
+  Speed: 0.11,
+  Shooting: 0.32,
+  LongPass: 0.02,
+  ShortPass: 0.03,
+  Mental: 0.08,
+  Control: 0.18,
+  Tackling: 0.01,
+  Strength: 0.06,
+  Stamina: 0.05,
+  Keeping: 0,
+  SetPiece: 0.04,
+  Dribbling: 0.1,
+};
+
+export const GoalkeeperMultipliers: Multipliers = {
+  Speed: 0.0,
+  Shooting: 0.0,
+  LongPass: 0.08,
+  ShortPass: 0.04,
+  Mental: 0.05,
+  Control: 0.05,
+  Tackling: 0.0,
+  Strength: 0.05,
+  Stamina: 0.03,
+  Keeping: 0.7,
+  SetPiece: 0.0,
+  Dribbling: 0.0,
+};
+
+export const MidfielderMultipliers: Multipliers = {
+  Speed: 0.05,
+  Shooting: 0.1,
+  LongPass: 0.2,
+  ShortPass: 0.2,
+  Mental: 0.1,
+  Control: 0.08,
+  Tackling: 0.02,
+  Strength: 0.04,
+  Stamina: 0.08,
+  Keeping: 0,
+  SetPiece: 0.04,
+  Dribbling: 0.09,
+};
+
+export const DefenderMultipliers: Multipliers = {
+  Speed: 0.04,
+  Shooting: 0.01,
+  LongPass: 0.05,
+  ShortPass: 0.05,
+  Mental: 0.1,
+  Control: 0.07,
+  Tackling: 0.42,
+  Strength: 0.2,
+  Stamina: 0.04,
+  Keeping: 0.0,
+  SetPiece: 0.02,
+  Dribbling: 0.0,
+};
+
+export interface Multipliers {
+  Speed: number;
+  Shooting: number;
+  LongPass: number;
+  ShortPass: number;
+  Mental: number;
+  Tackling: number;
+  Keeping: number;
+  Control: number;
+  Strength: number;
+  Stamina: number;
+  SetPiece: number;
+  Dribbling: number;
+}

@@ -1,9 +1,22 @@
 /* eslint-disable no-prototype-builtins */
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
-import { IPositions, IFieldPlayer, IPlayer } from '../interfaces/Player';
+import {
+  IPositions,
+  IFieldPlayer,
+  IPlayer,
+  IPlayingPosition,
+  IPlayerAttributes,
+} from '../interfaces/Player';
 import { ratingFactors, postitionFactors, ageFactors } from './player-factors';
 import log from '../helpers/logger';
+import {
+  AttackerMultipliers,
+  MidfielderMultipliers,
+  DefenderMultipliers,
+  GoalkeeperMultipliers,
+  Multipliers,
+} from '../interfaces/Player';
 
 /**
  * Get attackers and midfielders that are not with the ball
@@ -151,6 +164,61 @@ function getBasevalue(rating: number): number {
   return ratingFactors[rating];
 }
 
+function calculateTotal(
+  multiplier: Multipliers,
+  attributes: IPlayerAttributes
+) {
+  const total =
+    attributes.Shooting * multiplier.Shooting +
+    attributes.ShortPass * multiplier.ShortPass +
+    attributes.LongPass * multiplier.LongPass +
+    attributes.Control * multiplier.Control +
+    attributes.Mental * multiplier.Mental +
+    attributes.Speed * multiplier.Speed +
+    attributes.Stamina * multiplier.Stamina +
+    attributes.Strength * multiplier.Strength +
+    attributes.Tackling * multiplier.Tackling +
+    attributes.SetPiece * multiplier.SetPiece +
+    attributes.Keeping * multiplier.Keeping +
+    attributes.Dribbling * multiplier.Dribbling;
+
+  return total;
+}
+
+/**
+ Calculate Player Rating 
+*/
+export function calculatePlayerRating(
+  attributes: IPlayerAttributes,
+  position: string
+) {
+  let multiplier: Multipliers;
+  let rating = 0;
+
+  switch (position) {
+    case 'ATT':
+      multiplier = AttackerMultipliers;
+      rating = calculateTotal(multiplier, attributes);
+      break;
+    case 'MID':
+      multiplier = MidfielderMultipliers;
+      rating = calculateTotal(multiplier, attributes);
+      break;
+    case 'DEF':
+      multiplier = DefenderMultipliers;
+      rating = calculateTotal(multiplier, attributes);
+      break;
+    case 'GK':
+      multiplier = GoalkeeperMultipliers;
+      rating = calculateTotal(multiplier, attributes);
+      break;
+    default:
+      break;
+  }
+
+  return rating;
+}
+
 function getPositionMultiplier(pos: string): number {
   let position = -1;
   switch (pos) {
@@ -204,6 +272,136 @@ function sortFromKeeperDown(players: IPlayer[]) {
   };
 
   return players.sort((a, b) => positions[b.Position] - positions[a.Position]);
+}
+
+const attributes = [
+  'Speed',
+  'Shooting',
+  'LongPass',
+  'ShortPass',
+  'Mental',
+  'Tackling',
+  'Keeping',
+  'Control',
+  'Strength',
+  'Stamina',
+  'SetPiece',
+  'Dribbling',
+  'Vision',
+  'ShotPower',
+  'Aggression',
+  'Interception',
+];
+
+const attributesToIncrease: {
+  ATT: string[];
+  GK: string[];
+  MID: string[];
+  DEF: string[];
+  [key: string]: string[];
+} = {
+  ATT: [
+    'Speed',
+    'Shooting',
+    'LongPass',
+    'ShortPass',
+    'Mental',
+    'Control',
+    'SetPiece',
+    'Dribbling',
+  ],
+  GK: ['LongPass', 'ShortPass', 'Control', 'Keeping'],
+  MID: [
+    'Speed',
+    'Shooting',
+    'Mental',
+    'LongPass',
+    'ShortPass',
+    'Control',
+    'Tackling',
+    'Strength',
+    'Dribbling',
+  ],
+  DEF: [
+    'Speed',
+    'Shooting',
+    'Mental',
+    'LongPass',
+    'ShortPass',
+    'Control',
+    'Tackling',
+    'Strength',
+    'Stamina',
+  ],
+};
+
+export function newAttributeRatings(player: IPlayer, pnts: number) {
+  /**
+   * - Get attributes that would be increased...
+   * - Share points among attributes
+   */
+  let points = Math.round(pnts * 2);
+
+  // if player is above a certain age then. his points shouldn't increase that much...
+  if (player.Age > 29) {
+    // he is no more developing quickly...
+    points *= 0.8; // only use 80% of their points...
+  } else if (player.Age < 22) {
+    // add some extra points to rating lol...
+    points += 5;
+  }
+
+  const toIncrease = [...attributesToIncrease[player.Position]];
+
+  // console.log('Old Attributes => ', player.Attributes);
+
+  // console.log('Points => ', points);
+
+  // While there are still points to share...
+  while (points > 0) {
+    let toBeAdded = Math.round(Math.random() * points);
+
+    if (Math.ceil(toBeAdded / 5) > 1) {
+      // If this is higher than 5
+      toBeAdded = 5;
+    }
+    const randomAttribute =
+      toIncrease[Math.round(Math.random() * (toIncrease.length - 1))];
+
+    // console.log(`toBeAdded => ${toBeAdded}, randomAtt => ${randomAttribute}`);
+
+    if (toIncrease.length == 1) {
+      // if it's the last atntribute to add... just add the remaining points.
+      player.Attributes[randomAttribute] += points;
+      break;
+    }
+
+    player.Attributes[randomAttribute] += toBeAdded;
+    points -= toBeAdded;
+    toIncrease.splice(toIncrease.indexOf(randomAttribute), 1);
+
+    // console.log(`Points => ${points}, toIncrease => ${toIncrease.toString()}`);
+  }
+
+  // console.log('New Attributes => ', player.Attributes);
+
+  const new_rating = Math.round(
+    calculatePlayerRating(player.Attributes, player.Position)
+  );
+
+  const new_value = calculatePlayerValue(
+    player.Position,
+    new_rating,
+    player.Age
+  );
+
+  // console.log(
+  //   `${player.FirstName} ${player.LastName} new rating is [${new_rating}], new value is [${new_value}]`
+  // );
+
+  // TODO: Age should be factored in distributing points...
+
+  return { attributes: player.Attributes, new_rating, new_value };
 }
 
 export {

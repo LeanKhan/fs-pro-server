@@ -10,6 +10,8 @@ import {
   endYear,
 } from './calendar.controller';
 import { fetchMany } from '../days/day.service';
+import { updatePlayersDetails } from '../players/player.controller';
+import { updateAllClubsRating } from '../../middleware/club';
 // import { incrementCounter } from '../../utils/counter';
 
 const router = Router();
@@ -113,6 +115,6 @@ router.post(
 router.post('/:year/:id/start', startYear);
 
 /** End Calendar Year... */
-router.post('/:id/end', endYear);
+router.post('/:id/end', endYear, updatePlayersDetails, updateAllClubsRating);
 
 export default router;

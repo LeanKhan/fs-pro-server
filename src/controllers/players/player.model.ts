@@ -34,7 +34,7 @@ const PlayerTransferHistorySchema: Schema = new Schema({
 
 const PlayerRatingsHistory: Schema = new Schema({
   date: String,
-  season: String,
+  year: String,
   rating: Number,
   value: Number,
 });

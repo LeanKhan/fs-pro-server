@@ -451,7 +451,13 @@ function getSkip(page: number, length: number) {
   return --page * length;
 }
 
-export async function endYear(req: Request, res: Response) {
+/**
+ * End Calendar Year!
+ * - Moves Clubs
+ * - Updates Player ratings etc
+ * - Updates Club ratings etc
+ */
+export async function endYear(req: Request, res: Response, next: NextFunction) {
   const id = req.params.id;
 
   const currentCalendar = await fetchOneById(id);
@@ -495,12 +501,14 @@ export async function endYear(req: Request, res: Response) {
         updateCalendar({ _id: id }, { isActive: false, isEnded: true })
           .then((c) => {
             console.log('Calendar Year Ended Successfully! :)');
-            return respond.success(
-              res,
-              200,
-              'Calendar Year Ended successfully!',
-              c
-            );
+            // Move to the Updating Players part...
+            return next();
+            // return respond.success(
+            //   res,
+            //   200,
+            //   'Calendar Year Ended successfully!',
+            //   c
+            // );
           })
           .catch((e) => {
             console.error(e);

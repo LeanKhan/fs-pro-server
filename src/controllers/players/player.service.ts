@@ -1,3 +1,4 @@
+import log from '../../helpers/logger';
 import DB from '../../db';
 import { IPlayer } from '../../interfaces/Player';
 import { calculatePlayerValue } from '../../utils/players';
@@ -22,7 +23,7 @@ export function fetchOneById(id: string) {
   return DB.Models.Player.findById(id).lean().exec();
 }
 
-export function updateById(id: string, update: any) {
+export function updateById(id: string, update: any): Promise<IPlayer> {
   return DB.Models.Player.findByIdAndUpdate(id, update, { new: true })
     .lean()
     .exec();
@@ -74,4 +75,110 @@ export function toggleSigned(
 
 export function updatePlayers(query: any, update: any) {
   return DB.Models.Player.updateMany(query, update);
+}
+
+export function getPlayerStats(year: string) {
+  return DB.Models.PlayerMatch.aggregate(
+    [
+      {
+        $lookup: {
+          from: 'Fixtures',
+          localField: 'Fixture',
+          foreignField: '_id',
+          as: 'fixture',
+        },
+      },
+      { $unwind: '$fixture' },
+      {
+        $lookup: {
+          from: 'Seasons',
+          localField: 'fixture.Season',
+          foreignField: '_id',
+          as: 'season',
+        },
+      },
+      { $unwind: '$season' },
+      { $match: { 'season.Year': year } }, // Filter by the Year
+      {
+        $group: {
+          _id: '$Player',
+          goals: { $sum: '$Goals' },
+          saves: { $sum: '$Saves' },
+          passes: { $sum: '$Passes' },
+          tackles: { $sum: '$Tackles' },
+          assists: { $sum: '$Assists' },
+          clean_sheets: { $sum: '$CleanSheets' },
+          dribbles: { $sum: '$Dribbles' },
+          points: { $avg: '$Points' },
+          form: { $avg: '$Form' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'Players',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'player',
+        },
+      }, // Get the Player's details
+      { $unwind: '$player' },
+      { $sort: { points: -1 } },
+    ],
+    () => {
+      log('Player Match Details Aggregate performed!');
+    }
+  );
+}
+
+export function getSpecificPlayerStats(matcher: any, sorter: any) {
+  return DB.Models.PlayerMatch.aggregate(
+    [
+      {
+        $lookup: {
+          from: 'Fixtures',
+          localField: 'Fixture',
+          foreignField: '_id',
+          as: 'fixture',
+        },
+      },
+      { $unwind: '$fixture' },
+      {
+        $lookup: {
+          from: 'Seasons',
+          localField: 'fixture.Season',
+          foreignField: '_id',
+          as: 'season',
+        },
+      },
+      { $unwind: '$season' },
+      { $match: matcher }, // Filter by the Year
+      {
+        $group: {
+          _id: '$Player',
+          goals: { $sum: '$Goals' },
+          saves: { $sum: '$Saves' },
+          passes: { $sum: '$Passes' },
+          tackles: { $sum: '$Tackles' },
+          assists: { $sum: '$Assists' },
+          clean_sheets: { $sum: '$CleanSheets' },
+          dribbles: { $sum: '$Dribbles' },
+          points: { $avg: '$Points' },
+          form: { $avg: '$Form' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'Players',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'player',
+        },
+      }, // Get the Player's details
+      { $unwind: '$player' },
+      { $sort: sorter },
+    ],
+    () => {
+      log('Player Match Details Aggregate performed!');
+    }
+  );
 }

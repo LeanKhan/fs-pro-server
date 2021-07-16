@@ -1,4 +1,5 @@
-import { Router } from 'express';
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { Request, Response, Router } from 'express';
 import respond from '../../helpers/responseHandler';
 import {
   fetchAll,
@@ -7,10 +8,14 @@ import {
   updateById,
   deletePlayer,
   updatePlayers,
+  getSpecificPlayerStats,
 } from './player.service';
+import { updatePlayersDetails } from './player.controller';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { fetchAppearance } from '../../utils/appearance';
 import log from '../../helpers/logger';
+import { updateAllClubsRating } from '../../middleware/club';
+import { Types } from 'mongoose';
 
 const router = Router();
 
@@ -35,22 +40,6 @@ router.get('/all', (req, res) => {
     })
     .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching players', err);
-    });
-});
-
-/**
- * fetch one Player
- */
-
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-
-  fetchOneById(id)
-    .then((player: any) => {
-      respond.success(res, 200, 'Player fetched successfully', player);
-    })
-    .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching Player', err);
     });
 });
 
@@ -120,6 +109,64 @@ router.patch('/update-many', (req, res) => {
     })
     .catch((err: any) => {
       respond.fail(res, 400, 'Error updating many players', err);
+    });
+});
+
+router.get(
+  '/player-stats/:year/:id',
+  updatePlayersDetails,
+  updateAllClubsRating
+);
+
+/**
+ * Like so {{url}}/players/stats?match_k=season.CompetitionCode&match_v=EFL&sort_k=goals&sort_v=-1
+ */
+router.get('/stats', async (req: Request, res: Response) => {
+  const { match_k, sort_k, match_v, sort_v } = req.query;
+
+  const matchObject = {};
+  const sortObject = {};
+
+  matchObject[match_k] = match_v;
+  sortObject[sort_k] = parseInt(sort_v);
+
+  try {
+    if (Types.ObjectId(match_v)) {
+      matchObject[match_k] = Types.ObjectId(match_v);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  console.log(matchObject, sortObject);
+  await getSpecificPlayerStats(matchObject, sortObject)
+    .then((updated: any) => {
+      // get only the top 5
+      return respond.success(
+        res,
+        200,
+        `The Best 5 Players according to ${sort_k.toUpperCase()}`,
+        updated.slice(0, 5)
+      );
+    })
+    .catch((err: any) => {
+      return respond.fail(res, 400, 'Error fetching Player stats', err);
+    });
+});
+
+/**
+ * fetch one Player
+ */
+
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+
+  fetchOneById(id)
+    .then((player: any) => {
+      respond.success(res, 200, 'Player fetched successfully', player);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error fetching Player', err);
     });
 });
 

@@ -12,6 +12,7 @@ import { updatePlayerSigning } from '../../middleware/player';
 import {
   addPlayerToClubMiddleware,
   calculateClubRating,
+  updateAllClubsRating,
 } from '../../middleware/club';
 import { addManagerToClub, removeManagerFromClub } from './club.controller';
 
@@ -22,10 +23,10 @@ router.get('/all', (req, res) => {
   const response = fetchAllClubs();
 
   response
-    .then((clubs) => {
+    .then((clubs: any) => {
       respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching Clubs', err);
     });
 });
@@ -88,10 +89,10 @@ router.delete('/:id', (req, res) => {
   const response = deleteById(req.params.id);
 
   response
-    .then((data) => {
+    .then((data: any) => {
       respond.success(res, 200, 'Club deleted successfully', data);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       respond.fail(res, 400, 'Error deleting Club', err);
     });
 });
@@ -118,6 +119,8 @@ router.put(
   addPlayerToClubMiddleware,
   calculateClubRating
 );
+
+router.put('/refresh-ratings', updateAllClubsRating);
 
 router.put('/:id/manager', addManagerToClub);
 

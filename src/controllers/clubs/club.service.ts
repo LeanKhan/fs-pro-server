@@ -3,6 +3,7 @@ import DB from '../../db';
 import { Types } from 'mongoose';
 import { Club, ClubInterface } from './club.model';
 import log from '../../helpers/logger';
+import { IClub } from '../../interfaces/Club';
 
 /**
  * fetchAllClubs mate
@@ -17,7 +18,10 @@ export function fetchAllClubs() {
 /**
  * fetchClubs
  */
-export function fetchClubs(condition: any, select?: string | boolean) {
+export function fetchClubs(
+  condition: any,
+  select?: string | boolean
+): Promise<IClub[]> {
   // TODO: check if you can send all these options as an object....
   if (select) {
     return DB.Models.Club.find(condition).select(select).lean().exec();
