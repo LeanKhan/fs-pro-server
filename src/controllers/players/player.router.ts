@@ -10,11 +10,9 @@ import {
   updatePlayers,
   getSpecificPlayerStats,
 } from './player.service';
-import { updatePlayersDetails } from './player.controller';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { fetchAppearance } from '../../utils/appearance';
 import log from '../../helpers/logger';
-import { updateAllClubsRating } from '../../middleware/club';
 import { Types } from 'mongoose';
 
 const router = Router();
@@ -112,14 +110,8 @@ router.patch('/update-many', (req, res) => {
     });
 });
 
-router.get(
-  '/player-stats/:year/:id',
-  updatePlayersDetails,
-  updateAllClubsRating
-);
-
 /**
- * Like so {{url}}/players/stats?match_k=season.CompetitionCode&match_v=EFL&sort_k=goals&sort_v=-1
+ * Use like this -> {{url}}/players/stats?match_k=season.CompetitionCode&match_v=EFL&sort_k=goals&sort_v=-1
  */
 router.get('/stats', async (req: Request, res: Response) => {
   const { match_k, sort_k, match_v, sort_v } = req.query;
@@ -128,9 +120,9 @@ router.get('/stats', async (req: Request, res: Response) => {
   const sortObject = {};
 
   matchObject[match_k] = match_v;
-  sortObject[sort_k] = parseInt(sort_v);
 
   try {
+    sortObject[sort_k] = parseInt(sort_v);
     if (Types.ObjectId(match_v)) {
       matchObject[match_k] = Types.ObjectId(match_v);
     }
@@ -138,14 +130,13 @@ router.get('/stats', async (req: Request, res: Response) => {
     console.error(error);
   }
 
-  console.log(matchObject, sortObject);
   await getSpecificPlayerStats(matchObject, sortObject)
     .then((updated: any) => {
       // get only the top 5
       return respond.success(
         res,
         200,
-        `The Best 5 Players according to ${sort_k.toUpperCase()}`,
+        `The Best 5 Players by ${sort_k.toUpperCase()}`,
         updated.slice(0, 5)
       );
     })

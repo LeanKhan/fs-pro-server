@@ -9,7 +9,11 @@ import { CompetitionInterface } from './competition.model';
 
 export function addClubToCompetition(req: Request, res: Response) {
   const { id } = req.params;
-  const { club } = req.body;
+  const { clubId: club, leagueCode } = req.body;
+
+  if(!club) {
+    return respond.fail(res, 400, 'No Club sent to add!');
+  }
 
   const up = {
     $push: { Clubs: club },

@@ -12,11 +12,11 @@ import log from '../../helpers/logger';
 export function updateClubs(req: Request, res: Response, next: NextFunction) {
   const { clubs, userID } = req.body;
   updateClubsById(clubs, { User: userID })
-    .then((cl) => {
-      next();
+    .then((cl: any) => {
+      return next();
     })
-    .catch((err) => {
-      respond.fail(res, 400, 'Error adding User to club', err);
+    .catch((err: any) => {
+      return respond.fail(res, 400, 'Error adding User to club', err);
     });
 }
 

@@ -120,6 +120,7 @@ router.put(
   calculateClubRating
 );
 
+// ! THIS WAS FOR DEVELOPMENT !
 router.put('/refresh-ratings', updateAllClubsRating);
 
 router.put('/:id/manager', addManagerToClub);
@@ -137,3 +138,7 @@ router.put(
 );
 
 export default router;
+
+/**
+ * 79.5025
+ */

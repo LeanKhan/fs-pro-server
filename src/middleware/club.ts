@@ -131,7 +131,6 @@ export function updateAllClubsRating(req: Request, res: Response) {
   allClubs()
     .then(runAll)
     .then((c) => {
-      console.log('Clubs updated successfully! => ', c);
       respond.success(res, 200, 'Players and Clubs updated successfully!');
     })
     .catch((err) => {
@@ -189,13 +188,18 @@ export async function addLeagueToClub(
   );
 
   if (!_response.error) {
-    respond.success(
+    return respond.success(
       res,
       200,
       'Club added to competition successfully!',
       _response.result
     );
   } else {
-    respond.fail(res, 400, 'Error adding player to club', _response.result);
+    return respond.fail(
+      res,
+      400,
+      'Error adding player to club',
+      _response.result
+    );
   }
 }

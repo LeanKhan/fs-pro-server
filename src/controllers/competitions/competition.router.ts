@@ -116,6 +116,6 @@ router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
 });
 
 /** Add Club to Competition */
-router.post('/:id/club', addClubToCompetition);
+router.post('/:id/add-club', addClubToCompetition);
 
 export default router;

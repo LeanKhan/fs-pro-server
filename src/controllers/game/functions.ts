@@ -55,6 +55,9 @@ export async function updateFixture(
     AwaySideDetails.Won = MatchDetails.Winner!.id === away.id;
   }
 
+  const HSD = {...HomeSideDetails};
+  const ASD = {...AwaySideDetails};
+
   //  { _id: fixture_id, Played: false }, TODO - Change back to this!
   //  Find that particular fixture that has not been played of course...
 
@@ -82,9 +85,6 @@ export async function updateFixture(
     savePlayerStats(AwaySideDetails),
   ]);
 
-  // const homeMatchDetailsID = await savePlayerStats(HomeSideDetails);
-  // const awayMatchDetailsID = await savePlayerStats(AwaySideDetails);
-
   return {
     fixture: await findOneAndUpdate(
       { _id: fixture_id },
@@ -99,8 +99,8 @@ export async function updateFixture(
         AwayManager: away.manager,
       }
     ),
-    HomeSideDetails,
-    AwaySideDetails,
+    HSD,
+    ASD,
   };
 
   // Here we just need to save this data in the database...

@@ -102,8 +102,8 @@ export async function restPlayGame(
       try {
         const {
           fixture: matchFixture,
-          HomeSideDetails,
-          AwaySideDetails,
+          HSD,
+          ASD,
         } = await updateFixture(
           m.Details,
           m.Events,
@@ -126,8 +126,8 @@ export async function restPlayGame(
         req.body.home = homeObj;
         req.body.away = awayObj;
         req.body.match = matchFixture;
-        req.body.HomeSideDetails = HomeSideDetails;
-        req.body.AwaySideDetails = AwaySideDetails;
+        req.body.HomeSideDetails = HSD;
+        req.body.AwaySideDetails = ASD;
         req.body.season_id = fixture.Season;
 
         log(`The Match instances ${Match.instances}`);
@@ -239,6 +239,8 @@ export function restUpdateStandings(
           homeTable,
           awayTable,
           match,
+          HomeSideDetails,
+          AwaySideDetails,
           lastMatchOfSeason,
         });
       } catch (error) {

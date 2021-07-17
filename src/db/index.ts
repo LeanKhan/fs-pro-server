@@ -24,6 +24,7 @@ import {
   PlayerMatchDetails,
   PlayerMatchDetailsModel,
 } from '../controllers/player-match/player-match.model';
+import { Country, CountryModel } from '../controllers/misc/countries';
 import log from '../helpers/logger';
 
 declare interface IModels {
@@ -38,9 +39,12 @@ declare interface IModels {
   Manager: ManagerModel;
   ClubMatch: ClubMatchDetailsModel;
   PlayerMatch: PlayerMatchDetailsModel;
+  Country: CountryModel;
 }
 
-export const MONGO_DEV_URL = 'mongodb://localhost:27017/fspro-gameplay-test';
+// Production! Well, sha for Tobi and I. Thank you Jesus!
+export const MONGO_DEV_URL = 'mongodb://localhost:27017/fs-pro';
+// export const MONGO_DEV_URL = 'mongodb://localhost:27017/fspro-gameplay-test';
 
 export default class DB {
   public static start() {
@@ -81,6 +85,7 @@ export default class DB {
       Manager: new Manager().model,
       ClubMatch: new ClubMatchDetails().model,
       PlayerMatch: new PlayerMatchDetails().model,
+      Country: new Country().model,
     };
 
     set('useFindAndModify', false);
