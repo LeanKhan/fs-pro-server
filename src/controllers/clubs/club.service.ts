@@ -12,7 +12,7 @@ import { IClub } from '../../interfaces/Club';
  * @returns - {error: boolean, result: any | IClubModel}
  */
 export function fetchAllClubs() {
-  return DB.Models.Club.find({}).populate('Players').lean().exec();
+  return DB.Models.Club.find({}).populate('Players Manager').lean().exec();
 }
 
 /**

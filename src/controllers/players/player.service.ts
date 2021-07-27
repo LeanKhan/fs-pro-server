@@ -1,4 +1,4 @@
-import log from '../../helpers/logger';
+ import log from '../../helpers/logger';
 import DB from '../../db';
 import { IPlayer } from '../../interfaces/Player';
 import { calculatePlayerValue } from '../../utils/players';

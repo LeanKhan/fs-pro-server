@@ -23,12 +23,12 @@ export function uploader(request: Request, res: Response, next: NextFunction) {
         null,
         path.join(
           __dirname,
-          `../../../assets/img${JSON.parse(request.query.path)}`
+          `../../../assets/img${request.query.filepath}`
         )
       );
     },
     filename: (req, file, cb) => {
-      cb(null, `${request.query.club_code}.png`);
+      cb(null, request.query.filename + path.extname(file.originalname));
     },
   });
 
@@ -40,8 +40,16 @@ export function uploader(request: Request, res: Response, next: NextFunction) {
     if (!err) {
       next();
     }
+
+console.log('Error uploading file!')
+    console.error(err);
+    return res.status(400).send(err);
+
   });
 }
+
+//     "dev": "set NODE_ENV=dev && ts-node-dev --trace --respawn --transpileOnly ./src/server.ts",
+
 
 // export const uploaderMiddlware = (
 //   req: Request,

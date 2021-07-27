@@ -15,8 +15,10 @@ export function addClubToCompetition(req: Request, res: Response) {
     return respond.fail(res, 400, 'No Club sent to add!');
   }
 
+  // check if the club already in the Competition kini
+
   const up = {
-    $push: { Clubs: club },
+    $addToSet: { Clubs: club }, // only add unique items...
   };
 
   const addClub = () => {

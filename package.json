@@ -8,7 +8,7 @@
   },
   "scripts": {
     "tsc": "tsc",
-    "dev": "set NODE_ENV=dev && ts-node-dev --respawn --transpileOnly ./src/server.ts",
+    "dev": "set NODE_ENV=dev && ts-node-dev --trace-warnings --respawn --transpileOnly ./src/server.ts",
     "prod": "tsc && node ./build/server.js",
     "lint": "eslint src/. --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
