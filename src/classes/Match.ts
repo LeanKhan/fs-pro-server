@@ -269,13 +269,13 @@ export class Match implements IMatch, MatchClass {
       log(`Home Team => ${this.Home.ClubCode}`);
       this.Home.StartingSquad.forEach((p) => {
         log(`[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`);
-        // log(p.GameStats, 'table'); TODO -UNCOMMENT O
+        log(p.GameStats, 'table'); // TODO -UNCOMMENT O
       });
 
       log(`Away Team => ${this.Away.ClubCode}`);
       this.Away.StartingSquad.forEach((p) => {
         log(`[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`);
-        // log(p.GameStats, 'table'); TODO - UNCOMMENT O
+        log(p.GameStats, 'table'); // TODO - UNCOMMENT O
       });
 
       this.endMatch();

@@ -66,7 +66,7 @@ export class ClubMatchDetails {
   constructor() {
     const ClubMatchDetailsSchema: Schema = new Schema(
       {
-        Club: { type: Schema.Types.ObjectId, ref: 'Player' },
+        Club: { type: Schema.Types.ObjectId, ref: 'Club' },
         Fixture: { type: Schema.Types.ObjectId, ref: 'Fixture' },
         Possession: {
           type: Number,

@@ -18,6 +18,7 @@ export interface PlayerMatchDetailsInterface {
   Points: number;
   Dribbles: number;
   Form?: number;
+  [key: string]: any;
 }
 
 /**

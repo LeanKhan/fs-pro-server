@@ -25,6 +25,7 @@ import {
   PlayerMatchDetailsModel,
 } from '../controllers/player-match/player-match.model';
 import { Country, CountryModel } from '../controllers/misc/countries';
+import { Award, AwardModel } from '../controllers/awards/awards.model';
 import log from '../helpers/logger';
 
 declare interface IModels {
@@ -40,11 +41,18 @@ declare interface IModels {
   ClubMatch: ClubMatchDetailsModel;
   PlayerMatch: PlayerMatchDetailsModel;
   Country: CountryModel;
+  Award: AwardModel;
 }
 
 // Production! Well, sha for Tobi and I. Thank you Jesus!
-// export const MONGO_DEV_URL = 'mongodb://localhost:27017/fs-pro';
-export const MONGO_DEV_URL = 'mongodb://localhost:27017/fspro-gameplay-test';
+let prod_db = '';
+if (process.env.DEV_TEST?.trim()) {
+  prod_db = process.env.DEV_MONGO_URL?.trim() as string;
+} else {
+  prod_db = process.env.PROD_MONGO_URL?.trim() as string;
+}
+
+export const MONGO_URL = prod_db;
 
 export default class DB {
   public static start() {
@@ -59,7 +67,7 @@ export default class DB {
   private _models: IModels;
 
   private constructor() {
-    connect(MONGO_DEV_URL, { useNewUrlParser: true })
+    connect(MONGO_URL, { useNewUrlParser: true })
       .then((client) => {
         console.log(
           `Connection to ${client.connection.db.databaseName} database successful!`
@@ -86,6 +94,7 @@ export default class DB {
       ClubMatch: new ClubMatchDetails().model,
       PlayerMatch: new PlayerMatchDetails().model,
       Country: new Country().model,
+      Award: new Award().model,
     };
 
     set('useFindAndModify', false);

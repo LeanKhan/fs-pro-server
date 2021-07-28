@@ -19,6 +19,7 @@ declare interface IPlayer extends Document {
   Value: number;
   /** Some Players don't have clubs (free agents) hence can be undefined */
   ClubCode?: string;
+  Club?: string;
 }
 
 export type PlayerModel = Model<IPlayer>;
@@ -140,6 +141,7 @@ export class Player {
           type: String,
           default: null,
         },
+        Club: { type: Schema.Types.ObjectId, ref: 'Club' },
       },
       { timestamps: true }
     );

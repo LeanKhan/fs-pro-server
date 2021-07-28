@@ -1,7 +1,8 @@
- import log from '../../helpers/logger';
+import log from '../../helpers/logger';
 import DB from '../../db';
 import { IPlayer } from '../../interfaces/Player';
 import { calculatePlayerValue } from '../../utils/players';
+import { PlayerMatchDetailsInterface } from '../player-match/player-match.model';
 
 /**
  * fetchAllPlayers
@@ -179,6 +180,28 @@ export function getSpecificPlayerStats(matcher: any, sorter: any) {
     ],
     () => {
       log('Player Match Details Aggregate performed!');
+    }
+  );
+}
+
+export function allPlayerStats(
+  season: string
+): Promise<PlayerMatchDetailsInterface[]> {
+  return DB.Models.PlayerMatch.aggregate(
+    [
+      {
+        $lookup: {
+          from: 'Fixtures',
+          localField: 'Fixture',
+          foreignField: '_id',
+          as: 'fixture',
+        },
+      },
+      { $unwind: '$fixture' },
+      { $match: { 'fixture.Season': season } },
+    ],
+    () => {
+      log('Player Match Stats for entire Season gotten!');
     }
   );
 }

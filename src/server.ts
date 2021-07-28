@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import express, { Application } from 'express';
 import cors from 'cors';
 import bodyparser from 'body-parser';
@@ -9,9 +12,6 @@ import mStore from 'connect-mongodb-session';
 import cookie from 'cookie';
 import router from './routers';
 import path from 'path';
-import * as dotenv from 'dotenv';
-
-dotenv.config();
 
 import log from './helpers/logger';
 
@@ -19,7 +19,7 @@ const app: Application = express();
 
 import { Server } from 'http';
 
-import DB, { MONGO_DEV_URL as dbstring } from './db';
+import DB, { MONGO_URL as dbstring } from './db';
 
 const http = new Server(app);
 

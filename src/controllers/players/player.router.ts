@@ -14,6 +14,7 @@ import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { fetchAppearance } from '../../utils/appearance';
 import log from '../../helpers/logger';
 import { Types } from 'mongoose';
+import { fetchAllClubs, fetchClubs } from '../clubs/club.service';
 
 const router = Router();
 
@@ -116,8 +117,8 @@ router.patch('/update-many', (req, res) => {
 router.get('/stats', async (req: Request, res: Response) => {
   const { match_k, sort_k, match_v, sort_v } = req.query;
 
-  const matchObject = {};
-  const sortObject = {};
+  const matchObject: { [key: string]: any } = {};
+  const sortObject: { [key: string]: any } = {};
 
   matchObject[match_k] = match_v;
 
@@ -158,6 +159,22 @@ router.get('/:id', (req, res) => {
     })
     .catch((err: any) => {
       respond.fail(res, 400, 'Error fetching Player', err);
+    });
+});
+
+router.post('/add-clubcodes', async (req, res) => {
+  const all_clubs = await fetchClubs({}, 'ClubCode');
+
+  const po = all_clubs.map((c) => {
+    return updatePlayers({ ClubCode: c.ClubCode }, { Club: c._id });
+  });
+
+  Promise.all(po)
+    .then((players: any) => {
+      respond.success(res, 200, 'Players updated successfully', players);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error updating Players', err);
     });
 });
 
