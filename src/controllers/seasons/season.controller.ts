@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 //   const { month, year } = req.query;
 //   const newYear = month.toUpperCase() + '-' + year;
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import respond from '../../helpers/responseHandler';
 import {
   fetchAll,
@@ -57,7 +57,11 @@ export async function getCurrentSeasons(req: Request, res: Response) {
  * @param res
  * @returns
  */
-export async function finishSeason(req: Request, res: Response) {
+export async function finishSeason(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   const { id: season_id } = req.params;
 
   if (!season_id) {
@@ -72,14 +76,12 @@ export async function finishSeason(req: Request, res: Response) {
   // season.Competition maybe find the competition and do the needful...
 
   try {
-    const q = { _id: season_id, isStarted: true, isFinished: false };
+    // TODO: IMPORTANT (!) REVERT THIS O! THANK YOU JESUS!
+    const q = { _id: season_id, isStarted: true };
+    // const q = { _id: season_id, isStarted: true, isFinished: false };
     // get fixture and its details...
     // tho, part of the query should be the year. Year should be the CurrentYear
-    season = await fetchSeason(
-      q,
-      false,
-      'Competition Fixtures'
-    );
+    season = await fetchSeason(q, false, 'Competition Fixtures');
     // We also need to get the associated calendar day...
   } catch (error) {
     console.log(`Error! => ${error}`);
@@ -144,6 +146,8 @@ export async function finishSeason(req: Request, res: Response) {
               Promoted: [standings[0].ClubID, standings[1].ClubID],
             };
 
+      req.body.seasonChampions = standings[0].ClubID;
+
       return findByIdAndUpdate(season_id, {
         isStarted: true,
         isFinished: true,
@@ -175,7 +179,10 @@ export async function finishSeason(req: Request, res: Response) {
       );
 
       if (all_finished) {
-        await findOneAndUpdate({_id: season.Calendar}, { allSeasonsCompleted: true });
+        await findOneAndUpdate(
+          { _id: season.Calendar },
+          { allSeasonsCompleted: true }
+        );
       }
 
       return season;
@@ -184,11 +191,14 @@ export async function finishSeason(req: Request, res: Response) {
     updateSeason()
       .then(checkOtherSeasons)
       .then((updatedSeason: any) => {
-        return respond.success(res, 200, 'Season Ended Successfully!', {
-          // this should also have the Season object to send back to the Client...
-          standings,
-          season: updatedSeason
-        });
+        req.body.updatedSeason = updatedSeason;
+        req.body.standings = standings;
+        return next();
+        // return respond.success(res, 200, 'Season Ended Successfully!', {
+        //   // this should also have the Season object to send back to the Client...
+        //   standings,
+        //   season: updatedSeason
+        // });
       })
       .catch((err) => {
         console.error(err);

@@ -1,4 +1,8 @@
-import { IFieldPlayer, IPositions, IPlayer } from '../interfaces/Player';
+import {
+  IFieldPlayer,
+  IPositions,
+  PlayerInterface,
+} from '../interfaces/Player';
 import Player from './Player';
 import Ball from './Ball';
 import { ICoordinate, IBlock } from '../state/ImmutableState/FieldGrid';
@@ -26,14 +30,14 @@ export default class FieldPlayer
 
   /**
    *
-   * @param {IPlayer} player The player guy
+   * @param {PlayerInterface} player The player guy
    * @param {boolean} starting Is the player starting?
    * @param {IBlock} pos starting position
    * @param {IBall} ball the match ball
    * @param {MatchSide} team player's team
    */
   constructor(
-    player: IPlayer,
+    player: PlayerInterface,
     starting: boolean,
     pos: IBlock,
     ball: Ball

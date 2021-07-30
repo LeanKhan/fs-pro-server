@@ -43,7 +43,7 @@ export function createFixtures(fixtures: any[]) {
 }
 
 /**
- * create new season
+ * create new fixture
  */
 
 export function createNew(data: any) {

@@ -1,5 +1,5 @@
 import { ClubInterface } from '../controllers/clubs/club.model';
-import { IPlayer } from '../interfaces/Player';
+import { PlayerInterface } from '../interfaces/Player';
 export class Club implements ClubInterface {
   public _id: string;
   public Name: string;
@@ -7,7 +7,7 @@ export class Club implements ClubInterface {
   public DefensiveClass: number;
   public Manager: string;
   public Stadium: ClubInterface['Stadium'];
-  public Players: IPlayer[];
+  public Players: PlayerInterface[];
   public Rating: number;
   public Address: ClubInterface['Address'];
   public Stats: ClubInterface['Stats'];

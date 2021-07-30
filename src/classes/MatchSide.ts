@@ -1,5 +1,5 @@
 import { Club } from './Club';
-import { IFieldPlayer, IPlayer } from '../interfaces/Player';
+import { IFieldPlayer, PlayerInterface } from '../interfaces/Player';
 import FieldPlayer from './FieldPlayer';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import Ball from './Ball';
@@ -21,7 +21,7 @@ export class MatchSide extends Club {
   public GoalsScored = 0;
   public StartingSquad: IFieldPlayer[] = [];
   public Substitutes: IFieldPlayer[] = [];
-  public MatchSquad: IPlayer[] = [];
+  public MatchSquad: PlayerInterface[] = [];
   public Formation: FormationItem[] = [];
   /**
    * ScoringSide is where this team will be scoring
@@ -43,7 +43,7 @@ export class MatchSide extends Club {
   }
 
   public setPlayers() {
-    this.MatchSquad = this.Players.map((p: IPlayer, i) => {
+    this.MatchSquad = this.Players.map((p: PlayerInterface, i) => {
       return new Player(p);
     });
   }
@@ -60,7 +60,7 @@ export class MatchSide extends Club {
     // Sort them here...
     this.MatchSquad = sortFromKeeperDown(this.MatchSquad);
 
-    this.StartingSquad = this.MatchSquad.map((p: IPlayer, i) => {
+    this.StartingSquad = this.MatchSquad.map((p: PlayerInterface, i) => {
       // const startingBlock = fieldPlay[this.Formation[i]];
       // Find the first starting block that is for this player's position
       // const startingBlock = fieldPlay.find(())
@@ -128,7 +128,11 @@ export class MatchSide extends Club {
     return null;
   }
 
-  public getBlock(fp: IBlock[], p: IPlayer, formation: FormationItem[]) {
+  public getBlock(
+    fp: IBlock[],
+    p: PlayerInterface,
+    formation: FormationItem[]
+  ) {
     // TODO: CLEAN THIS UP
 
     // Find the first position where the player's position is accomadated

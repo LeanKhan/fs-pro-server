@@ -162,20 +162,20 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.post('/add-clubcodes', async (req, res) => {
-  const all_clubs = await fetchClubs({}, 'ClubCode');
+// router.post('/add-clubcodes', async (req, res) => {
+//   const all_clubs = await fetchClubs({}, 'ClubCode');
 
-  const po = all_clubs.map((c) => {
-    return updatePlayers({ ClubCode: c.ClubCode }, { Club: c._id });
-  });
+//   const po = all_clubs.map((c) => {
+//     return updatePlayers({ ClubCode: c.ClubCode }, { Club: c._id });
+//   });
 
-  Promise.all(po)
-    .then((players: any) => {
-      respond.success(res, 200, 'Players updated successfully', players);
-    })
-    .catch((err: any) => {
-      respond.fail(res, 400, 'Error updating Players', err);
-    });
-});
+//   Promise.all(po)
+//     .then((players: any) => {
+//       respond.success(res, 200, 'Players updated successfully', players);
+//     })
+//     .catch((err: any) => {
+//       respond.fail(res, 400, 'Error updating Players', err);
+//     });
+// });
 
 export default router;

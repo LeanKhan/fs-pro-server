@@ -1,7 +1,29 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import { IPlayerAttributes } from '../../interfaces/Player';
 
-declare interface IPlayer extends Document {
+export interface PlayerInterface {
+  /** Name of the Player! */
+  _id?: string;
+  FirstName: string;
+  LastName: string;
+  Age: number;
+  PlayerID: string;
+  /** overall Player rating */
+  Rating: number;
+  /** Goals scored in total */
+  GoalsScored: number;
+  ShirtNumber: string;
+  /** Collecting of Player's attributes */
+  Attributes: IPlayerAttributes;
+  isSigned: boolean;
+  /** Monetary value of Player */
+  Value: number;
+  /** Some Players don't have clubs (free agents) hence can be undefined */
+  ClubCode?: string;
+  Club?: string;
+}
+
+export declare interface IPlayer extends Document {
   /** Name of the Player! */
   FirstName: string;
   LastName: string;

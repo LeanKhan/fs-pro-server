@@ -24,6 +24,7 @@ import { update as updateComp } from '../competitions/competition.service';
 import { finishSeason, getCurrentSeasons } from './season.controller';
 import respond from '../../helpers/responseHandler';
 import { compileStandings } from '../../utils/seasons';
+import { giveAwards } from '../awards/awards.controller';
 
 const router = Router();
 
@@ -81,7 +82,7 @@ router.patch('/:id/start', (req, res) => {
 });
 
 /** FINISH SEASON */
-router.post('/:id/finish', finishSeason);
+router.post('/:id/finish', finishSeason, giveAwards);
 
 /** Get all Fixtures in Season */
 router.get('/:id/fixtures', (req, res) => {
@@ -113,12 +114,25 @@ router.get('/:id', (req: Request, res: Response) => {
     return respond.fail(res, 404, 'Please provide valid Season ID!');
   }
 
-  fetchOneById(id)
+  const {populate} = req.query;
+  let p;
+  console.log(populate);
+
+  try {
+    p = JSON.parse(populate);
+  } catch(e) {
+    console.error(e);
+    console.log('Could not parse Season populate')
+  }
+
+  console.log(p)
+
+  fetchOneById(id, false, populate)
     .then((season: any) => {
       if (!season.Title)
         return respond.success(res, 404, 'Season not found!', season);
 
-        season.CompiledStandings = compileStandings(season.Standings);
+      season.CompiledStandings = compileStandings(season.Standings);
 
       return respond.success(res, 200, 'Season fetched successfully', season);
     })
@@ -182,5 +196,7 @@ router.delete('/:id', (req: Request, res: Response) => {
       return respond.fail(res, 400, 'Error deleting Season', err);
     });
 });
+
+router.get('/:id/awards', giveAwards);
 
 export default router;

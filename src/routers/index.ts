@@ -10,6 +10,7 @@ import fixtures from '../controllers/fixtures/fixture.router';
 import files from '../services/file/file.service';
 import managers from '../controllers/managers/manager.router';
 import countries from '../controllers/countries/router';
+import awards from '../controllers/awards/awards.router';
 
 const router = Router();
 
@@ -34,5 +35,7 @@ router.use('/game', games);
 router.use('/managers', managers);
 
 router.use('/countries', countries);
+
+router.use('/awards', awards);
 
 export default router;

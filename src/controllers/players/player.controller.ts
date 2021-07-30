@@ -2,7 +2,7 @@ import respond from '../../helpers/responseHandler';
 import { NextFunction, Request, Response } from 'express';
 import { getPlayerStats, updateById } from './player.service';
 import { newAttributeRatings } from '../../utils/players';
-import { IPlayer, IPlayerAttributes } from '../../interfaces/Player';
+import { PlayerInterface, IPlayerAttributes } from '../../interfaces/Player';
 
 export function updatePlayersDetails(
   req: Request,
@@ -57,7 +57,9 @@ export function updatePlayersDetails(
     });
   };
 
-  const addAttributes = (agg: { points: number; player: IPlayer }[]) => {
+  const addAttributes = (
+    agg: { points: number; player: PlayerInterface }[]
+  ) => {
     //   test the first 5 players... thank you Jesus!
     const toDo: any[] = [];
 

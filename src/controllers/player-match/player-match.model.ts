@@ -1,11 +1,11 @@
-import { IPlayer } from '../../interfaces/Player';
+import { PlayerInterface } from '../../interfaces/Player';
 import { Schema, Document, Model, model } from 'mongoose';
-import { fixtureInterface } from '../../utils/seasons';
+import { Fixture } from '../fixtures/fixture.model';
 
 export interface PlayerMatchDetailsInterface {
   _id?: string;
-  Player?: string | IPlayer;
-  Fixture?: string | fixtureInterface;
+  Player?: string | PlayerInterface;
+  Fixture?: string | Fixture;
   Goals: number;
   Saves: number;
   YellowCards: number;
@@ -28,8 +28,8 @@ export interface PlayerMatchDetailsInterface {
 
 declare interface IPlayerMatchDetails extends Document {
   _id?: string;
-  Player: string | IPlayer;
-  Fixture: string | fixtureInterface;
+  Player: string | PlayerInterface;
+  Fixture: string | Fixture;
   Goals: number;
   Saves: number;
   YellowCards: number;

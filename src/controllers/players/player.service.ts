@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import log from '../../helpers/logger';
 import DB from '../../db';
-import { IPlayer } from '../../interfaces/Player';
+import { PlayerInterface } from '../../interfaces/Player';
 import { calculatePlayerValue } from '../../utils/players';
 import { PlayerMatchDetailsInterface } from '../player-match/player-match.model';
+import { Types } from 'mongoose';
 
 /**
  * fetchAllPlayers
@@ -24,7 +26,7 @@ export function fetchOneById(id: string) {
   return DB.Models.Player.findById(id).lean().exec();
 }
 
-export function updateById(id: string, update: any): Promise<IPlayer> {
+export function updateById(id: string, update: any): Promise<PlayerInterface> {
   return DB.Models.Player.findByIdAndUpdate(id, update, { new: true })
     .lean()
     .exec();
@@ -43,7 +45,7 @@ export function deletePlayer(id: string) {
  * @param p Player making data
  * @returns - {error: boolean, result: any}
  */
-export const createNewPlayer = async (_player: IPlayer) => {
+export const createNewPlayer = async (_player: PlayerInterface) => {
   _player.Value = calculatePlayerValue(
     _player.Position,
     _player.Rating,
@@ -198,7 +200,16 @@ export function allPlayerStats(
         },
       },
       { $unwind: '$fixture' },
-      { $match: { 'fixture.Season': season } },
+      { $match: { 'fixture.Season': Types.ObjectId(season) } },
+       {
+        $lookup: {
+          from: 'Players',
+          localField: 'Player',
+          foreignField: '_id',
+          as: 'player',
+        },
+      },
+      { $unwind: '$player' },
     ],
     () => {
       log('Player Match Stats for entire Season gotten!');

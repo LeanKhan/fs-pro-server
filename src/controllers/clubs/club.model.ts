@@ -1,5 +1,5 @@
 import { Schema, Document, model, Model } from 'mongoose';
-import { IPlayer } from '../../interfaces/Player';
+import { PlayerInterface } from '../../interfaces/Player';
 import { IUser } from '../user/user.model';
 // import { Player } from '../models/player.model'; // Uncomment this after testing!
 
@@ -8,7 +8,7 @@ declare interface IClub extends Document {
   ClubCode: string;
   AttackingClass: number;
   DefensiveClass: number;
-  Players: IPlayer[];
+  Players: PlayerInterface[];
   assets: {
     Kit: string;
     Logo: string;
@@ -31,7 +31,7 @@ export interface ClubInterface {
   League?: string;
   AttackingClass: number;
   DefensiveClass: number;
-  Players: IPlayer[];
+  Players: PlayerInterface[];
   assets?: {
     Kit: string;
     Logo: string;

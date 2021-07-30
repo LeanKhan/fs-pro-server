@@ -1,6 +1,10 @@
-import { IPlayer, IPlayerAttributes, IGameStats } from '../interfaces/Player';
+import {
+  PlayerInterface,
+  IPlayerAttributes,
+  IGameStats,
+} from '../interfaces/Player';
 
-export default class Player implements IPlayer {
+export default class Player implements PlayerInterface {
   public _id?: string;
   public FirstName: string;
   public LastName: string;
@@ -44,6 +48,7 @@ export default class Player implements IPlayer {
       Passes: 0,
       Tackles: 0,
       Dribbles: 0,
+      Fouls: 0,
     };
   }
 }

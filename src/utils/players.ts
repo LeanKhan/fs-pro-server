@@ -4,7 +4,7 @@ import { IBlock } from '../state/ImmutableState/FieldGrid';
 import {
   IPositions,
   IFieldPlayer,
-  IPlayer,
+  PlayerInterface,
   IPlayingPosition,
   IPlayerAttributes,
 } from '../interfaces/Player';
@@ -262,7 +262,7 @@ Sort from keeper down
 
 thank you Jesus!
 **/
-function sortFromKeeperDown(players: IPlayer[]) {
+function sortFromKeeperDown(players: PlayerInterface[]) {
   const positions = { GK: 4, DEF: 3, MID: 2, ATT: 1 } as {
     GK: number;
     DEF: number;
@@ -335,7 +335,7 @@ const attributesToIncrease: {
   ],
 };
 
-export function newAttributeRatings(player: IPlayer, pnts: number) {
+export function newAttributeRatings(player: PlayerInterface, pnts: number) {
   /**
    * - Get attributes that would be increased...
    * - Share points among attributes

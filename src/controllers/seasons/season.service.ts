@@ -50,7 +50,7 @@ export function fetchOneById(
     return DB.Models.Season.findById(id).select(select).lean().exec();
   }
 
-  return DB.Models.Season.findById(id).populate('Fixtures').lean().exec();
+  return DB.Models.Season.findById(id).populate(populate).lean().exec();
 }
 
 /**

@@ -1,4 +1,4 @@
-import { IPlayer } from './Player';
+import { PlayerInterface } from './Player';
 export interface IClub {
   _id?: string;
   Name: string;
@@ -7,7 +7,7 @@ export interface IClub {
   /** Club's overall Defensive rating */
   DefensiveClass: number;
   /** Players */
-  Players: IPlayer[];
+  Players: PlayerInterface[];
   Rating: number;
   Address: Record<string, unknown>;
   ClubCode: string;

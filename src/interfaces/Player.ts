@@ -1,7 +1,7 @@
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import Ball from '../classes/Ball';
 
-export interface IFieldPlayer extends IPlayer {
+export interface IFieldPlayer extends PlayerInterface {
   Points: number;
   Substitute: boolean;
   BlockPosition: IBlock;
@@ -21,7 +21,7 @@ export interface IFieldPlayer extends IPlayer {
   checkNextBlocks(): IPositions;
 }
 
-export interface IPlayer {
+export interface PlayerInterface {
   _id?: string;
   FirstName: string;
   LastName: string;
@@ -40,6 +40,7 @@ export interface IPlayer {
   Form?: number;
   isSigned: boolean;
   ClubCode?: string;
+  Club?: string;
 }
 
 // It's not all players that will have club :)
