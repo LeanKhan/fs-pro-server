@@ -45,7 +45,6 @@ export class User {
           unique: true,
           minlength: 3,
         },
-        Stats: { type: Object, Wins: 0, Losses: 0, Draws: 0 },
         Avatar: {
           type: String,
           default: 'default-avatar.png',

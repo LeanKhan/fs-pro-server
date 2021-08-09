@@ -80,7 +80,7 @@ export function updatePlayers(query: any, update: any) {
   return DB.Models.Player.updateMany(query, update);
 }
 
-export function getPlayerStats(year: string) {
+export function getPlayerStats(calendar_id: string) {
   return DB.Models.PlayerMatch.aggregate(
     [
       {
@@ -101,7 +101,7 @@ export function getPlayerStats(year: string) {
         },
       },
       { $unwind: '$season' },
-      { $match: { 'season.Year': year } }, // Filter by the Year
+      { $match: { 'season.Calendar': Types.ObjectId(calendar_id) } }, // Filter by the Year
       {
         $group: {
           _id: '$Player',
@@ -210,9 +210,70 @@ export function allPlayerStats(
         },
       },
       { $unwind: '$player' },
+    {
+        $group: {
+          _id: '$Player',
+          goals: { $sum: '$Goals' },
+          saves: { $sum: '$Saves' },
+          passes: { $sum: '$Passes' },
+          tackles: { $sum: '$Tackles' },
+          assists: { $sum: '$Assists' },
+          clean_sheets: { $sum: '$CleanSheets' },
+          dribbles: { $sum: '$Dribbles' },
+          points: { $avg: '$Points' },
+          form: { $avg: '$Form' },
+          player: { "$first": "$player" },
+          fixture: { "$first": "$fixture" },
+         count: { $sum: 1 } 
+        }
+      },
     ],
     () => {
       log('Player Match Stats for entire Season gotten!');
     }
   );
 }
+
+/**
+ * 
+ * [
+      {
+        $lookup: {
+          from: 'Fixtures',
+          localField: 'Fixture',
+          foreignField: '_id',
+          as: 'fixture',
+        },
+      },
+      { $unwind: '$fixture' },
+      { $match: { 'fixture.Season': ObjectId("60f23609a730eb4838371762") } },
+       {
+        $lookup: {
+          from: 'Players',
+          localField: 'Player',
+          foreignField: '_id',
+          as: 'player',
+        },
+      },
+      { $unwind: '$player' },
+          {
+        $group: {
+          _id: '$Player',
+          goals: { $sum: '$Goals' },
+          saves: { $sum: '$Saves' },
+          passes: { $sum: '$Passes' },
+          tackles: { $sum: '$Tackles' },
+          assists: { $sum: '$Assists' },
+          clean_sheets: { $sum: '$CleanSheets' },
+          dribbles: { $sum: '$Dribbles' },
+          points: { $avg: '$Points' },
+          form: { $avg: '$Form' },
+          player: { "$first": "$player" },
+          fixture: { "$first": "$fixture" },
+         count: { $sum: 1 } 
+        }
+      },
+    
+      { $sort: {'points': -1} } 
+    ] 
+ * */

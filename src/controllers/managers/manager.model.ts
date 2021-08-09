@@ -64,7 +64,7 @@ export class Manager {
           type: Boolean,
           default: false,
         },
-        Nationality: String,
+        Nationality: {type: String, ref: 'Place'},
         Records: [],
         isEmployed: {
           type: Boolean,

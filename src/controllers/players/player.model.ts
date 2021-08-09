@@ -57,9 +57,11 @@ const PlayerTransferHistorySchema: Schema = new Schema({
 
 const PlayerRatingsHistory: Schema = new Schema({
   date: String,
-  year: String,
+  calendar: { type: Schema.Types.ObjectId, ref: 'Calendar' },
   rating: Number,
   value: Number,
+  old_rating: Number,
+  old_value: Number,
 });
 
 const PlayerAppearanceSchema: Schema = new Schema({
@@ -113,7 +115,7 @@ export class Player {
           type: String,
           required: true,
         },
-        Nationality: String,
+        Nationality: {type: String, ref: 'Place'},
         Age: {
           type: Number,
         },

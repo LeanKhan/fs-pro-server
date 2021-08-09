@@ -50,7 +50,7 @@ export class Competition {
         CompetitionID: { type: String, unique: true },
         NumberOfTeams: Number,
         NumberOfWeeks: Number,
-        Country: String,
+        Country: {type: String, ref: 'Place'},
         Division: {
           type: Number,
           default: 0,
