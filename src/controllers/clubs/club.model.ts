@@ -116,9 +116,9 @@ export class Club {
         },
         Address: {
           type: Object,
-          Section: String,
-          City: String,
-          Country: String,
+          Section: {type: String, ref: 'Place'},
+          City: {type: String, ref: 'Place'},
+          Country: {type: String, ref: 'Place'},
         },
         Budget: Number,
         Transactions: {},

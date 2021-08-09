@@ -10,14 +10,19 @@ export function updatePlayersDetails(
   next: NextFunction
 ) {
   // get the year id and year string
-  const { year, id } = req.params;
+  const { id } = req.params;
 
   const $getPlayerStats = () => {
-    return getPlayerStats(year);
+    return getPlayerStats(id);
   };
 
   const updPlayers = (ar: any[]) => {
     const pt = ar.map((_) => updPlayer(_));
+
+        console.log('ar', ar.length);
+
+            console.log('ar[0]', ar[0]);
+
 
     // TODO: Mehn, I don't know how we will do this! Sha for now let's do all PromiseAll
     // Promise.all() has a 2 million limit lol. So we have to do this in batches o
@@ -37,6 +42,8 @@ export function updatePlayersDetails(
     attributes: IPlayerAttributes;
     new_rating: number;
     new_value: number;
+    old_rating: number;
+    old_value: number;
   }) => {
     return updateById(data.player_id, {
       // add new Attributes...
@@ -49,9 +56,11 @@ export function updatePlayersDetails(
       $push: {
         RatingsHistory: {
           date: new Date().toString(),
-          year,
+          calendar: id,
           rating: data.new_rating,
           value: data.new_value,
+          old_rating: data.old_rating,
+          old_value: data.old_value,
         },
       },
     });
@@ -60,7 +69,8 @@ export function updatePlayersDetails(
   const addAttributes = (
     agg: { points: number; player: PlayerInterface }[]
   ) => {
-    //   test the first 5 players... thank you Jesus!
+
+    console.log('agg', agg.length);
     const toDo: any[] = [];
 
     try {
@@ -73,6 +83,8 @@ export function updatePlayersDetails(
           attributes,
           new_rating,
           new_value,
+          old_rating: p.player.Rating,
+          old_value: p.player.Value,
           player_id: p.player._id,
         });
       });
@@ -87,8 +99,10 @@ export function updatePlayersDetails(
   return $getPlayerStats()
     .then(addAttributes)
     .then(updPlayers)
-    .then(() => {
-      return next(); // next, update all clubs
+    .then((updates) => {
+      console.log('Finished updating players! => ', updates);
+      // return next(); // next, update all clubs
+      return respond.success(res, 200, 'Player details updated successfully');
     })
     .catch((err) => {
       console.log('Error updating Player values => ', err);

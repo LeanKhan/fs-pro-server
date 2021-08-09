@@ -35,8 +35,8 @@ export async function giveAwards(req: Request, res: Response) {
         // now find out what kind of most...
         allStats.sort((a, b) => {
           return (
-            b[capitalize(attribute)] -
-            a[capitalize(attribute)]
+            b[attribute] -
+            a[attribute]
           );
         });
       } else {

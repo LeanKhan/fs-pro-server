@@ -24,7 +24,7 @@ import {
   PlayerMatchDetails,
   PlayerMatchDetailsModel,
 } from '../controllers/player-match/player-match.model';
-import { Country, CountryModel } from '../controllers/misc/countries';
+import { Place, PlaceModel } from '../controllers/place/place.model';
 import { Award, AwardModel } from '../controllers/awards/awards.model';
 import log from '../helpers/logger';
 
@@ -40,7 +40,7 @@ declare interface IModels {
   Manager: ManagerModel;
   ClubMatch: ClubMatchDetailsModel;
   PlayerMatch: PlayerMatchDetailsModel;
-  Country: CountryModel;
+  Place: PlaceModel;
   Award: AwardModel;
 }
 
@@ -93,7 +93,7 @@ export default class DB {
       Manager: new Manager().model,
       ClubMatch: new ClubMatchDetails().model,
       PlayerMatch: new PlayerMatchDetails().model,
-      Country: new Country().model,
+      Place: new Place().model,
       Award: new Award().model,
     };
 
