@@ -1,3 +1,7 @@
+import {Types} from 'mongoose';
+import DB from '../db'
+import respond from './responseHandler';
+import { Request, Response } from 'express';
 /**
  * Round a number to a specified places
  */
@@ -23,3 +27,70 @@ export function roundTo(number: number, decimalPlaces: number) {
 export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
+
+/**  // DO NOT TOUCH :)
+ * 
+export function updateAllModels(req: Request, res: Response) {
+
+  const models = [
+    {model: 'Competitions', field: 'Country'},
+      {model: 'Players', field: 'Nationality'},
+     {model: 'Clubs', field: 'Address.Country'},
+    {model: 'Managers', field: 'Nationality'},
+  ]
+
+// This function updates all players, clubs, competitions and managers to the right country
+// Have a list of all countries with their corressponding ID
+const arrangeAllCountries = () => {
+  const c = DB.Models.Place.find({Type: "country"}).lean().exec().then((cs: any[]) => {
+    return cs.flatMap((cty: any) => {
+      if (cty.Name == 'Bellean')
+        return [{label: cty.Name, new_id: cty._id}, {label: 'bellean', new_id: cty._id}]
+
+      if (cty.Name == 'Pregge')
+        return [{label: cty.Name, new_id: cty._id}, {label: 'Stov', new_id: cty._id}]
+
+      if (cty.Name == 'Simeone')
+        return [{label: cty.Name, new_id: cty._id}, {label: 'Simeon', new_id: cty._id}]
+
+      if (cty.Name == 'Hunteerland')
+        return [{label: cty.Name, new_id: cty._id}, {label: 'Huntaarland', new_id: cty._id}]
+
+      return {label: cty.Name, new_id: cty._id}
+    })
+  })
+
+  return c
+}
+// For each country, update all models that need changing with the new IDs...
+
+const updateCollections = (cs: {label: string, new_id: any}[]) => {
+  let update: Promise<any>[] = [];
+  cs.forEach(c => {
+      update = update.concat(models.map(m => {
+       return DB.db.collection(m.model).updateMany({ [m.field]: c.label }, {$set: {[m.field]: c.new_id}})
+      }))
+  })
+
+  // all the updations are ready!
+  return Promise.all(update)
+}
+
+// arrangeAllCountries()
+arrangeAllCountries()
+.then(updateCollections)
+     .then((result: any) => {
+      return respond.success(res, 200, 'Places in Models updated successfully', result);
+    })
+    .catch((err: any) => {
+      console.error(err);
+      return respond.fail(res, 400, 'Error updating Places in Models', err);
+    });
+
+// arrangeAllCountries()
+// .then(updateCollections)
+// .then((result: any) => {
+//   console.log('All Models updated successfully! Thank you Jesus!', result)
+// })
+
+} */

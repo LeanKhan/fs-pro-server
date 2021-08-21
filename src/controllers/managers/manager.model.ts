@@ -64,7 +64,7 @@ export class Manager {
           type: Boolean,
           default: false,
         },
-        Nationality: {type: String, ref: 'Place'},
+        Nationality: {type: Schema.Types.ObjectId, ref: 'Place'},
         Records: [],
         isEmployed: {
           type: Boolean,

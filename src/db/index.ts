@@ -24,9 +24,10 @@ import {
   PlayerMatchDetails,
   PlayerMatchDetailsModel,
 } from '../controllers/player-match/player-match.model';
-import { Place, PlaceModel } from '../controllers/place/place.model';
+import { Place, PlaceModel } from '../controllers/places/places.model';
 import { Award, AwardModel } from '../controllers/awards/awards.model';
 import log from '../helpers/logger';
+import {Model} from 'mongoose';
 
 declare interface IModels {
   Competition: CompetitionModel;
@@ -42,6 +43,7 @@ declare interface IModels {
   PlayerMatch: PlayerMatchDetailsModel;
   Place: PlaceModel;
   Award: AwardModel;
+  [key: string]: Model<any>;
 }
 
 // Production! Well, sha for Tobi and I. Thank you Jesus!

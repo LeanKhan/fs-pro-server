@@ -115,7 +115,7 @@ export class Player {
           type: String,
           required: true,
         },
-        Nationality: {type: String, ref: 'Place'},
+        Nationality: {type: Schema.Types.ObjectId, ref: 'Place'},
         Age: {
           type: Number,
         },
