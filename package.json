@@ -10,7 +10,7 @@
     "tsc": "tsc",
     "dev": "set NODE_ENV=dev && npm run start-dev",
     "dev-test": "set NODE_ENV=dev && set DEV_TEST=true && npm run start-dev",
-    "start-dev": "ts-node-dev --trace-warnings --respawn --transpileOnly ./src/server.ts",
+    "start-dev": "ts-node-dev --respawn --transpile-only ./src/server.ts",
     "prod": "tsc && node ./build/server.js",
     "lint": "eslint src/. --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es2019",
     "module": "commonJs",
     "lib": [
-      "ES6"
+      "ES6",
+      "es2019"
     ] /* Specify library files to be included in the compilation. */,
     // "allowJs": true,                       /* Allow javascript files to be compiled. */
     // "checkJs": true,                       /* Report errors in .js files. */
@@ -26,6 +27,7 @@
 
     /* Strict Type-Checking Options */
     "strict": true,
+    "typeRoots": ["./node_modules/@types", "./typings"],
     // "noImplicitAny": true,                 /* Raise error on expressions and declarations with an implied 'any' type. */
     // "strictNullChecks": true,              /* Enable strict null checks. */
     // "strictFunctionTypes": true,           /* Enable strict checking of function types. */
@@ -65,5 +67,8 @@
     // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "skipLibCheck": true,
+  "forceConsistentCasingInFileNames": true,
+  "files": ["./typings/express/index.d.ts"]
 }

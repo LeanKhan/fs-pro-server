@@ -1,7 +1,7 @@
 import DB from '../../db';
 import respond from '../../helpers/responseHandler';
 import { Request, Response } from 'express';
-import { PlaceInterface } from './place.model';
+import { PlaceInterface } from './places.model';
 
 // TODO: I like the Enums data structure in Python.
 
