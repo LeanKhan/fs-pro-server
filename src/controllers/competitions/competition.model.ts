@@ -50,7 +50,7 @@ export class Competition {
         CompetitionID: { type: String, unique: true },
         NumberOfTeams: Number,
         NumberOfWeeks: Number,
-        Country: {type: Schema.Types.ObjectId, ref: 'Place'},
+        Country: {type: Schema.Types.ObjectId, ref: 'Place', autopopulate: true},
         Division: {
           type: Number,
           default: 0,
@@ -61,6 +61,13 @@ export class Competition {
       },
       { timestamps: true }
     );
+
+    const populate = function(next: any) {
+      this.populate('Country');
+      next();
+    }
+
+    CompetitionSchema.pre('find', populate).pre('findOne', populate);
 
     this._model = model<ICompetition>(
       'Competition',

@@ -115,7 +115,7 @@ export class Player {
           type: String,
           required: true,
         },
-        Nationality: {type: Schema.Types.ObjectId, ref: 'Place'},
+        Nationality: {type: Schema.Types.ObjectId, ref: 'Place', autopopulate: true},
         Age: {
           type: Number,
         },
@@ -169,6 +169,14 @@ export class Player {
       },
       { timestamps: true }
     );
+
+
+    const populate = function(next: any) {
+      this.populate('Nationality');
+      next();
+    }
+
+    PlayerSchema.pre('find', populate).pre('findOne', populate);
 
     this._model = model<IPlayer>('Player', PlayerSchema, 'Players');
   }

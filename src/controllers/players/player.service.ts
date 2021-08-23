@@ -17,6 +17,16 @@ export function fetchAll(query: Record<string, unknown> = {}) {
 }
 
 /**
+ * fetchAllPlayers
+ *
+ * fetch multiple Players based on query
+ * default behaviour is to send all players in the db
+ */
+export function findOnePlayer(query: Record<string, unknown> = {}, select: string | boolean) {
+  return DB.Models.Player.findOne(query).select(select).lean().exec();
+}
+
+/**
  * FetchOneById
  *
  * Fetch a specific Player by id

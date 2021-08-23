@@ -115,20 +115,17 @@ export class Club {
           MatchesDrawn: Number,
         },
         Address: {
-          type: Object,
           Section: {type: String},
           City: {type: Schema.Types.ObjectId, ref: 'Place'},
-          Country: {type: Schema.Types.ObjectId, ref: 'Place'},
+          Country: {type: Schema.Types.ObjectId, ref: 'Place', autopopulate: true},
         },
         Budget: Number,
         Transactions: {},
         Records: [],
         Stadium: {
-          type: Object,
           Name: String,
           Capacity: String,
           Location: String,
-          unique: true,
         },
         LeagueCode: String,
         League: { type: Schema.Types.ObjectId, ref: 'Competition' },
@@ -137,6 +134,13 @@ export class Club {
       },
       { timestamps: true }
     );
+
+    const populate = function(next: any) {
+      this.populate('Address.Country');
+      next();
+    }
+
+    ClubSchema.pre('find', populate).pre('findOne', populate);
 
     this._model = model<IClub>('Club', ClubSchema, 'Clubs');
   }

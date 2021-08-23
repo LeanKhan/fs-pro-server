@@ -12,7 +12,7 @@ import {
 import { fetchMany } from '../days/day.service';
 import { updatePlayersDetails } from '../players/player.controller';
 import { updateAllClubsRating } from '../../middleware/club';
-// import { incrementCounter } from '../../utils/counter';
+import { setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -118,5 +118,7 @@ router.post('/:year/:id/start', startYear);
 router.post('/:id/end', endYear, updatePlayersDetails, updateAllClubsRating);
 
 router.get('/:id/update-ages', updatePlayersDetails);
+
+setupRoutes(router, 'Calendar');
 
 export default router;

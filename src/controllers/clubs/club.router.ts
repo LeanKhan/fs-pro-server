@@ -15,6 +15,7 @@ import {
   updateAllClubsRating,
 } from '../../middleware/club';
 import { addManagerToClub, removeManagerFromClub } from './club.controller';
+import { baseQuery, setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -136,6 +137,8 @@ router.put(
   addPlayerToClubMiddleware,
   calculateClubRating
 );
+
+setupRoutes(router, 'Club');
 
 export default router;
 

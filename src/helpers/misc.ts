@@ -28,6 +28,31 @@ export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+export function baseFetch(options: BaseFetchInt) {
+
+  return {
+    one: () => {
+        if (options.select && options.populate) {
+    return DB.Models[options.model].findOne(options.query).select(options.select).populate(options.populate).lean().exec();
+  }
+  return DB.Models[options.model].findOne(options.query).select(options.select).lean().exec();
+},
+many: () => {
+       if (options.select && options.populate) {
+    return DB.Models[options.model].find(options.query).select(options.select).populate(options.populate).lean().exec();
+  }
+  return DB.Models[options.model].find(options.query).select(options.select).lean().exec();
+  }
+}
+
+}
+
+export interface BaseFetchInt {
+  model: string; select: string | boolean; populate: string | boolean, query: any
+}
+
+
+
 /**  // DO NOT TOUCH :)
  * 
 export function updateAllModels(req: Request, res: Response) {

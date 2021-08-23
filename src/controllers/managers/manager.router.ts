@@ -11,6 +11,7 @@ import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { updateClub } from '../clubs/club.service';
 import { ManagerInterface } from './manager.model';
 import log from '../../helpers/logger';
+import {baseQuery, setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -147,5 +148,7 @@ router.post('/', getCurrentCounter, async (req, res) => {
     respond.fail(res, 400, 'Error creating Manager', response.result);
   }
 });
+
+setupRoutes(router, 'Manager');
 
 export default router;
