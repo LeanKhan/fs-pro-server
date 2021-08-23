@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import respond from '../../helpers/responseHandler';
 import { fetchOneById } from './fixture.service';
+import { setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -23,5 +24,7 @@ router.get('/:id', (req, res) => {
       respond.fail(res, 400, 'Error fetching Fixture', err);
     });
 });
+
+setupRoutes(router, 'Fixture');
 
 export default router;

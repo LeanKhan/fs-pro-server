@@ -64,14 +64,17 @@ export class Manager {
           type: Boolean,
           default: false,
         },
-        Nationality: {type: Schema.Types.ObjectId, ref: 'Place'},
-        Records: [],
-        isEmployed: {
-          type: Boolean,
-        },
+        type: Boolean,
       },
       { timestamps: true }
     );
+
+    const populate = function (next: any) {
+      this.populate('Nationality');
+      next();
+    };
+
+    ManagerSchema.pre('find', populate).pre('findOne', populate);
 
     this._model = model<IManager>('Manager', ManagerSchema, 'Managers');
   }

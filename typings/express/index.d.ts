@@ -5,4 +5,8 @@ declare module 'express-serve-static-core' {
   interface Request {
     io?: Server;
   }
+
+  interface Router {
+    [key: string]: any;
+  }
 }

@@ -9,10 +9,12 @@ import {
   deletePlayer,
   updatePlayers,
   getSpecificPlayerStats,
+  findOnePlayer
 } from './player.service';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { fetchAppearance } from '../../utils/appearance';
 import log from '../../helpers/logger';
+import {baseQuery, setupRoutes} from '../../helpers/queries';
 import { Types } from 'mongoose';
 import { fetchAllClubs, fetchClubs } from '../clubs/club.service';
 
@@ -177,5 +179,7 @@ router.get('/:id', (req, res) => {
 //       respond.fail(res, 400, 'Error updating Players', err);
 //     });
 // });
+
+setupRoutes(router, 'Player');
 
 export default router;

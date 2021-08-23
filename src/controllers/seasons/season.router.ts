@@ -25,6 +25,7 @@ import { finishSeason, getCurrentSeasons } from './season.controller';
 import respond from '../../helpers/responseHandler';
 import { compileStandings } from '../../utils/seasons';
 import { giveAwards } from '../awards/awards.controller';
+import { setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -198,5 +199,7 @@ router.delete('/:id', (req: Request, res: Response) => {
 });
 
 router.get('/:id/awards', giveAwards);
+
+setupRoutes(router, 'Season');
 
 export default router;

@@ -10,6 +10,7 @@ import { fetchAll as fetchAllSeasons } from '../seasons/season.service';
 import respond from '../../helpers/responseHandler';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import { addClubToCompetition } from './competition.controller';
+import { setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -117,5 +118,7 @@ router.post('/new', getCurrentCounter, async (req: Request, res: Response) => {
 
 /** Add Club to Competition */
 router.post('/:id/add-club', addClubToCompetition);
+
+setupRoutes(router, 'Competition');
 
 export default router;

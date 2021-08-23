@@ -7,9 +7,9 @@ import {
   findOneAndUpdate,
 } from './places.service';
 import respond from '../../helpers/responseHandler';
-import { updateAllModels } from '../../helpers/misc';
 import { PlaceInterface } from './places.model';
 import log from '../../helpers/logger';
+import {baseQuery, setupRoutes} from '../../helpers/queries';
 
 const router = Router();
 
@@ -97,7 +97,14 @@ router.put('/:id', (req, res) => {
     });
 });
 
+<<<<<<< HEAD
 /** Update all Models */
 router.put('/work/update-all-models', updateAllModels);
+=======
+setupRoutes(router, 'Place');
+
+/** Update all Models NOT NEEDED FOR NOW! */
+// router.put('/work/update-all-models', updateAllModels);
+>>>>>>> c
 
 export default router;
