@@ -36,6 +36,20 @@ router.get('/', (req, res) => {
     });
 });
 
+
+/** Get Place by name or code */
+router.get('/country', (req, res) => {
+  // Get Place by name slug
+  fetchMany({Type: 'country'})
+    .then((p) => {
+      respond.success(res, 200, 'Countries fetched successfully', p);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching Countries', err);
+    });
+});
+
+
 /** GET PLACE BY ID */
 router.get('/:id', (req, res) => {
   // Get Place by name slug
@@ -97,14 +111,9 @@ router.put('/:id', (req, res) => {
     });
 });
 
-<<<<<<< HEAD
-/** Update all Models */
-router.put('/work/update-all-models', updateAllModels);
-=======
 setupRoutes(router, 'Place');
 
 /** Update all Models NOT NEEDED FOR NOW! */
 // router.put('/work/update-all-models', updateAllModels);
->>>>>>> c
 
 export default router;

@@ -13,7 +13,9 @@ export interface PlayerInterface {
   /** Goals scored in total */
   GoalsScored: number;
   ShirtNumber: string;
+  Position: string;
   /** Collecting of Player's attributes */
+  Role: string;
   Attributes: IPlayerAttributes;
   isSigned: boolean;
   /** Monetary value of Player */
@@ -35,6 +37,7 @@ export declare interface IPlayer extends Document {
   GoalsScored: number;
   ShirtNumber: string;
   /** Collecting of Player's attributes */
+  Role: string;
   Attributes: IPlayerAttributes;
   isSigned: boolean;
   /** Monetary value of Player */
@@ -101,6 +104,20 @@ const PlayerAppearanceSchema: Schema = new Schema({
   },
 });
 
+export enum Positions {
+  ATT = 'ATT',
+  DEF = 'DEF',
+  MID = 'MID',
+  GK = 'GK'
+}
+
+export const Roles = {
+ ATT: ['LW','RW','ST'],
+ DEF: ['LB', 'RB', 'CB'],
+ MID: ['CM', 'CAM', 'CDM', 'RM', 'LM'],
+ GK: ['GK']
+}
+
 export class Player {
   private _model: Model<IPlayer>;
 
@@ -126,6 +143,10 @@ export class Player {
         PlayerID: String,
         Position: {
           type: String,
+          enum: Object.values(Positions)
+        },
+        Role: {
+          type: String,
         },
         PositionNumber: Number,
         Attributes: {
@@ -147,6 +168,13 @@ export class Player {
           Aggression: { type: Number, default: 0 },
           Interception: { type: Number, default: 0 },
           Keeping: { type: Number, default: 0 },
+          // new 27-08-21
+          Marking: { type: Number, default: 0 },
+          Agility: { type: Number, default: 0 },
+          Positioning: { type: Number, default: 0 },
+          Crossing: { type: Number, default: 0 },
+          LongShot: { type: Number, default: 0 },
+          // new
           AttackingMindset: { type: Boolean, default: false },
           DefensiveMindset: { type: Boolean, default: false },
         },

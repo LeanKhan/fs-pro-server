@@ -19,7 +19,7 @@ import {
 } from '../utils/seasons';
 import { fetchOne } from '../controllers/calendar/calendar.service';
 import { CalendarInterface } from '../controllers/calendar/calendar.model';
-import { getCurrentCounter2, incrementCounter } from '../utils/counter';
+import { incrementCounter } from '../utils/counter';
 import log from '../helpers/logger';
 import { ClubInterface } from '../controllers/clubs/club.model';
 
@@ -34,7 +34,6 @@ export async function create(
   competitionID: string,
   year: string
 ) {
-  const SeasonID = await getCurrentCounter2('season');
   const p = await incrementCounter('season_counter');
   console.log('Counter incremented successfully!');
 
@@ -58,7 +57,6 @@ export async function create(
       Calendar: cal._id,
       Year: cal.YearString,
       Status: 'pending',
-      SeasonID,
       Title: `Season-${competitionCode}-${year}-${Math.round(
         Math.random() * 10
       )}`,

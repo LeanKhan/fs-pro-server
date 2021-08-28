@@ -154,10 +154,9 @@ router.get('/:id', (req, res) => {
 router.delete('/:id/logout', (req, res) => {
   // delete user's session
   const userID = req.params.id;
-  log(`User ID => ${userID}`);
-  const response = fetchOneUser({ _id: userID }, true);
-
-  response
+  console.log(`User ID => ${userID}`);
+  
+  fetchOneUser({ _id: userID }, true)
     .then((user: IUser) => {
       if (!user) {
         return respond.fail(res, 404, 'Username does not exist');
@@ -180,13 +179,15 @@ router.delete('/:id/logout', (req, res) => {
                   );
                 }
               });
+            } else {
+                  throw new Error('Session not found! Try reloading');
             }
           }
         );
       }
     })
     .catch((error: any) => {
-      return respond.fail(res, 400, 'Error logging in', error);
+      return respond.fail(res, 400, 'Error logging out', error);
     });
 });
 

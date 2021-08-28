@@ -102,33 +102,53 @@ export enum IPlayingPosition {
 }
 
 export const AttackerMultipliers: Multipliers = {
-  Speed: 0.11,
-  Shooting: 0.32,
+  Speed: 0.10, // -1
+  Shooting: 0.30, // -12
   LongPass: 0.02,
   ShortPass: 0.03,
-  Mental: 0.08,
+  Mental: 0.08, // Positioning
   Control: 0.18,
   Tackling: 0.01,
   Strength: 0.06,
   Stamina: 0.05,
-  Keeping: 0,
+  Keeping: 0.0,
   SetPiece: 0.04,
-  Dribbling: 0.1,
+  Dribbling: 0.10,
+  Aggression: 0.0,
+  Vision: 0.03, // +0.03
+  Interception: 0.0,
+  ShotPower: 0.10, // +0.10
+   //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0
 };
 
 export const GoalkeeperMultipliers: Multipliers = {
   Speed: 0.0,
   Shooting: 0.0,
-  LongPass: 0.08,
-  ShortPass: 0.04,
-  Mental: 0.05,
-  Control: 0.05,
+  LongPass: 0.03, // -0.05
+  ShortPass: 0.01, // - 0.03
+  Mental: 0.22, // Positioning 0.22 +0.17
+  Control: 0.22, // Handling 0.22 +0.17
   Tackling: 0.0,
-  Strength: 0.05,
-  Stamina: 0.03,
-  Keeping: 0.7,
+  Strength: 0.0, // -0.05
+  Stamina: 0.02, // -0.01
+  Keeping: 0.50, // Diving, Reflex, Reactions -0.34 +0.08 +0.05 +0.01
   SetPiece: 0.0,
   Dribbling: 0.0,
+  Aggression: 0,
+  Vision: 0.0,
+  Interception: 0.0,
+  ShotPower: 0.0,
+   //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0
 };
 
 export const MidfielderMultipliers: Multipliers = {
@@ -136,14 +156,24 @@ export const MidfielderMultipliers: Multipliers = {
   Shooting: 0.1,
   LongPass: 0.2,
   ShortPass: 0.2,
-  Mental: 0.1,
+  Mental: 0.1, // Positioning
   Control: 0.08,
   Tackling: 0.02,
   Strength: 0.04,
   Stamina: 0.08,
-  Keeping: 0,
+  Keeping: 0.0,
   SetPiece: 0.04,
   Dribbling: 0.09,
+  Aggression: 0.0,
+  Vision: 0.0,
+  Interception: 0.0,
+  ShotPower: 0.0,
+   //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0
 };
 
 export const DefenderMultipliers: Multipliers = {
@@ -159,6 +189,16 @@ export const DefenderMultipliers: Multipliers = {
   Keeping: 0.0,
   SetPiece: 0.02,
   Dribbling: 0.0,
+  Aggression: 0,
+  Vision: 0,
+  Interception: 0,
+  ShotPower: 0,
+  //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0
 };
 
 export interface Multipliers {
@@ -174,4 +214,16 @@ export interface Multipliers {
   Stamina: number;
   SetPiece: number;
   Dribbling: number;
+  Aggression: number;
+  Vision: number;
+  Interception: number;
+  ShotPower: number;
+  // new 27-08-21
+  Marking: number;
+  Agility: number;
+  Crossing: number;
+  Positioning: number;
+  LongShot: number;
+  // new
+  [key: string]: number;
 }
