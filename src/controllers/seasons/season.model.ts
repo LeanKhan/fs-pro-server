@@ -4,7 +4,6 @@ import { Fixture } from '../fixtures/fixture.model';
 
 export interface SeasonInterface {
   _id?: string;
-  SeasonID: string;
   SeasonCode: string;
   Title: string;
   Competition: string | CompetitionInterface;
@@ -24,7 +23,6 @@ export interface SeasonInterface {
 }
 
 declare interface ISeason extends Document {
-  SeasonID: string;
   SeasonCode: string;
   Title: string;
   Competition: string;
@@ -91,7 +89,6 @@ export class Season {
   constructor() {
     const SeasonSchema: Schema = new Schema(
       {
-        SeasonID: { type: String, unique: true },
         SeasonCode: { type: String, unique: true },
         Title: { type: String },
         StartDate: { type: Date },

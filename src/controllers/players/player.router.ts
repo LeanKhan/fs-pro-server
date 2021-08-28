@@ -11,7 +11,9 @@ import {
   getSpecificPlayerStats,
   findOnePlayer
 } from './player.service';
+import { PlayerInterface } from './player.model';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
+import { calculatePlayerRating, calculatePlayerValue } from '../../utils/players';
 import { fetchAppearance } from '../../utils/appearance';
 import log from '../../helpers/logger';
 import {baseQuery, setupRoutes} from '../../helpers/queries';
@@ -78,7 +80,19 @@ router.delete('/:id', (req, res) => {
  * Format to create new player
  */
 router.post('/new', getCurrentCounter, async (req, res) => {
-  const response = await createNewPlayer(req.body.data);
+  
+  // const player_rating = calculatePlayerRating(req.body.data.Attributes, req.body.data.Position);
+  const new_rating = Math.round(
+    calculatePlayerRating(req.body.data.Attributes, req.body.data.Position)
+  );
+
+  const new_value = calculatePlayerValue(
+    req.body.data.Position,
+    new_rating,
+    req.body.data.Age
+  );
+ 
+  const response = await createNewPlayer({...req.body.data, Rating: new_rating, Value: new_value});
 
   if (!response.error) {
     respond.success(res, 200, 'Player created successfully', response.result);
@@ -86,6 +100,29 @@ router.post('/new', getCurrentCounter, async (req, res) => {
   } else {
     respond.fail(res, 400, 'Error creating player', response.result);
   }
+});
+
+router.get('/:id/rating', async (req, res) => {
+
+  const { id } = req.params;
+
+  const player = await fetchOneById(id) as PlayerInterface;
+  
+  // const player_rating = calculatePlayerRating(req.body.data.Attributes, req.body.data.Position);
+  const new_rating = Math.round(
+    calculatePlayerRating(player!.Attributes, player!.Position)
+  );
+
+  if(!player)
+  return  respond.fail(res, 400, 'Player not found!');
+
+  const new_value = calculatePlayerValue(
+    player!.Position,
+    new_rating,
+    player!.Age
+  );
+ 
+  return respond.success(res, 200, 'Player Rating and Value successfully', {new_rating, new_value});
 });
 
 router.get('/appearance', (req, res) => {
@@ -153,6 +190,18 @@ router.get('/stats', async (req: Request, res: Response) => {
  */
 
 router.get('/:id', (req, res) => {
+  const { id } = req.params;
+
+  fetchOneById(id)
+    .then((player: any) => {
+      respond.success(res, 200, 'Player fetched successfully', player);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error fetching Player', err);
+    });
+});
+
+router.put('/works/add-roles', (req, res) => {
   const { id } = req.params;
 
   fetchOneById(id)

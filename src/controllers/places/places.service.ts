@@ -4,7 +4,7 @@ import { PlaceInterface } from './places.model';
 /**
  * fetchAll
  */
-export function fetchMany(query: unknown = {}) {
+export function fetchMany(query: any = {}) {
   return DB.Models.Place.find(query).lean().exec();
 }
 

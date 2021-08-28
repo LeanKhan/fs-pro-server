@@ -1,16 +1,14 @@
 /* eslint-disable no-prototype-builtins */
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
+import { ratingFactors, postitionFactors, ageFactors } from './player-factors';
+import log from '../helpers/logger';
 import {
   IPositions,
   IFieldPlayer,
   PlayerInterface,
   IPlayingPosition,
   IPlayerAttributes,
-} from '../interfaces/Player';
-import { ratingFactors, postitionFactors, ageFactors } from './player-factors';
-import log from '../helpers/logger';
-import {
   AttackerMultipliers,
   MidfielderMultipliers,
   DefenderMultipliers,
@@ -168,19 +166,39 @@ function calculateTotal(
   multiplier: Multipliers,
   attributes: IPlayerAttributes
 ) {
-  const total =
-    attributes.Shooting * multiplier.Shooting +
-    attributes.ShortPass * multiplier.ShortPass +
-    attributes.LongPass * multiplier.LongPass +
-    attributes.Control * multiplier.Control +
-    attributes.Mental * multiplier.Mental +
-    attributes.Speed * multiplier.Speed +
-    attributes.Stamina * multiplier.Stamina +
-    attributes.Strength * multiplier.Strength +
-    attributes.Tackling * multiplier.Tackling +
-    attributes.SetPiece * multiplier.SetPiece +
-    attributes.Keeping * multiplier.Keeping +
-    attributes.Dribbling * multiplier.Dribbling;
+
+  // attributes.reduce((a: IPlayerAttributes) => {
+
+  // }, 0)
+
+  let attr = Object.keys(attributes);
+
+  // attr.filter(a => typeof multiplier[c] != 'number' )
+
+  const total = attr.reduce((sum, c, ci, arr)=> {
+    console.log(`Type: ${typeof multiplier[c] != 'number'}`)
+    // console.log(`Result: ${attributes[c]} x ${multiplier[c]} = ${attributes[c] * multiplier[c]}`);
+    if (typeof multiplier[c] != 'number'){
+      return 0
+    }
+    return sum + attributes[c] * multiplier[c];
+  }, 0);
+
+  console.log('Total => ', total);
+
+  // const total =
+  //   attributes.Shooting * multiplier.Shooting +
+  //   attributes.ShortPass * multiplier.ShortPass +
+  //   attributes.LongPass * multiplier.LongPass +
+  //   attributes.Control * multiplier.Control +
+  //   attributes.Mental * multiplier.Mental +
+  //   attributes.Speed * multiplier.Speed +
+  //   attributes.Stamina * multiplier.Stamina +
+  //   attributes.Strength * multiplier.Strength +
+  //   attributes.Tackling * multiplier.Tackling +
+  //   attributes.SetPiece * multiplier.SetPiece +
+  //   attributes.Keeping * multiplier.Keeping +
+  //   attributes.Dribbling * multiplier.Dribbling;
 
   return total;
 }
@@ -197,20 +215,16 @@ export function calculatePlayerRating(
 
   switch (position) {
     case 'ATT':
-      multiplier = AttackerMultipliers;
-      rating = calculateTotal(multiplier, attributes);
+      rating = calculateTotal(AttackerMultipliers, attributes);
       break;
     case 'MID':
-      multiplier = MidfielderMultipliers;
-      rating = calculateTotal(multiplier, attributes);
+      rating = calculateTotal(MidfielderMultipliers, attributes);
       break;
     case 'DEF':
-      multiplier = DefenderMultipliers;
-      rating = calculateTotal(multiplier, attributes);
+      rating = calculateTotal(DefenderMultipliers, attributes);
       break;
     case 'GK':
-      multiplier = GoalkeeperMultipliers;
-      rating = calculateTotal(multiplier, attributes);
+      rating = calculateTotal(GoalkeeperMultipliers, attributes);
       break;
     default:
       break;
