@@ -15,7 +15,7 @@ export interface PlayerInterface {
   ShirtNumber: string;
   Position: string;
   /** Collecting of Player's attributes */
-  Role: string;
+  Role: Role;
   Attributes: IPlayerAttributes;
   isSigned: boolean;
   /** Monetary value of Player */
@@ -108,15 +108,46 @@ export enum Positions {
   ATT = 'ATT',
   DEF = 'DEF',
   MID = 'MID',
-  GK = 'GK'
+  GK = 'GK',
 }
 
+export const roles = [
+  'LW',
+  'RW',
+  'ST',
+  'LB',
+  'RB',
+  'CB',
+  'CM',
+  'CAM',
+  'CDM',
+  'RM',
+  'LM',
+  'GK',
+] as const;
+
+export type Role = typeof roles[number];
+
+// export type Role {
+//   LW ='LW',
+//   RW = 'RW',
+//   ST = 'ST',
+//   LB ='LB',
+//   RB = 'RB',
+//   CM = 'CM',
+//   CAM = 'CAM',
+//   CDM = 'CDM',
+//   RM = 'RM',
+//   LM = 'LM',
+//   GK = 'GK'
+// }
+
 export const Roles = {
- ATT: ['LW','RW','ST'],
- DEF: ['LB', 'RB', 'CB'],
- MID: ['CM', 'CAM', 'CDM', 'RM', 'LM'],
- GK: ['GK']
-}
+  ATT: ['LW', 'RW', 'ST'],
+  DEF: ['LB', 'RB', 'CB'],
+  MID: ['CM', 'CAM', 'CDM', 'RM', 'LM'],
+  GK: ['GK'],
+};
 
 export class Player {
   private _model: Model<IPlayer>;
@@ -143,7 +174,7 @@ export class Player {
         PlayerID: String,
         Position: {
           type: String,
-          enum: Object.values(Positions)
+          enum: Object.values(Positions),
         },
         Role: {
           type: String,
@@ -174,7 +205,7 @@ export class Player {
           Positioning: { type: Number, default: 0 },
           Crossing: { type: Number, default: 0 },
           LongShot: { type: Number, default: 0 },
-          // new
+          // new end
           AttackingMindset: { type: Boolean, default: false },
           DefensiveMindset: { type: Boolean, default: false },
         },

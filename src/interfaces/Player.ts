@@ -1,5 +1,6 @@
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import Ball from '../classes/Ball';
+import { Role } from '../controllers/players/player.model';
 
 export interface IFieldPlayer extends PlayerInterface {
   Points: number;
@@ -38,6 +39,7 @@ export interface PlayerInterface {
   Value: number;
   /** This is the average players points in previous matches. It resets at the end of the season... */
   Form?: number;
+  Role: Role;
   isSigned: boolean;
   ClubCode?: string;
   Club?: string;
@@ -101,9 +103,9 @@ export enum IPlayingPosition {
   'MID',
 }
 
-export const AttackerMultipliers: Multipliers = {
-  Speed: 0.10, // -1
-  Shooting: 0.30, // -12
+export const ST_Multipliers: Multipliers = {
+  Speed: 0.1, // -1
+  Shooting: 0.3, // -12
   LongPass: 0.02,
   ShortPass: 0.03,
   Mental: 0.08, // Positioning
@@ -113,45 +115,193 @@ export const AttackerMultipliers: Multipliers = {
   Stamina: 0.05,
   Keeping: 0.0,
   SetPiece: 0.04,
-  Dribbling: 0.10,
+  Dribbling: 0.1,
   Aggression: 0.0,
   Vision: 0.03, // +0.03
   Interception: 0.0,
-  ShotPower: 0.10, // +0.10
-   //
+  ShotPower: 0.1, // +0.10
+  //
   Marking: 0.0,
   Agility: 0.0,
   Crossing: 0.0,
   Positioning: 0.0,
-  LongShot: 0.0
+  LongShot: 0.0,
 };
 
-export const GoalkeeperMultipliers: Multipliers = {
+export const LW_Multipliers: Multipliers = {
+  Speed: 0.1, // -1
+  Shooting: 0.3, // -12
+  LongPass: 0.02,
+  ShortPass: 0.03,
+  Mental: 0.08, // Positioning
+  Control: 0.18,
+  Tackling: 0.01,
+  Strength: 0.06,
+  Stamina: 0.05,
+  Keeping: 0.0,
+  SetPiece: 0.04,
+  Dribbling: 0.1,
+  Aggression: 0.0,
+  Vision: 0.03, // +0.03
+  Interception: 0.0,
+  ShotPower: 0.1, // +0.10
+  //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0,
+};
+
+export const RW_Multipliers: Multipliers = {
+  Speed: 0.1, // -1
+  Shooting: 0.3, // -12
+  LongPass: 0.02,
+  ShortPass: 0.03,
+  Mental: 0.08, // Positioning
+  Control: 0.18,
+  Tackling: 0.01,
+  Strength: 0.06,
+  Stamina: 0.05,
+  Keeping: 0.0,
+  SetPiece: 0.04,
+  Dribbling: 0.1,
+  Aggression: 0.0,
+  Vision: 0.03, // +0.03
+  Interception: 0.0,
+  ShotPower: 0.1, // +0.10
+  //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0,
+};
+
+export const CB_Multipliers: Multipliers = {
   Speed: 0.0,
-  Shooting: 0.0,
-  LongPass: 0.03, // -0.05
-  ShortPass: 0.01, // - 0.03
-  Mental: 0.22, // Positioning 0.22 +0.17
-  Control: 0.22, // Handling 0.22 +0.17
-  Tackling: 0.0,
-  Strength: 0.0, // -0.05
-  Stamina: 0.02, // -0.01
-  Keeping: 0.50, // Diving, Reflex, Reactions -0.34 +0.08 +0.05 +0.01
+  Shooting: 0.0, // half of Heading
+  LongPass: 0.0,
+  ShortPass: 0.05,
+  Mental: 0.05, // Reactions
+  Control: 0.05,
+  Tackling: 0.3, // Stading and Sliding Tackle: 0.30
+  Strength: 0.15, // +0.05 from half of Heading
+  Stamina: 0.0,
+  Keeping: 0.0,
   SetPiece: 0.0,
   Dribbling: 0.0,
-  Aggression: 0,
+  Aggression: 0.08,
   Vision: 0.0,
-  Interception: 0.0,
+  Interception: 0.08,
   ShotPower: 0.0,
-   //
+  Marking: 0.15,
+  Agility: 0.04, // Jumping
+  Crossing: 0.0,
+  Positioning: 0.05, // half of heading
+  LongShot: 0.0,
+};
+
+// TODO: CONTINUE TOMOROWW BY GOD'S GRACE, ORLATER SEF. nNOT A PRIIORIY!
+export const LB_RB_Multipliers: Multipliers = {
+  Speed: 0.05, // -1
+  Shooting: 0.0, // -12
+  LongPass: 0.0,
+  ShortPass: 0.06,
+  Mental: 0.08, // Reactions
+  Control: 0.07,
+  Tackling: 0.25,
+  Strength: 0.035,
+  Stamina: 0.08,
+  Keeping: 0.0,
+  SetPiece: 0.0,
+  Dribbling: 0.0,
+  Aggression: 0.05,
+  Vision: 0.0, // +0.03
+  Interception: 0.12,
+  ShotPower: 0.0, // +0.10
+  Marking: 0.1,
+  Agility: 0.0,
+  Crossing: 0.07,
+  Positioning: 0.035,
+  LongShot: 0.0,
+};
+
+export const LM_Multipliers: Multipliers = {
+  Speed: 0.1, // -1
+  Shooting: 0.3, // -12
+  LongPass: 0.02,
+  ShortPass: 0.03,
+  Mental: 0.08, // Positioning
+  Control: 0.18,
+  Tackling: 0.01,
+  Strength: 0.06,
+  Stamina: 0.05,
+  Keeping: 0.0,
+  SetPiece: 0.04,
+  Dribbling: 0.1,
+  Aggression: 0.0,
+  Vision: 0.03, // +0.03
+  Interception: 0.0,
+  ShotPower: 0.1, // +0.10
+  //
   Marking: 0.0,
   Agility: 0.0,
   Crossing: 0.0,
   Positioning: 0.0,
-  LongShot: 0.0
+  LongShot: 0.0,
 };
 
-export const MidfielderMultipliers: Multipliers = {
+export const RM_Multipliers: Multipliers = {
+  Speed: 0.1, // -1
+  Shooting: 0.3, // -12
+  LongPass: 0.02,
+  ShortPass: 0.03,
+  Mental: 0.08, // Positioning
+  Control: 0.18,
+  Tackling: 0.01,
+  Strength: 0.06,
+  Stamina: 0.05,
+  Keeping: 0.0,
+  SetPiece: 0.04,
+  Dribbling: 0.1,
+  Aggression: 0.0,
+  Vision: 0.03, // +0.03
+  Interception: 0.0,
+  ShotPower: 0.1, // +0.10
+  //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0,
+};
+
+export const CM_Multipliers: Multipliers = {
+  Speed: 0.1, // -1
+  Shooting: 0.3, // -12
+  LongPass: 0.02,
+  ShortPass: 0.03,
+  Mental: 0.08, // Positioning
+  Control: 0.18,
+  Tackling: 0.01,
+  Strength: 0.06,
+  Stamina: 0.05,
+  Keeping: 0.0,
+  SetPiece: 0.04,
+  Dribbling: 0.1,
+  Aggression: 0.0,
+  Vision: 0.03, // +0.03
+  Interception: 0.0,
+  ShotPower: 0.1, // +0.10
+  //
+  Marking: 0.0,
+  Agility: 0.0,
+  Crossing: 0.0,
+  Positioning: 0.0,
+  LongShot: 0.0,
+};
+export const CAM_Multipliers: Multipliers = {
   Speed: 0.05,
   Shooting: 0.1,
   LongPass: 0.2,
@@ -168,15 +318,15 @@ export const MidfielderMultipliers: Multipliers = {
   Vision: 0.0,
   Interception: 0.0,
   ShotPower: 0.0,
-   //
+  //
   Marking: 0.0,
   Agility: 0.0,
   Crossing: 0.0,
   Positioning: 0.0,
-  LongShot: 0.0
+  LongShot: 0.0,
 };
 
-export const DefenderMultipliers: Multipliers = {
+export const CDM_Multipliers: Multipliers = {
   Speed: 0.04,
   Shooting: 0.01,
   LongPass: 0.05,
@@ -198,7 +348,46 @@ export const DefenderMultipliers: Multipliers = {
   Agility: 0.0,
   Crossing: 0.0,
   Positioning: 0.0,
-  LongShot: 0.0
+  LongShot: 0.0,
+};
+export const GK_Multipliers: Multipliers = {
+  Speed: 0.0,
+  Shooting: 0.0,
+  LongPass: 0.04, // GK Kicking
+  ShortPass: 0.0,
+  Mental: 0.06, // Reactions
+  Control: 0.0,
+  Tackling: 0.0,
+  Strength: 0.0,
+  Stamina: 0.0,
+  Keeping: 0.44, // GK Reflex 0.22, + GK Handling 0.22 = 0.44
+  SetPiece: 0.0,
+  Dribbling: 0.0,
+  Aggression: 0,
+  Vision: 0.0,
+  Interception: 0.0,
+  ShotPower: 0.0,
+  //
+  Marking: 0.0,
+  Agility: 0.24, // Diving
+  Crossing: 0.0,
+  Positioning: 0.22, // GK Positioning
+  LongShot: 0.0,
+};
+
+export const AllMultipliers: Record<Role, Multipliers> = {
+  GK: GK_Multipliers,
+  LW: LW_Multipliers,
+  RW: RW_Multipliers,
+  ST: ST_Multipliers,
+  LB: LB_RB_Multipliers,
+  RB: LB_RB_Multipliers,
+  CB: CB_Multipliers,
+  CM: CM_Multipliers,
+  CAM: CAM_Multipliers,
+  CDM: CDM_Multipliers,
+  RM: RM_Multipliers,
+  LM: LM_Multipliers,
 };
 
 export interface Multipliers {

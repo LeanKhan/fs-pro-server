@@ -1,6 +1,7 @@
 import respond from '../../helpers/responseHandler';
 import { NextFunction, Request, Response } from 'express';
-import { getPlayerStats, updateById } from './player.service';
+import { getPlayerStats, updateById, updatePlayers } from './player.service';
+import { updateManagers } from '../managers/manager.service';
 import { newAttributeRatings } from '../../utils/players';
 import { PlayerInterface, IPlayerAttributes } from '../../interfaces/Player';
 
@@ -37,6 +38,11 @@ export function updatePlayersDetails(
     return Promise.all(pt);
   };
 
+  const increaseAllPeoplesAge = () => {
+    return Promise.all([updatePlayers({}, { $inc: { Age: 1 } }),
+     updateManagers({}, { $inc: { Age: 1 } })]);
+  }
+
   const updPlayer = (data: {
     player_id: string;
     attributes: IPlayerAttributes;
@@ -52,7 +58,6 @@ export function updatePlayersDetails(
         Rating: data.new_rating,
         Value: data.new_value,
       },
-      $inc: { Age: 1 },
       $push: {
         RatingsHistory: {
           date: new Date().toString(),
@@ -99,13 +104,14 @@ export function updatePlayersDetails(
   return $getPlayerStats()
     .then(addAttributes)
     .then(updPlayers)
+    .then(increaseAllPeoplesAge)
     .then((updates) => {
       console.log('Finished updating players! => ', updates);
-      // return next(); // next, update all clubs
-      return respond.success(res, 200, 'Player details updated successfully');
+      return next(); // next, update all clubs
+      // return respond.success(res, 200, 'Player details updated successfully');
     })
     .catch((err) => {
-      console.log('Error updating Player values => ', err);
+      console.log('Error updating Player values and ending year! => ', err);
       return respond.fail(res, 400, 'Error updating Player values', err);
     });
 }

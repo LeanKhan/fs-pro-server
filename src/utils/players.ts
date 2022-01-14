@@ -7,14 +7,11 @@ import {
   IPositions,
   IFieldPlayer,
   PlayerInterface,
-  IPlayingPosition,
   IPlayerAttributes,
-  AttackerMultipliers,
-  MidfielderMultipliers,
-  DefenderMultipliers,
-  GoalkeeperMultipliers,
   Multipliers,
+  AllMultipliers,
 } from '../interfaces/Player';
+import { Role } from '../controllers/players/player.model';
 
 /**
  * Get attackers and midfielders that are not with the ball
@@ -145,15 +142,15 @@ function calculatePlayerValue(pos: string, rating: number, age: number) {
 
   const basevalue = getBasevalue(Math.round(rating));
 
-  log(`Basevalue => ${basevalue}`);
+  console.log(`Basevalue => ${basevalue}`);
 
   const position_multiplier = basevalue * getPositionMultiplier(pos);
 
-  log(`Position mu => ${position_multiplier}`);
+  console.log(`Position mu => ${position_multiplier}`);
 
   const age_multiplier = basevalue * getAgeMultiplier(pos, age);
 
-  log(`Age mu => ${age_multiplier}`);
+  console.log(`Age mu => ${age_multiplier}`);
 
   return Math.round(basevalue + position_multiplier + age_multiplier);
 }
@@ -166,39 +163,29 @@ function calculateTotal(
   multiplier: Multipliers,
   attributes: IPlayerAttributes
 ) {
-
   // attributes.reduce((a: IPlayerAttributes) => {
 
   // }, 0)
 
-  let attr = Object.keys(attributes);
+  const attr = Object.keys(attributes);
 
   // attr.filter(a => typeof multiplier[c] != 'number' )
 
-  const total = attr.reduce((sum, c, ci, arr)=> {
-    console.log(`Type: ${typeof multiplier[c] != 'number'}`)
-    // console.log(`Result: ${attributes[c]} x ${multiplier[c]} = ${attributes[c] * multiplier[c]}`);
-    if (typeof multiplier[c] != 'number'){
-      return 0
+  const total = attr.reduce((sum, c, ci, arr) => {
+    // console.log(`Type: ${typeof multiplier[c] != 'number'}`);
+    // console.log(
+    //   `Result: ${attributes[c]} x ${multiplier[c]} = ${
+    //     attributes[c] * multiplier[c]
+    //   }`
+    // );
+    if (typeof multiplier[c] != 'number') {
+      return sum;
     }
+    // attributes and multipliers must have the same keys :)
     return sum + attributes[c] * multiplier[c];
   }, 0);
 
-  console.log('Total => ', total);
-
-  // const total =
-  //   attributes.Shooting * multiplier.Shooting +
-  //   attributes.ShortPass * multiplier.ShortPass +
-  //   attributes.LongPass * multiplier.LongPass +
-  //   attributes.Control * multiplier.Control +
-  //   attributes.Mental * multiplier.Mental +
-  //   attributes.Speed * multiplier.Speed +
-  //   attributes.Stamina * multiplier.Stamina +
-  //   attributes.Strength * multiplier.Strength +
-  //   attributes.Tackling * multiplier.Tackling +
-  //   attributes.SetPiece * multiplier.SetPiece +
-  //   attributes.Keeping * multiplier.Keeping +
-  //   attributes.Dribbling * multiplier.Dribbling;
+  if (total > 99) return 99;
 
   return total;
 }
@@ -208,25 +195,29 @@ function calculateTotal(
 */
 export function calculatePlayerRating(
   attributes: IPlayerAttributes,
-  position: string
+  position: string,
+  role: Role
 ) {
   let multiplier: Multipliers;
   let rating = 0;
 
+  // is this completely redundant?? - investigate  :p
   switch (position) {
     case 'ATT':
-      rating = calculateTotal(AttackerMultipliers, attributes);
+      rating = calculateTotal(AllMultipliers[role], attributes);
       break;
     case 'MID':
-      rating = calculateTotal(MidfielderMultipliers, attributes);
+      rating = calculateTotal(AllMultipliers[role], attributes);
       break;
     case 'DEF':
-      rating = calculateTotal(DefenderMultipliers, attributes);
+      rating = calculateTotal(AllMultipliers[role], attributes);
       break;
     case 'GK':
-      rating = calculateTotal(GoalkeeperMultipliers, attributes);
+      rating = calculateTotal(AllMultipliers[role], attributes);
       break;
     default:
+      // this means the player is neither!
+      rating = -10000;
       break;
   }
 
@@ -260,12 +251,14 @@ function getAgeMultiplier(pos: string, age: number): number {
   if (pos === 'GK') {
     multiplier = -2;
   } else {
-    multiplier = ageFactors[age];
+    // adding 1 to account for zero indexing
+    multiplier = ageFactors[age + 1];
   }
 
   return multiplier / 100;
 }
 
+/** Get a random number between min and max */
 function randomBetween(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min) + min);
 }
@@ -349,20 +342,41 @@ const attributesToIncrease: {
   ],
 };
 
+//  TODO: TEST THIS! 30-08-21
 export function newAttributeRatings(player: PlayerInterface, pnts: number) {
   /**
    * - Get attributes that would be increased...
    * - Share points among attributes
    */
-  let points = Math.round(pnts * 2);
+  let points = Math.round(pnts);
 
+  if (player.Rating >= 95) {
+    points *= 0.4;
+    console.log('Rating > 95', points);
+  } else if (player.Rating >= 88) {
+    points *= 0.5;
+    console.log('Rating > 88', points);
+  } else if (player.Rating >= 80) {
+    points *= 0.9;
+    console.log('Rating > 80', points);
+  }
   // if player is above a certain age then. his points shouldn't increase that much...
-  if (player.Age > 29) {
+  if (player.Age > 32) {
     // he is no more developing quickly...
-    points *= 0.8; // only use 80% of their points...
-  } else if (player.Age < 22) {
+    points *= 0.4; // only use 80% of their points...
+    console.log('Age > 32', points);
+  } else if (player.Age > 28) {
+    // he is no more developing quickly...
+    points *= 0.5; // only use 80% of their points...
+    console.log('Age > 28', points);
+  } else if (player.Age >= 20 && player.Age <= 22) {
+    // add some extra points to rating lol...
+    points += 3;
+    console.log('Age 20 - 22', points);
+  } else if (player.Age < 20) {
     // add some extra points to rating lol...
     points += 5;
+    console.log('Age < 20', points);
   }
 
   const toIncrease = [...attributesToIncrease[player.Position]];
@@ -400,7 +414,7 @@ export function newAttributeRatings(player: PlayerInterface, pnts: number) {
   // console.log('New Attributes => ', player.Attributes);
 
   const new_rating = Math.round(
-    calculatePlayerRating(player.Attributes, player.Position)
+    calculatePlayerRating(player.Attributes, player.Position, player.Role)
   );
 
   const new_value = calculatePlayerValue(

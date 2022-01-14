@@ -131,12 +131,13 @@ export function updateAllClubsRating(req: Request, res: Response) {
   allClubs()
     .then(runAll)
     .then((c) => {
-      respond.success(res, 200, 'Players and Clubs updated successfully!');
+      console.log('Calendar Year Ended Successfully!')
+      return respond.success(res, 200, 'Players and Clubs updated successfully! Year ENDED :)');
     })
     .catch((err) => {
       console.log('Error updating Clubs!');
       console.error(err);
-      respond.fail(res, 400, 'Error fetching Club', err);
+      return respond.fail(res, 400, 'Error fetching Club', err);
     });
 }
 
@@ -187,19 +188,19 @@ export async function addLeagueToClub(
     req.params.league_id
   );
 
-  if (!_response.error) {
+  if (_response!.error) {
     return respond.success(
       res,
       200,
       'Club added to competition successfully!',
-      _response.result
+      _response!.result
     );
   } else {
     return respond.fail(
       res,
       400,
       'Error adding player to club',
-      _response.result
+      _response!.result
     );
   }
 }
