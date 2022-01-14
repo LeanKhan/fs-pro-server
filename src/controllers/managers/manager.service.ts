@@ -70,6 +70,12 @@ export function deleteById(id: string) {
   return DB.Models.Manager.findByIdAndDelete(id).lean().exec();
 }
 
+/** Update Many Managers */
+
+export function updateManagers(query: any, update: any) {
+  return DB.Models.Manager.updateMany(query, update);
+}
+
 /**
  * Create new Manager
  *
