@@ -106,10 +106,13 @@ router.get('/:id', (req, res) => {
         respond.success(res, 200, 'Club fetched successfully', club);
       })
       .catch((err) => {
-        respond.fail(res, 400, 'Error fetching Club', err);
+
+        respond.fail(res, 400, 'Error fetching Club', err.toString());
       });
   } catch (err) {
-    respond.fail(res, 400, 'Error fetching Club', err);
+
+
+    respond.fail(res, 400, 'Error fetching Club', err.toString());
   }
 });
 

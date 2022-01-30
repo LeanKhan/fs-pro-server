@@ -21,7 +21,7 @@ export class MatchSide extends Club {
   public GoalsScored = 0;
   public StartingSquad: IFieldPlayer[] = [];
   public Substitutes: IFieldPlayer[] = [];
-  public MatchSquad: PlayerInterface[] = [];
+  public MatchSquad: Player[] = [];
   public Formation: FormationItem[] = [];
   /**
    * ScoringSide is where this team will be scoring

@@ -86,7 +86,7 @@ export function fetchSeason(
 export function findByIdAndUpdate(
   id: string,
   update: any
-): Promise<SeasonInterface> {
+) {
   return DB.Models.Season.findByIdAndUpdate(id, update, { new: true })
     .lean()
     .exec();
@@ -129,6 +129,6 @@ export function createNew(data: any) {
   return SEASON.save();
 }
 
-export function deleteById(id: string): Promise<SeasonInterface> {
+export function deleteById(id: string) {
   return DB.Models.Season.findByIdAndDelete(id).lean().exec();
 }
