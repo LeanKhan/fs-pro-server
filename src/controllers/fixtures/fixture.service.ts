@@ -5,10 +5,15 @@ import { Fixture } from './fixture.model';
 /**
  * fetchAll
  */
-export function fetchAll(query: Record<string, unknown> = {}) {
+export function fetchAll(query: Record<string, unknown> = {}, select = '') {
   const h = { path: 'HomeSideDetails', populate: { path: 'PlayerStats' } };
   const a = { path: 'AwaySideDetails', populate: { path: 'PlayerStats' } };
-  return DB.Models.Fixture.find(query).populate(h).populate(a).lean().exec();
+  return DB.Models.Fixture.find(query)
+    .populate(h)
+    .select(select)
+    .populate(a)
+    .lean()
+    .exec();
 }
 
 /**
@@ -22,9 +27,11 @@ export function fetchOneById(
   populate: string | Record<string, unknown> | boolean = {
     path: 'ClubMatchDetails',
   }
-): Promise<Fixture> {
+) {
   const h = { path: 'HomeSideDetails', populate: { path: 'PlayerStats' } };
   const a = { path: 'AwaySideDetails', populate: { path: 'PlayerStats' } };
+
+  console.log(populate);
 
   if (populate) {
     return DB.Models.Fixture.findById(id)

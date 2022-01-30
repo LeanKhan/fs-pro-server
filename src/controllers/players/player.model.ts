@@ -150,6 +150,7 @@ export const Roles = {
 };
 
 export class Player {
+  [x: string]: any;
   private _model: Model<IPlayer>;
 
   constructor() {

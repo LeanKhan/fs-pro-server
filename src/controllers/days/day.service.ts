@@ -23,7 +23,7 @@ export function fetchMany(
   if (populate && paginate) {
     return DB.Models.Day.find(query)
       .limit(limit * 1)
-      .skip((week - 1) * limit)
+      // .skip((week - 1) * limit)
       .populate({
         path: 'Matches.Fixture',
         model: 'Fixture',

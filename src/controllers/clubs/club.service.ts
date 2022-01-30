@@ -44,16 +44,17 @@ export function fetchSingleClubById(
   id: any,
   populate: string | boolean
 ): Promise<ClubInterface> {
+
   if (populate) {
     let po = '';
 
     try {
       po = JSON.parse(populate as string);
+      // this could be an array!
     } catch (err) {
       console.error(`Error parsing populate field => ${err}`);
       throw new Error(`Cannot parse populate query => ${err}`);
     }
-
     // Accpet object to populate fields
     return DB.Models.Club.findById(id).populate(po).lean().exec();
   } else {

@@ -87,7 +87,7 @@ router.post('/:id/finish', finishSeason, giveAwards);
 
 /** Get all Fixtures in Season */
 router.get('/:id/fixtures', (req, res) => {
-  fetchAllFixtures({ Season: req.params.id })
+  fetchAllFixtures({ Season: req.params.id }, req.query.select || "")
     .then((fixtures: any) => {
       respond.success(
         res,
