@@ -67,7 +67,7 @@ router.get('/calendars', (req, res) => {
 /** Get days of a Calendar by Year */
 router.get('/:year/days', (req: Request, res: Response) => {
   const { year } = req.params;
-  const { paginate = false, populate = false, not_played = true , week, limit } = req.query;
+  const { paginate = false, populate = false, not_played = true ,limit } = req.query;
 
   let query = { Year: year };
 
@@ -79,7 +79,6 @@ router.get('/:year/days', (req: Request, res: Response) => {
     query,
     JSON.parse(populate),
     JSON.parse(paginate),
-    week,
     limit
   )
     .then((days: any) => {
