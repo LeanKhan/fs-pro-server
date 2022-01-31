@@ -15,10 +15,10 @@ export function fetchMany(
   query: Record<string, unknown> = {},
   populate = true,
   paginate = true,
-  week = 1,
+  // week = 1,
   limit = 7
 ) {
-  week = week <= 0 ? 1 : week;
+  // week = week <= 0 ? 1 : week;
 
   if (populate && paginate) {
     return DB.Models.Day.find(query)
@@ -28,15 +28,18 @@ export function fetchMany(
         path: 'Matches.Fixture',
         model: 'Fixture',
       })
+      .sort("Day")
       .lean()
       .exec();
   }
   if (populate) {
     return DB.Models.Day.find(query)
+      .limit(limit * 1)
       .populate({
         path: 'Matches.Fixture',
         model: 'Fixture',
       })
+      .sort("Day")
       .lean()
       .exec();
   }
@@ -44,7 +47,8 @@ export function fetchMany(
   if (paginate) {
     return DB.Models.Day.find(query)
       .limit(limit * 1)
-      .skip((week - 1) * limit)
+      // .skip((week - 1) * limit)
+      .sort("Day")
       .lean()
       .exec();
   }
