@@ -20,3 +20,8 @@ Oya na
 > from [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
+
+<!-- CHANGES -->
+- Add NestJS
+- Replace Mongoose with TypeORM?
+- Thank you Jesus!
