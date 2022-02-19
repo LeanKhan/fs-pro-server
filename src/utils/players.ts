@@ -2,7 +2,7 @@
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { ratingFactors, postitionFactors, ageFactors } from './player-factors';
-import log from '../helpers/logger';
+import { shuffleArray } from '../helpers/misc';
 import {
   IPositions,
   IFieldPlayer,
@@ -191,7 +191,7 @@ function calculateTotal(
 }
 
 /**
- Calculate Player Rating 
+ Calculate Player Rating
 */
 export function calculatePlayerRating(
   attributes: IPlayerAttributes,
@@ -300,6 +300,8 @@ const attributes = [
   'Interception',
 ];
 
+// TODO: look into adding the new attributes
+// to here...
 const attributesToIncrease: {
   ATT: string[];
   GK: string[];
@@ -316,8 +318,23 @@ const attributesToIncrease: {
     'Control',
     'SetPiece',
     'Dribbling',
+    // new
+    'LongShot',
+    'Positioning',
+    'Agility',
+    'Aggression',
+    'Vision',
+    'Crossing'
   ],
-  GK: ['LongPass', 'ShortPass', 'Control', 'Keeping'],
+  GK: [
+    'LongPass',
+    'ShortPass',
+    'Control',
+    'Keeping',
+    //  new
+    'Positioning',
+    'Agility',
+  ],
   MID: [
     'Speed',
     'Shooting',
@@ -328,6 +345,12 @@ const attributesToIncrease: {
     'Tackling',
     'Strength',
     'Dribbling',
+    // new
+    'LongShot',
+    'Marking',
+    'Crossing',
+    'Agility',
+    'Vision',
   ],
   DEF: [
     'Speed',
@@ -339,6 +362,12 @@ const attributesToIncrease: {
     'Tackling',
     'Strength',
     'Stamina',
+    // new
+    'Marking',
+    'Crossing',
+    'LongShot',
+    'Interception',
+    'Aggression',
   ],
 };
 
@@ -379,7 +408,9 @@ export function newAttributeRatings(player: PlayerInterface, pnts: number) {
     console.log('Age < 20', points);
   }
 
-  const toIncrease = [...attributesToIncrease[player.Position]];
+  const toIncrease = shuffleArray([
+    ...attributesToIncrease[player.Position],
+  ]) as string[];
 
   // console.log('Old Attributes => ', player.Attributes);
 
