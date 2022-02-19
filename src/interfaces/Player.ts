@@ -73,6 +73,13 @@ export interface IPlayerAttributes {
   Aggression: number;
   Interception: number;
   PreferredFoot: string;
+  // new 03-02-22
+  Marking: number;
+  Agility: number;
+  Crossing: number;
+  Positioning: number;
+  LongShot: number;
+  // new 03-02-22
   AttackingMindset: boolean;
   DefensiveMindset: boolean;
   [key: string]: any;

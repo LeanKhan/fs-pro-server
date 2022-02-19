@@ -121,6 +121,7 @@ router.post('/:year/:id/start', startYear);
 
 /** End Calendar Year... */
 router.post('/:id/end', endYear, updatePlayersDetails, updateAllClubsRating);
+// router.post('/:id/end', updatePlayersDetails, updateAllClubsRating);
 
 router.get('/:id/update-ages', updatePlayersDetails);
 
