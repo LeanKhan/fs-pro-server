@@ -27,7 +27,7 @@ export class Decider {
   public makeDecision(
     player: IFieldPlayer,
     attackingSide: MatchSide,
-    defendingSide: MatchSide
+    defendingSide: MatchSide,
   ): IStrategy {
     switch (player.Position) {
       // If this guy is a midfielder...
@@ -65,7 +65,7 @@ export class Decider {
           this.strategy = this.keeperPass(
             player,
             attackingSide,
-            player.Attributes.Keeping
+            player.Attributes.Keeping,
           );
         }
         break;
@@ -76,7 +76,7 @@ export class Decider {
               player,
               attackingSide,
               player.Attributes.AttackingMindset ? 90 : 60,
-              3
+              3,
             )
           ) {
             this.strategy = { type: 'shoot', detail: 'normal' };
@@ -85,7 +85,7 @@ export class Decider {
               player,
               attackingSide,
               player.Attributes.AttackingMindset ? 60 : 40,
-              5
+              5,
             )
           ) {
             // If not close to the post, what can he do? Move forward!
@@ -97,7 +97,7 @@ export class Decider {
               attackingSide,
               30,
               true,
-              2
+              2,
             );
           } else {
             // here player is neither shooting or moving forward, therefore pass!
@@ -109,7 +109,7 @@ export class Decider {
                 player,
                 attackingSide,
                 30,
-                false
+                false,
               );
             } else {
               this.strategy = this.whatKindaPass(player, attackingSide);
@@ -131,7 +131,7 @@ export class Decider {
                 player,
                 attackingSide,
                 50,
-                true
+                true,
               );
             } else {
               // here player is neither shooting or moving forward, therefore pass!
@@ -151,7 +151,7 @@ export class Decider {
                 player,
                 attackingSide,
                 40,
-                true
+                true,
               );
             } else {
               // here player is neither shooting or moving forward, therefore pass!
@@ -185,7 +185,7 @@ export class Decider {
     reciever: IFieldPlayer,
     type: string,
     luck: number,
-    interceptor?: IFieldPlayer
+    interceptor?: IFieldPlayer,
   ): boolean {
     // check their properties
     let result = true;
@@ -201,7 +201,7 @@ export class Decider {
             ],
             [interceptor.Attributes.Tackling],
             80,
-            80
+            80,
           );
         } else {
           const tally =
@@ -219,7 +219,7 @@ export class Decider {
             ],
             [30],
             80,
-            50
+            50,
           );
         }
         break;
@@ -230,7 +230,7 @@ export class Decider {
             [passer.Attributes.LongPass, passer.Attributes.Mental],
             [interceptor.Attributes.Tackling],
             70,
-            60
+            60,
           );
         } else {
           // TODO: Chance would be form...
@@ -244,7 +244,7 @@ export class Decider {
             ],
             [30],
             70,
-            50
+            50,
           );
         }
         break;
@@ -267,7 +267,7 @@ export class Decider {
    */
   public getDribbleResult(
     dribbler: IFieldPlayer,
-    opponent: IFieldPlayer
+    opponent: IFieldPlayer,
   ): boolean {
     const chance = this.gimmeAChance();
     const tally =
@@ -288,7 +288,7 @@ export class Decider {
    */
   public getTackleResult(
     tackler: IFieldPlayer,
-    ballHolder: IFieldPlayer
+    ballHolder: IFieldPlayer,
   ): boolean {
     // TODO: Improve the distribution of attributes here...
 
@@ -296,7 +296,7 @@ export class Decider {
       [tackler.Attributes.Tackling, tackler.Attributes.Strength],
       [ballHolder.Attributes.Dribbling, ballHolder.Attributes.Control],
       80,
-      70
+      70,
     );
 
     return result;
@@ -324,7 +324,7 @@ export class Decider {
           [shooter.Attributes.Shooting, shooter.Attributes.Mental],
           [keeper.Attributes.Keeping, keeper.Attributes.Control],
           80,
-          70
+          70,
         );
 
         return { onTarget, goal: result };
@@ -348,12 +348,12 @@ export class Decider {
     player: IFieldPlayer,
     attackingSide: MatchSide,
     threshold: number,
-    distance: number
+    distance: number,
   ) {
     return (
       CO.co.calculateDistance(
         player.BlockPosition,
-        attackingSide.ScoringSide
+        attackingSide.ScoringSide,
       ) <= distance && this.gimmeAChance() <= threshold
     );
   }
@@ -377,7 +377,7 @@ export class Decider {
     // Get shooter's team shey? THANK YOU JESUS!
 
     const teamIndex = this.teams.findIndex(
-      (t) => t.ClubCode === shooter.ClubCode
+      (t) => t.ClubCode === shooter.ClubCode,
     );
 
     if (this.isNearPost(shooter, this.teams[teamIndex], 2)) {
@@ -408,7 +408,7 @@ export class Decider {
     attackingSide: MatchSide,
     threshold: number,
     teammatePosition: boolean,
-    passingDistance = 4
+    passingDistance = 4,
   ): IStrategy {
     let strategy: IStrategy = { type: 'move', detail: 'normal' };
 
@@ -453,13 +453,13 @@ export class Decider {
     player: IFieldPlayer,
     attackingSide: MatchSide,
     distance: number,
-    teammatePosition: boolean
+    teammatePosition: boolean,
   ): boolean {
     const teammate = CO.co.findClosestPlayer(
       player.BlockPosition,
       attackingSide.StartingSquad,
       player,
-      true
+      true,
     );
 
     const teammateIsClose =
@@ -489,20 +489,20 @@ export class Decider {
     player: IFieldPlayer,
     attackingSide: MatchSide,
     distance: number,
-    ownPost = false
+    ownPost = false,
   ): boolean {
     if (ownPost) {
       return (
         CO.co.calculateDistance(
           player.BlockPosition,
-          attackingSide.KeepingSide
+          attackingSide.KeepingSide,
         ) <= distance
       );
     } else {
       return (
         CO.co.calculateDistance(
           player.BlockPosition,
-          attackingSide.ScoringSide
+          attackingSide.ScoringSide,
         ) <= distance
       );
     }
@@ -518,12 +518,12 @@ export class Decider {
    */
   private isClosestToPost(
     player: IFieldPlayer,
-    attackingSide: MatchSide
+    attackingSide: MatchSide,
   ): boolean {
     return (
       CO.co.findClosestPlayerInclusive(
         attackingSide.ScoringSide,
-        attackingSide.StartingSquad
+        attackingSide.StartingSquad,
       ) === player
     );
   }
@@ -539,7 +539,7 @@ export class Decider {
    */
   private whatKindaPass(
     player: IFieldPlayer,
-    attackingSide: MatchSide
+    attackingSide: MatchSide,
   ): IStrategy {
     let strategy: IStrategy = { type: 'pass', detail: 'short' };
 
@@ -586,7 +586,7 @@ export class Decider {
   private keeperPass(
     player: IFieldPlayer,
     attackingSide: MatchSide,
-    chance: number
+    chance: number,
   ): IStrategy {
     let strategy: IStrategy = { type: 'pass', detail: 'short' };
 

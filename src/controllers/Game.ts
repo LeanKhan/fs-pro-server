@@ -48,18 +48,18 @@ export default class Game implements GameClass {
     ball: { color: string; cb: IBlock },
     ref: { fname: string; lname: string; level: string },
     centerBlock: any,
-    playingField: Field['PlayingField']
+    playingField: Field['PlayingField'],
   ) {
     // Get the club that is meant to be home
     const homeIndex = clubs.findIndex(
-      (club) => club._id?.toString() === sides.home
+      (club) => club._id?.toString() === sides.home,
     );
 
     log(`home club => ${homeIndex}`);
 
     // Get the club that is meant to be away
     const awayIndex = clubs.findIndex(
-      (club) => club._id!.toString() === sides.away
+      (club) => club._id.toString() === sides.away,
     );
 
     this.Match = new Match(
@@ -67,7 +67,7 @@ export default class Game implements GameClass {
       clubs[awayIndex],
       this.awayPost,
       this.homePost,
-      centerBlock
+      centerBlock,
     );
     this.Clubs = clubs;
     // this.homePost = hp;
@@ -110,13 +110,13 @@ export default class Game implements GameClass {
     this.Match.Home.setFormation(
       homeFormation,
       this.MatchBall,
-      this.PlayingField
+      this.PlayingField,
     );
 
     this.Match.Away.setFormation(
       awayFormation,
       this.MatchBall,
-      this.PlayingField
+      this.PlayingField,
     );
   }
 
@@ -136,7 +136,7 @@ export default class Game implements GameClass {
       // the ball
       this.ActivePlayerAS = this.Match.Home.StartingSquad.find((p) => {
         return p.WithBall;
-      }) as IFieldPlayer;
+      });
 
       // log(`Active player AS => ${this.ActivePlayerAS.LastName}`);
 
@@ -146,7 +146,7 @@ export default class Game implements GameClass {
       // the ball
       this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
         this.MatchBall.Position,
-        this.DS.StartingSquad
+        this.DS.StartingSquad,
       );
       // log(`Active player DS => ${this.ActivePlayerDS.LastName});
 
@@ -168,7 +168,7 @@ export default class Game implements GameClass {
       // the ball
       this.ActivePlayerAS = this.Match.Away.StartingSquad.find((p) => {
         return p.WithBall;
-      }) as IFieldPlayer;
+      });
 
       // log(`Attacking player AS => ${this.ActivePlayerAS.LastName}`);
 
@@ -178,7 +178,7 @@ export default class Game implements GameClass {
       // the ball
       this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
         this.MatchBall.Position,
-        this.DS.StartingSquad
+        this.DS.StartingSquad,
       );
 
       // log(`Active player DS => ${this.ActivePlayerDS.LastName});
@@ -202,24 +202,24 @@ export default class Game implements GameClass {
   public moveTowardsBall() {
     this.ActivePlayerAS = CO.co.findClosestFieldPlayer(
       this.MatchBall.Position,
-      this.Match.Home.StartingSquad
+      this.Match.Home.StartingSquad,
     );
 
     this.MatchActions.move(
       this.ActivePlayerAS,
       'towards ball',
-      this.MatchBall.Position
+      this.MatchBall.Position,
     );
 
     this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
       this.MatchBall.Position,
-      this.Match.Away.StartingSquad
+      this.Match.Away.StartingSquad,
     );
 
     this.MatchActions.move(
       this.ActivePlayerDS,
       'towards ball',
-      this.MatchBall.Position
+      this.MatchBall.Position,
     );
 
     this.matchComments();
@@ -231,22 +231,22 @@ export default class Game implements GameClass {
         x: this.MatchBall.Position.x,
         y: this.MatchBall.Position.y,
         key: this.MatchBall.Position.key,
-      })}`
+      })}`,
     );
     log(`
-      ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
-      this.ActivePlayerAS!.LastName
-    } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
-      x: this.ActivePlayerAS!.BlockPosition.x,
-      y: this.ActivePlayerAS!.BlockPosition.y,
-      key: this.ActivePlayerAS!.BlockPosition.key,
+      ActivePlayerAS is ${this.ActivePlayerAS.FirstName} ${
+      this.ActivePlayerAS.LastName
+    } of [${this.ActivePlayerAS.ClubCode}] at ${JSON.stringify({
+      x: this.ActivePlayerAS.BlockPosition.x,
+      y: this.ActivePlayerAS.BlockPosition.y,
+      key: this.ActivePlayerAS.BlockPosition.key,
     })}
-      ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
+      ActivePlayerDS is ${this.ActivePlayerDS.FirstName} ${
       this.ActivePlayerDS?.LastName
     } of [${this.ActivePlayerDS?.ClubCode}] at ${JSON.stringify({
-      x: this.ActivePlayerDS!.BlockPosition.x,
-      y: this.ActivePlayerDS!.BlockPosition.y,
-      key: this.ActivePlayerDS!.BlockPosition.key,
+      x: this.ActivePlayerDS.BlockPosition.x,
+      y: this.ActivePlayerDS.BlockPosition.y,
+      key: this.ActivePlayerDS.BlockPosition.key,
     })}
       `);
   }
@@ -288,10 +288,10 @@ export default class Game implements GameClass {
         } else {
           log('-- TAKING ACTION --');
           this.MatchActions.takeAction(
-            this.ActivePlayerAS as IFieldPlayer,
+            this.ActivePlayerAS,
             this.AS,
             this.DS,
-            this.ActivePlayerDS as IFieldPlayer
+            this.ActivePlayerDS,
           );
           this.setPlayingSides();
           this.Match.recordPossession(this.AS);

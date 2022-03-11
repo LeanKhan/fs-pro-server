@@ -42,7 +42,7 @@ export function deleteById(id: string) {
  */
 export function fetchSingleClubById(
   id: any,
-  populate: string | boolean
+  populate: string | string[] | boolean
 ): Promise<ClubInterface> {
 
   if (populate) {

@@ -27,7 +27,7 @@ import {
 import { Place, PlaceModel } from '../controllers/places/places.model';
 import { Award, AwardModel } from '../controllers/awards/awards.model';
 import log from '../helpers/logger';
-import {Model} from 'mongoose';
+import { Model } from 'mongoose';
 
 declare interface IModels {
   Competition: CompetitionModel;
@@ -49,9 +49,9 @@ declare interface IModels {
 // Production! Well, sha for Tobi and I. Thank you Jesus!
 let prod_db = '';
 if (process.env.DEV_TEST?.trim()) {
-  prod_db = process.env.DEV_MONGO_URL?.trim() as string;
+  prod_db = process.env.DEV_MONGO_URL?.trim();
 } else {
-  prod_db = process.env.PROD_MONGO_URL?.trim() as string;
+  prod_db = process.env.PROD_MONGO_URL?.trim();
 }
 
 export const MONGO_URL = prod_db;
@@ -72,7 +72,7 @@ export default class DB {
     connect(MONGO_URL, { useNewUrlParser: true })
       .then((client) => {
         console.log(
-          `Connection to ${client.connection.db.databaseName} database successful!`
+          `Connection to ${client.connection.db.databaseName} database successful!`,
         );
       })
 

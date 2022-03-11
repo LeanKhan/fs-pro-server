@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { Router } from 'express';
 import respond from '../../helpers/responseHandler';
 import {
@@ -125,7 +127,7 @@ router.put(
 );
 
 // ! THIS WAS FOR DEVELOPMENT !
-router.put('/refresh-ratings', updateAllClubsRating);
+// router.put('/refresh-ratings', updateAllClubsRating);
 
 router.put('/:id/manager', addManagerToClub);
 

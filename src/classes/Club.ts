@@ -17,7 +17,7 @@ export class Club implements ClubInterface {
   public DEF_Rating: number;
   public MID_Rating: number;
   constructor(club: ClubInterface) {
-    this._id = club._id as string;
+    this._id = club._id;
     this.Name = club.Name;
     this.ClubCode = club.ClubCode;
     this.AttackingClass = club.AttackingClass;

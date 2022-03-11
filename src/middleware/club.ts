@@ -14,7 +14,7 @@ import { IClub } from '../interfaces/Club';
 
 export const calculateClubRating: RequestHandler = (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   calculateClubsTotalRatings(req.params.id)
     .then((ratings) => {
@@ -59,7 +59,7 @@ export const calculateClubRating: RequestHandler = (
             req.query.remove
               ? 'Player removed from Club successfully'
               : 'Player added to Club successfully',
-            club
+            club,
           );
         })
         .catch((err) => {
@@ -123,7 +123,7 @@ export function updateAllClubsRating(req: Request, res: Response) {
   };
 
   const runAll = (clubs: IClub[]) => {
-    const t = clubs.map((c) => updClub(c._id as string));
+    const t = clubs.map((c) => updClub(c._id));
 
     return Promise.all(t);
   };
@@ -131,8 +131,12 @@ export function updateAllClubsRating(req: Request, res: Response) {
   allClubs()
     .then(runAll)
     .then((c) => {
-      console.log('Calendar Year Ended Successfully!')
-      return respond.success(res, 200, 'Players and Clubs updated successfully! Year ENDED :)');
+      console.log('Calendar Year Ended Successfully!');
+      return respond.success(
+        res,
+        200,
+        'Players and Clubs updated successfully! Year ENDED :)',
+      );
     })
     .catch((err) => {
       console.log('Error updating Clubs!');
@@ -149,7 +153,7 @@ interface ClubRating {
 export function addPlayerToClubMiddleware(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   // tslint:disable-next-line: variable-name
   const { playerId } = req.body.data;
@@ -180,27 +184,27 @@ export function addPlayerToClubMiddleware(
 export async function addLeagueToClub(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const _response = await updateClubLeague(
     req.body.clubId,
     req.body.leagueCode,
-    req.params.league_id
+    req.params.league_id,
   );
 
-  if (_response!.error) {
+  if (_response.error) {
     return respond.success(
       res,
       200,
       'Club added to competition successfully!',
-      _response!.result
+      _response.result,
     );
   } else {
     return respond.fail(
       res,
       400,
       'Error adding player to club',
-      _response!.result
+      _response.result,
     );
   }
 }
