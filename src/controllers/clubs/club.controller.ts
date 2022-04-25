@@ -174,11 +174,14 @@ export function removeManagerFromClub(req: Request, res: Response) {
 
 // TODO: add Manager, League, LeagueCcode, Players
 // Rating and the Position Ratings
+
+/**
+  * This function is meant to create many clubs from a list of clubs
+  * It requires that you pass a csv filename saved in files directory
+  * as a 'filename' query param.
+  *
+*/
 export async function createManyFromCSV(req: Request, res: Response) {
-  /**
-   * This function is meant to create many clubs from a list of clubs
-   *
-   */
 
   const {filename} = req.query;
 
@@ -189,6 +192,8 @@ export async function createManyFromCSV(req: Request, res: Response) {
   let data: any[] = [];
   try {
     data = await readCSVFileAsync(filename);
+    // the next thing for this would be to use the
+    // generated objects to create Mongoose records
     return respond.success(res, 200, 'CSV File read successfully!', data);
   } catch(err) {
     console.error("ERROR READING CSV ", err);

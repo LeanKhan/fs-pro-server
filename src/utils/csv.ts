@@ -3,6 +3,9 @@ import * as _fs from 'fs';
 import * as path from 'path';
 import * as csv from 'fast-csv';
 
+/**
+ * Reads a CSV file and creates objects from it.
+ */
 export async function readCSVFileAsync(filename: string) {
   const data: any[] = [];
 
@@ -40,8 +43,6 @@ function objectifyColumn(obj: any): any {
      */
 
      const keys = Object.keys(obj);
-     console.log(keys)
-
      keys.forEach(key => {
         if(key.includes(".")) {
             const key_split = key.split(".");
