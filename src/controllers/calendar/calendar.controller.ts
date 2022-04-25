@@ -88,18 +88,17 @@ export async function createSeasonsInTheYear(
   const competitions: CompetitionInterface[] = await fetchAll();
   const year: string = req.params.year.trim().toUpperCase();
 
-  Promise.all([
-    create(
-      competitions[0].CompetitionCode,
-      competitions[0]._id as string,
+  // create a season for all competitions that are available.
+  const competition_seasons = competitions.map(c => {
+    return create(
+      c.CompetitionCode,
+      c._id as string,
       year
-    ),
-    create(
-      competitions[1].CompetitionCode,
-      competitions[1]._id as string,
-      year
-    ),
-  ])
+    )
+  });
+
+
+  Promise.all(competition_seasons)
     .then(() => {
       console.log('Seasons created Successfully!');
       return next();
@@ -173,8 +172,6 @@ export function setupDaysInYear(
 
     let firstDivisionDays: DayInterface[] = [];
 
-    // Use the number of matches in the season to get the one that
-
     try {
       firstDivisionDays = firstDivisionFixtures.map(
         (fixture: Fixture, index: number) => {
@@ -235,6 +232,15 @@ export function setupDaysInYear(
 
       completeDays.push(day);
     });
+
+    /**
+     * New Days.
+     *
+     * - Create all 365 empty days first
+     * - Later change no. of days if leap year.
+     * - Then starting from Day 0, append matches of all Seasons into each day
+     *
+     */
 
     const freeDays = new Array(20);
     for (let i = 0; i < 20; i++) {
