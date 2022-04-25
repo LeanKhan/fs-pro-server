@@ -14,7 +14,7 @@ import {
   calculateClubRating,
   updateAllClubsRating,
 } from '../../middleware/club';
-import { addManagerToClub, removeManagerFromClub } from './club.controller';
+import { addManagerToClub, createManyFromCSV, removeManagerFromClub } from './club.controller';
 import { baseQuery, setupRoutes } from '../../helpers/queries';
 
 const router = Router();
@@ -140,6 +140,8 @@ router.put(
   addPlayerToClubMiddleware,
   calculateClubRating
 );
+
+router.post('/batch-create', createManyFromCSV);
 
 setupRoutes(router, 'Club');
 

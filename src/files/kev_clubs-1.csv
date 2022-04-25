@@ -1,0 +1,3 @@
+Name,ClubCode,AttackingClass,DefensiveClass,Address.Section,Address.City,Address.Country,Stadium.Name,Stadium.Capacity,Stadium.Location,User
+1,1,1,1,1,1,ObjectId("611fe72fb69949fd0152a092"),1,1,1,ObjectId("5ed65ccfa18c503ef00dcd63")
+2,2,2,2,2,2,ObjectId("611fe72fb69949fd0152a092"),2,2,2,ObjectId("5ed65ccfa18c503ef00dcd63")

@@ -8,6 +8,7 @@ import {
   updateClubsById,
 } from './club.service';
 import log from '../../helpers/logger';
+import { readCSVFileAsync } from '../../utils/csv';
 
 export function updateClubs(req: Request, res: Response, next: NextFunction) {
   const { clubs, userID } = req.body;
@@ -169,4 +170,33 @@ export function removeManagerFromClub(req: Request, res: Response) {
       log('Error removing Manager!');
       return respond.fail(res, 400, 'Error removing Manager!', err);
     });
+}
+
+// TODO: add Manager, League, LeagueCcode, Players
+// Rating and the Position Ratings
+export async function createManyFromCSV(req: Request, res: Response) {
+  /**
+   * This function is meant to create many clubs from a list of clubs
+   *
+   */
+
+  const {filename} = req.query;
+
+  if(!filename) {
+    return respond.fail(res, 400, 'Please provide a file name');
+  }
+
+  let data: any[] = [];
+  try {
+    data = await readCSVFileAsync(filename);
+    return respond.success(res, 200, 'CSV File read successfully!', data);
+  } catch(err) {
+    console.error("ERROR READING CSV ", err);
+    return respond.fail(res, 400, 'Error reading CSV File', err);
+  }
+
+};
+
+export async function createManyClubs(req: Request, res: Response) {
+
 }
