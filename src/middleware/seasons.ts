@@ -100,6 +100,8 @@ export async function create(
         awayName: away.Name,
         seasonCode: season_code,
         seasonId: season_id,
+        // the compettion of this fixture
+        competition: competition._id,
         leagueCode: competition.CompetitionCode.toUpperCase(),
         stadium: home.Stadium!.Name,
         index,
@@ -133,6 +135,7 @@ export async function create(
     return findByIdAndUpdate(season_id, { Fixtures: fixtureIds });
   };
 
+  // TODO: Make standings separate collection
   const setInitialStandings = () => {
     const numberOfMatches: number =
       (competition.Clubs.length - 1) * competition.Clubs.length;

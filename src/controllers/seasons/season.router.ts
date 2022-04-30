@@ -4,7 +4,7 @@ import { Router, Request, Response } from 'express';
 import {
   fetchAll,
   fetchOneById,
-  deleteById,
+  deleteByRemove,
   findByIdAndUpdate,
 } from './season.service';
 import { SeasonInterface } from './season.model';
@@ -171,30 +171,16 @@ router.delete('/:id', (req: Request, res: Response) => {
   }
 
   const deleteSeason = () => {
-    return deleteById(id);
+    return deleteByRemove(id);
   };
 
-  const deleteFixtures = () => {
-    const q = { Season: id };
-
-    return deleteManyFixtures(q);
-  };
-
-  const removeSeasonFromComp = (season: SeasonInterface) => {
-    const q = { _id: season.Competition };
-    const cmp = season.Competition as string;
-
-    return updateComp(cmp, { $pull: { Seasons: id } });
-  };
 
   deleteSeason()
-    .then(removeSeasonFromComp)
-    .then(deleteFixtures)
     .then((done) => {
       return respond.success(res, 200, 'Season deleted successfully');
     })
     .catch((err) => {
-      return respond.fail(res, 400, 'Error deleting Season', err);
+      return respond.fail(res, 400, 'Error deleting Season', err.toString());
     });
 });
 

@@ -6,7 +6,7 @@ import * as csv from 'fast-csv';
 /**
  * Reads a CSV file and creates objects from it.
  */
-export async function readCSVFileAsync(filename: string) {
+export async function readCSVFileAsync(filename: string): Promise<{data: any[]; rowCount: number}> {
   const data: any[] = [];
 
   return new Promise((resolve, reject) => {

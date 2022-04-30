@@ -1,3 +1,4 @@
+import DB from '../../db';
 import { Schema, Document, model, Model } from 'mongoose';
 
 // export interface CalendarMatch {
@@ -70,6 +71,23 @@ export class Calendar {
       },
       { timestamps: true }
     );
+
+    CalendarSchema.post('remove', async function(doc, next) {
+      await DB.Models.Day.deleteMany({ Calendar: this._id });
+      // remove all seasons in this calendar.
+      await DB.Models.Season.deleteMany({ Calendar: this._id });
+
+      next();
+  });
+
+  // CalendarSchema.post('remove', { document: true, query: false }, function(res, next) {
+  //   console.log('Removing doc!');
+  //   next();
+  // });
+  // CalendarSchema.post('save', function(res, next) {
+  //   console.log('Saving doc!', this);
+  //   next();
+  // });
 
     this._model = model<ICalendar>('Calendar', CalendarSchema, 'Calendars');
   }

@@ -1,6 +1,7 @@
 // tslint:disable: variable-name
 import { Schema, model, Document, Model } from 'mongoose';
 import { ClubInterface } from '../clubs/club.model';
+import DB from '../../db';
 
 export interface CompetitionInterface {
   _id?: string;
@@ -72,6 +73,14 @@ export class Competition {
     };
 
     CompetitionSchema.pre('find', populate).pre('findOne', populate);
+
+    CompetitionSchema.post('remove', async function(doc, next) {
+
+      await DB.Models.Season.deleteMany({ Competition: this._id });
+
+      next();
+  });
+
 
     this._model = model<ICompetition>(
       'Competition',

@@ -6,7 +6,7 @@ import {
   fetchSingleClubById,
   fetchClubs,
   updateClub,
-  deleteById,
+  deleteByRemove,
 } from './club.service';
 import { updatePlayerSigning } from '../../middleware/player';
 import {
@@ -14,8 +14,12 @@ import {
   calculateClubRating,
   updateAllClubsRating,
 } from '../../middleware/club';
-import { addManagerToClub, createManyFromCSV, removeManagerFromClub } from './club.controller';
-import { baseQuery, setupRoutes } from '../../helpers/queries';
+import {
+  addManagerToClub,
+  createManyFromCSV,
+  removeManagerFromClub,
+} from './club.controller';
+import { setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -87,7 +91,7 @@ router.post('/:id/update', (req, res) => {
 
 /** Delete Club by id */
 router.delete('/:id', (req, res) => {
-  const response = deleteById(req.params.id);
+  const response = deleteByRemove(req.params.id);
 
   response
     .then((data: any) => {
@@ -106,12 +110,9 @@ router.get('/:id', (req, res) => {
         respond.success(res, 200, 'Club fetched successfully', club);
       })
       .catch((err) => {
-
         respond.fail(res, 400, 'Error fetching Club', err.toString());
       });
   } catch (err) {
-
-
     respond.fail(res, 400, 'Error fetching Club', err.toString());
   }
 });

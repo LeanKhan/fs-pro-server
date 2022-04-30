@@ -1,6 +1,7 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import { CompetitionInterface } from '../competitions/competition.model';
 import { Fixture } from '../fixtures/fixture.model';
+import DB from '../../db';
 
 export interface SeasonInterface {
   _id?: string;
@@ -98,7 +99,6 @@ export class Season {
         Relegated: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
         isFinished: { type: Boolean, default: false },
         isStarted: { type: Boolean, default: false },
-        // TODO: still deciding... allMatchesPlayed: { type: Boolean, default: false },
         Status: { type: String, default: 'Pending' },
         Year: String,
         Calendar: { type: Schema.Types.ObjectId, ref: 'Calendar' },
@@ -110,6 +110,19 @@ export class Season {
       },
       { timestamps: true }
     );
+
+    SeasonSchema.post('remove', async function(doc, next) {
+      await DB.Models.Fixtures.deleteMany({ Season: this._id });
+      // remove all seasons in this calendar.
+
+      await DB.Models.Competition.updateOne(
+        { Seasons : this._id},
+        { $pull: { Seasons: this._id } },
+        { multi: true })  //if reference exists in multiple documents
+        .exec();
+
+      next();
+  });
 
     this._model = model<ISeason>('Season', SeasonSchema, 'Seasons');
   }

@@ -4,7 +4,7 @@ import {
   fetchOneById,
   createNew,
   update,
-  deleteById,
+  deleteByRemove,
 } from './competition.service';
 import { fetchAll as fetchAllSeasons } from '../seasons/season.service';
 import respond from '../../helpers/responseHandler';
@@ -88,9 +88,7 @@ router.post('/:id/update', (req: Request, res: Response) => {
 
 /** Delete Competition by id */
 router.delete('/:id', (req: Request, res: Response) => {
-  const response = deleteById(req.params.id);
-
-  response
+  deleteByRemove(req.params.id)
     .then((data) => {
       respond.success(res, 200, 'Competition deleted successfully', data);
     })

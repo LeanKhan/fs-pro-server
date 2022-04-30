@@ -68,6 +68,20 @@ export function deleteById(id: string) {
   return DB.Models.Fixture.findByIdAndDelete(id).lean().exec();
 }
 
+export async function deleteByRemove(id: string) {
+  /**
+  * Delete the Fixture
+  */
+
+  const doc = await DB.Models.Fixture.findById(id);
+
+  if(!doc) {
+    throw new Error(`Fixture ${id} does not exist`);
+  }
+
+  return doc.remove();
+}
+
 /**
  *
  * @param data Find one and update

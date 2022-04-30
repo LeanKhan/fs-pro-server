@@ -1,4 +1,5 @@
 import { Schema, Document, model, Model } from 'mongoose';
+import DB from '../../db';
 import {
   IMatchDetails,
   IMatchEvent,
@@ -136,6 +137,16 @@ export class Fixture {
       },
       { timestamps: true }
     );
+
+    FixtureSchema.post('remove', async function(next) {
+      await DB.Models.Season.updateOne(
+          { Fixtures : this._id},
+          { $pull: { Fixtures: this._id } },
+          { multi: true })  //if reference exists in multiple documents
+      .exec();
+
+      next();
+  });
 
     this._model = model<IFixture>('Fixture', FixtureSchema, 'Fixtures');
   }

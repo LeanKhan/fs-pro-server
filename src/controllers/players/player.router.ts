@@ -7,6 +7,7 @@ import {
   fetchOneById,
   updateById,
   deletePlayer,
+  deleteByRemove,
   updatePlayers,
   getSpecificPlayerStats,
   findOnePlayer,
@@ -69,12 +70,12 @@ router.post('/:id/update', (req, res) => {
 router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
-  deletePlayer(id)
+  deleteByRemove(id)
     .then((player: any) => {
       respond.success(res, 200, 'Player deleted successfully', player);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error deleting Player', err);
+      respond.fail(res, 400, 'Error deleting Player => ', err.toString());
     });
 });
 
