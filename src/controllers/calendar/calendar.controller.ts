@@ -140,6 +140,13 @@ export function setupDaysInYear(
       Year: _calendar.YearString,
     });
 
+    /**
+     * TODO URGENT APRIL 26 2022
+     * 1. Create all the days in the year.
+     * 2. For each 'league' competition, add all matches to the days.
+     * 3. You can add multiple matches of the same league to a day.
+     */
+
     // TODO: all these CompetitionCode should not be case sensitive!
 
     // get all competitions...

@@ -87,11 +87,39 @@ export function createNew(data: any) {
 }
 
 export function deleteById(id: string) {
-  /** 
+  /**
   * Delete the Calendar, then Days, Seasons & Fixtures, then
   */
 
   const todelete = [ DB.Models.Calendar.findByIdAndDelete(id).lean().exec(), DB.Models.Day.deleteMany({Calendar: id}).lean().exec()];
 
   return Promise.all(todelete);
+}
+
+export async function deleteByRemove(id: string) {
+  /**
+  * Delete the Calendar, then Days, Seasons & Fixtures, then
+  */
+
+  const doc = await DB.Models.Calendar.findById(id);
+
+  if(!doc) {
+    throw new Error(`Calendar ${id} does not exist`);
+  }
+
+  return doc.remove();
+};
+
+export async function deleteDayByRemove(id: string) {
+  /**
+  * Delete the Calendar, then Days, Seasons & Fixtures, then
+  */
+
+  const doc = await DB.Models.Day.findById(id);
+
+  if(!doc) {
+    throw new Error(`Day ${id} does not exist on Calendar`);
+  }
+
+  return doc.remove();
 }

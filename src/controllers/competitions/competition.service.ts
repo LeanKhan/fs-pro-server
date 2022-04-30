@@ -61,6 +61,23 @@ export function deleteById(id: string) {
   return DB.Models.Competition.findByIdAndDelete(id).lean().exec();
 }
 
+/**
+ * Delete by remove()
+ * So that it invokes a 'remove' middleware in Mongoose
+ * @param id Competition Id
+ * @returns
+ */
+export async function deleteByRemove(id: string) {
+
+   const doc = await DB.Models.Competition.findById(id);
+
+   if(!doc) {
+     throw new Error(`Competition [${id}] does not exist`);
+   }
+
+   return doc.remove();
+  }
+
 // TODO: Yo! Add a limit or 'size' for the max number of clubs
 
 /**

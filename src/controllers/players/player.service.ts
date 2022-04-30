@@ -49,6 +49,20 @@ export function deletePlayer(id: string) {
   return DB.Models.Player.findByIdAndDelete(id).lean().exec();
 }
 
+export async function deleteByRemove(id: string) {
+  /**
+  * Delete the Player
+  */
+
+  const doc = await DB.Models.Player.findById(id);
+
+  if(!doc) {
+    throw new Error(`Player ${id} does not exist`);
+  }
+
+  return doc.remove();
+}
+
 /**
  * Create new player broooooo
  *
@@ -234,7 +248,7 @@ export function allPlayerStats(
           form: { $avg: '$Form' },
           player: { "$first": "$player" },
           fixture: { "$first": "$fixture" },
-         count: { $sum: 1 } 
+         count: { $sum: 1 }
         }
       },
     ],
@@ -245,7 +259,7 @@ export function allPlayerStats(
 }
 
 /**
- * 
+ *
  * [
       {
         $lookup: {
@@ -280,10 +294,10 @@ export function allPlayerStats(
           form: { $avg: '$Form' },
           player: { "$first": "$player" },
           fixture: { "$first": "$fixture" },
-         count: { $sum: 1 } 
+         count: { $sum: 1 }
         }
       },
-    
-      { $sort: {'points': -1} } 
-    ] 
+
+      { $sort: {'points': -1} }
+    ]
  * */

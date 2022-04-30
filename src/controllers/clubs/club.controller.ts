@@ -189,7 +189,7 @@ export async function createManyFromCSV(req: Request, res: Response) {
     return respond.fail(res, 400, 'Please provide a file name');
   }
 
-  let data: any[] = [];
+  let data: {data: any[]; rowCount: number} = [];
   try {
     data = await readCSVFileAsync(filename);
     // the next thing for this would be to use the

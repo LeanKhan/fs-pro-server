@@ -3,6 +3,7 @@ import {
   fetchAll,
   fetchOneById,
   deleteById,
+  deleteByRemove,
   create,
   updateById,
 } from './manager.service';
@@ -45,7 +46,7 @@ router.get('/:id', (req, res) => {
   try {
     po = req.query.populate && JSON.parse(req.query.populate);
   } catch (err) {
-    console.error('Error fetching manager, ', +err);
+    console.error('Error fetching manager, ', err.toString());
     return respond.fail(
       res,
       400,
@@ -105,7 +106,7 @@ router.delete('/:id', (req, res) => {
   };
 
   const deleteManager = () => {
-    return deleteById(id);
+    return deleteByRemove(id);
   };
 
   // hey, link up!

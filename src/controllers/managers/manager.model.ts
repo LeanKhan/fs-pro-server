@@ -1,4 +1,5 @@
 import { Schema, Document, Model, model } from 'mongoose';
+import DB from '../../db';
 
 export interface ManagerInterface {
   _id?: string;
@@ -75,6 +76,20 @@ export class Manager {
     };
 
     ManagerSchema.pre('find', populate).pre('findOne', populate);
+
+//  No need for this, since we are already removing Manager
+// from Club in the router/controller.
+
+    // ManagerSchema.post('remove', async function(doc, next) {
+
+    //     await DB.Models.Club.updateOne(
+    //     { Manager : this._id},
+    //     { $unset: { Manager: 1 }},
+    //     { multi: true })  //if reference exists in multiple documents
+    //     .exec();
+
+    //     next();
+    //   });
 
     this._model = model<IManager>('Manager', ManagerSchema, 'Managers');
   }

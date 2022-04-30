@@ -70,8 +70,19 @@ export function deleteById(id: string) {
   return DB.Models.Manager.findByIdAndDelete(id).lean().exec();
 }
 
-/** Update Many Managers */
+/** DeleteByRemove */
+export async function deleteByRemove(id: string) {
 
+  const doc = await DB.Models.Manager.findById(id);
+
+   if(!doc) {
+     throw new Error(`Manager [${id}] does not exist`);
+   }
+
+   return doc.remove();
+  }
+
+/** Update Many Managers */
 export function updateManagers(query: any, update: any) {
   return DB.Models.Manager.updateMany(query, update);
 }
