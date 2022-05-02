@@ -6,6 +6,9 @@
 /environment
 /assets
 
+/venv
+venv
+
 # For me (mostly embarrasing stuff I want to remember)
 OLDCHANGELOG.md
 NOTES.md
