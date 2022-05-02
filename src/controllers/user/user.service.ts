@@ -73,3 +73,12 @@ export const createNewUser = async (userData: any) => {
     .then((user) => ({ error: false, result: user }))
     .catch((err) => ({ error: true, result: err }));
 };
+
+
+export function addClubsToUser(id: string, clubs: string[]) {
+  return DB.Models.User.updateOne(
+    { _id: id },
+    { $addToSet: { Clubs: {$each: clubs} } },
+    { multi: true }
+  ).lean();
+}

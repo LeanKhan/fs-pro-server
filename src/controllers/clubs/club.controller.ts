@@ -2,13 +2,19 @@ import respond from '../../helpers/responseHandler';
 import { NextFunction, Request, Response } from 'express';
 import { ManagerInterface } from '../managers/manager.model';
 import { updateById, fetchOneById } from '../managers/manager.service';
+import { update as updateCompetition } from '../competitions/competition.service';
 import {
+  createMany,
   fetchSingleClubById,
   updateClub,
   updateClubsById,
 } from './club.service';
 import log from '../../helpers/logger';
-import { readCSVFileAsync } from '../../utils/csv';
+import { readCSVFileAsync, readCSVFileUploadAsync } from '../../utils/csv';
+import multer from 'multer';
+import { addClubsToUser } from '../user/user.service';
+
+export const upload_csv = multer({ dest: 'tmp/csv/' });
 
 export function updateClubs(req: Request, res: Response, next: NextFunction) {
   const { clubs, userID } = req.body;
@@ -175,33 +181,91 @@ export function removeManagerFromClub(req: Request, res: Response) {
 // TODO: add Manager, League, LeagueCcode, Players
 // Rating and the Position Ratings
 
-/**
-  * This function is meant to create many clubs from a list of clubs
-  * It requires that you pass a csv filename saved in files directory
-  * as a 'filename' query param.
-  *
-*/
-export async function createManyFromCSV(req: Request, res: Response) {
+const groupBy = function (data, key) {
+  return data.reduce(function (storage, item) {
+    const group = item[key];
 
-  const {filename} = req.query;
+    storage[group] = storage[group] || [];
 
-  if(!filename) {
-    return respond.fail(res, 400, 'Please provide a file name');
-  }
+    storage[group].push(item);
 
-  let data: {data: any[]; rowCount: number} = [];
-  try {
-    data = await readCSVFileAsync(filename);
-    // the next thing for this would be to use the
-    // generated objects to create Mongoose records
-    return respond.success(res, 200, 'CSV File read successfully!', data);
-  } catch(err) {
-    console.error("ERROR READING CSV ", err);
-    return respond.fail(res, 400, 'Error reading CSV File', err);
-  }
-
+    return storage;
+  }, {});
 };
 
-export async function createManyClubs(req: Request, res: Response) {
+/**
+ * This function is meant to create many clubs from a list of clubs
+ * It requires that you pass a csv filename saved in files directory
+ * as a 'filename' query param.
+ *
+ */
+export async function createManyClubsFromCSV(req: Request, res: Response) {
+  const { competition } = req.query;
 
+  // if(!filename) {
+  //   return respond.fail(res, 400, 'Please provide a file name');
+  // }
+
+  if (!competition) {
+    return respond.fail(res, 400, 'Please provide a Competition IDd');
+  }
+
+  let data: { data: any[]; rowCount: number } = [];
+
+  const saveClubsInCompetition = (club_ids: string[]) => {
+    return updateCompetition(competition, { $addToSet: { Clubs: {$each: club_ids} } });
+  };
+
+  const saveClubsInUser = (clubs: IClub[]) => {
+    const user_clubs = groupBy(clubs, 'User');
+
+    const all_club_ids = {};
+
+    const promise_array = [];
+
+    for (const u of Object.keys(user_clubs)) {
+      all_club_ids[u] = user_clubs[u].map((i) => i._id);
+    }
+
+    for (const u of Object.keys(all_club_ids)) {
+      promise_array.push(addClubsToUser(u, all_club_ids[u]));
+    }
+
+    return Promise.all(promise_array);
+  };
+
+  try {
+    data = await readCSVFileUploadAsync(req.file.path);
+    // let club_ids = [];
+    // the next thing for this would be to use the
+    // generated objects to create Mongoose records
+    let club_ids = [];
+    let created_clubs = [];
+    createMany(data.data)
+    .then((clubs: any) => {
+      // get ids...
+      club_ids = clubs.map((club: any) => club._id);
+      created_clubs = clubs;
+      return clubs;
+    })
+    .then(saveClubsInUser)
+    .then((c: any) => {
+      return club_ids;
+    })
+    .then(saveClubsInCompetition)
+    .then((comp: any) => {
+
+      log('Clubs created successfully from upload');
+      return respond.success(res, 200, 'Clubs created and Competition updated successfully!', created_clubs);
+    })
+    .catch((err: any) => {
+      console.error(err);
+      console.log('Failed to create Clubs and update Competition!', err);
+      return respond.fail(res, 400, 'Failed to add Days to Calendar', err);
+    });
+
+  } catch (err) {
+    console.error('ERROR READING CSV ', err);
+    return respond.fail(res, 400, 'Error reading CSV File', err.toString());
+  }
 }

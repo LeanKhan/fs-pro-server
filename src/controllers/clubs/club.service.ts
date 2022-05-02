@@ -199,6 +199,13 @@ export function updateClubsById(clubIds: string[], data: any = {}) {
     .exec();
 }
 
+/**
+ * Create Many Clubs
+ */
+export function createMany(clubs: any[]) {
+  return DB.Models.Club.insertMany(clubs, { ordered: true });
+}
+
 interface IClubsResponse {
   error: boolean;
   message?: string;
