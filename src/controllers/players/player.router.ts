@@ -19,8 +19,10 @@ import {
   calculatePlayerValue,
 } from '../../utils/players';
 import { fetchAppearance } from '../../utils/appearance';
+import { runSpawn } from '../../utils/scripts';
 import log from '../../helpers/logger';
 import { baseQuery, setupRoutes } from '../../helpers/queries';
+import { titleCase } from '../../helpers/misc';
 import { Types } from 'mongoose';
 import { fetchAllClubs, fetchClubs } from '../clubs/club.service';
 
@@ -63,19 +65,6 @@ router.post('/:id/update', (req, res) => {
     })
     .catch((err: any) => {
       respond.fail(res, 400, 'Error updating Player', err);
-    });
-});
-
-/** Delete Player by id */
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-
-  deleteByRemove(id)
-    .then((player: any) => {
-      respond.success(res, 200, 'Player deleted successfully', player);
-    })
-    .catch((err: any) => {
-      respond.fail(res, 400, 'Error deleting Player => ', err.toString());
     });
 });
 
@@ -194,11 +183,7 @@ router.get('/stats', async (req: Request, res: Response) => {
     });
 });
 
-/**
- * fetch one Player
- */
-
-router.get('/:id', (req, res) => {
+router.put('/works/add-roles', (req, res) => {
   const { id } = req.params;
 
   fetchOneById(id)
@@ -210,15 +195,30 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.put('/works/add-roles', (req, res) => {
-  const { id } = req.params;
+router.get('/generate-players', (req, res) => {
+  const { number, culture } = req.query;
 
-  fetchOneById(id)
-    .then((player: any) => {
-      respond.success(res, 200, 'Player fetched successfully', player);
+  if(!number || !culture) {
+    return respond.fail(res, 400, 'Provide the number of names and culture to generate');
+  }
+
+  runSpawn("player_names", ["generate", number, "f_l", culture])
+  .then((players: any) => {
+    // separate and capitalize first letter of every word.
+    // then remove empty or undefined names.
+      const names = players.split("\r\n")
+      .filter((x, i) => x || null)
+      .map(n =>
+        n.split("__")
+        .map(l => titleCase(l))
+        .join(" ")
+      );
+
+      return respond.success(res, 200, 'Player names generated', names);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching Player', err);
+      console.log(err);
+      return respond.fail(res, 400, 'Error generating Player names', err.toString());
     });
 });
 
@@ -237,6 +237,35 @@ router.put('/works/add-roles', (req, res) => {
 //       respond.fail(res, 400, 'Error updating Players', err);
 //     });
 // });
+
+/**
+ * fetch one Player
+ */
+
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+
+  fetchOneById(id)
+    .then((player: any) => {
+      respond.success(res, 200, 'Player fetched successfully', player);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error fetching Player', err);
+    });
+});
+
+/** Delete Player by id */
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
+
+  deleteByRemove(id)
+    .then((player: any) => {
+      respond.success(res, 200, 'Player deleted successfully', player);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error deleting Player => ', err.toString());
+    });
+});
 
 setupRoutes(router, 'Player');
 
