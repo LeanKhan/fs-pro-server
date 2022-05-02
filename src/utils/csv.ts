@@ -27,6 +27,27 @@ export async function readCSVFileAsync(filename: string): Promise<{data: any[]; 
 }
 
 /**
+ * Reads a CSV file and creates objects from it.
+ */
+export async function readCSVFileUploadAsync(file: any): Promise<{data: any[]; rowCount: number}> {
+  const data: any[] = [];
+
+  return new Promise((resolve, reject) => {
+  csv.parseFile(file, { headers: true, trim: true })
+      .on('error', (error: any) => {
+        return reject(error);
+      })
+      .on('data', (row: any) => {
+        //   transform rows here...
+        data.push(objectifyColumn(row));
+      })
+      .on('end', (rowCount: number) => {
+        resolve({data, rowCount});
+      });
+  });
+}
+
+/**
  * Creates objects for columns with dot-notation names
  */
 function objectifyColumn(obj: any): any {

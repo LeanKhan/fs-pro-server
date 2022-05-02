@@ -16,10 +16,11 @@ import {
 } from '../../middleware/club';
 import {
   addManagerToClub,
-  createManyFromCSV,
+  createManyClubsFromCSV,
   removeManagerFromClub,
 } from './club.controller';
 import { setupRoutes } from '../../helpers/queries';
+import { tmp_uploader, uploader } from '../../services/file/multer.config';
 
 const router = Router();
 
@@ -32,7 +33,7 @@ router.get('/all', (req, res) => {
       respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching Clubs', err);
+      respond.fail(res, 400, 'Error fetching Clubs', err.toString());
     });
 });
 
@@ -61,7 +62,7 @@ router.get('/fetch', (req, res) => {
       return respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
     .catch((err) => {
-      return respond.fail(res, 400, 'Error fetching Clubs', err);
+      return respond.fail(res, 400, 'Error fetching Clubs', err.toString());
     });
 });
 
@@ -85,20 +86,20 @@ router.post('/:id/update', (req, res) => {
       respond.success(res, 200, 'Club updated successfully', club);
     })
     .catch((err) => {
-      respond.fail(res, 400, 'Error updating Club', err);
+      respond.fail(res, 400, 'Error updating Club', err.toString());
     });
 });
 
+// TODO: add protection to prevent this from deleting without
+// confirmation.
 /** Delete Club by id */
 router.delete('/:id', (req, res) => {
-  const response = deleteByRemove(req.params.id);
-
-  response
+  deleteByRemove(req.params.id)
     .then((data: any) => {
       respond.success(res, 200, 'Club deleted successfully', data);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error deleting Club', err);
+      respond.fail(res, 400, 'Error deleting Club', err.toString());
     });
 });
 
@@ -141,8 +142,6 @@ router.put(
   addPlayerToClubMiddleware,
   calculateClubRating
 );
-
-router.post('/batch-create', createManyFromCSV);
 
 setupRoutes(router, 'Club');
 

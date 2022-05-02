@@ -78,6 +78,11 @@ export class Competition {
 
       await DB.Models.Season.deleteMany({ Competition: this._id });
 
+      await DB.Models.Club.updateOne(
+        { League: this._id },
+        { $unset: { League: 1 } }
+      ).exec();
+
       next();
   });
 

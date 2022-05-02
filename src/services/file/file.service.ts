@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import mongoose from 'mongoose';
-import { uploader } from './multer.config';
+import { uploader, tmp_uploader } from './multer.config';
 import fs from 'fs';
 import respond from '../../helpers/responseHandler';
 import log from '../../helpers/logger';
+import { createManyClubsFromCSV } from '../../controllers/clubs/club.controller';
 
 const router = Router();
 
@@ -39,7 +40,9 @@ router.post('/', (req, res) => {
 });
 
 router.post('/upload', uploader, (req, res) => {
-  res.status(200).send(req.file);
+  return res.status(200).send(req.file);
 });
+
+router.post('/upload-clubs', tmp_uploader, createManyClubsFromCSV);
 
 export default router;

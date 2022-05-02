@@ -100,15 +100,14 @@ export async function createSeasonsInTheYear(
 
   Promise.all(competition_seasons)
     .then(() => {
-      console.log('Seasons created Successfully!');
+      console.log('Seasons for the Year created Successfully!');
       return next();
     })
-
     .catch((err) => {
-      console.log('Could not create season!');
+      console.log('Could not create Seasons for the Year!');
       console.error(err);
 
-      return respond.fail(res, 404, 'Error creating Seasons', err);
+      return respond.fail(res, 400, 'Error creating Seasons for the Year', err.toString());
     });
 }
 
@@ -121,6 +120,197 @@ export async function createSeasonsInTheYear(
  * @param next
  */
 export function setupDaysInYear(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const fetchCalendar = () => {
+    // this is the Calendar ID!
+    return fetchOneById(req.params.id);
+  };
+
+  let _calendar: CalendarInterface;
+
+  const createDays = async (calendar: CalendarInterface) => {
+    _calendar = calendar;
+
+    const competitions: CompetitionInterface[] = await fetchAll();
+    const seasons: SeasonInterface[] = await fetchAllSeasons({
+      Year: _calendar.YearString,
+    });
+
+    /**
+     * TODO URGENT APRIL 26 2022
+     * 1. Create all the days in the year.
+     * 2. For each 'league' competition, add all matches to the days.
+     * 3. You can add multiple matches of the same league to a day.
+     */
+
+    // TODO: all these CompetitionCode should not be case sensitive!
+
+    // get all competitions...
+    const firstDivisionLeague = competitions.find(
+      (c) => c.Division === 1 && c.Type === 'league'
+    ); // ideally, the first competition you pass is the first one...
+
+    const secondDivisionLeague = competitions.find(
+      (c) => c.Division === 2 && c.Type === 'league'
+    ); // ideally, the first competition you pass is the first one...
+
+    const cup = competitions.find((c) => c.Type === 'cup'); // ideally, the first competition you pass is the first one...
+
+    const firstDivision: SeasonInterface = seasons.find(
+      (s: any) => s.CompetitionCode === firstDivisionLeague?.CompetitionCode
+    ) as SeasonInterface;
+    const secondDivision: SeasonInterface = seasons.find(
+      (s: any) => s.CompetitionCode === secondDivisionLeague?.CompetitionCode
+    ) as SeasonInterface;
+
+    // now create days...
+    const firstDivisionFixtures = firstDivision.Fixtures;
+    const secondDivisionFixtures = secondDivision.Fixtures;
+
+    const firstDivisionMatchesPerWeek =
+      firstDivisionFixtures.length / firstDivision.Standings.length;
+
+    const secondDivisionMatchesPerWeek =
+      secondDivisionFixtures.length / secondDivision.Standings.length;
+
+    let firstDivisionDays: DayInterface[] = [];
+
+    try {
+      firstDivisionDays = firstDivisionFixtures.map(
+        (fixture: Fixture, index: number) => {
+          const Match: CalendarMatchInterface[] = [
+            {
+              Fixture: fixture._id,
+              Competition: fixture.LeagueCode,
+              MatchType: fixture.Type,
+              Played: false,
+              Time: `${1}`,
+              Week: Math.ceil((index + 1) / firstDivisionMatchesPerWeek),
+            },
+          ];
+          return { Matches: Match, isFree: false };
+        }
+      );
+    } catch (error) {
+      throw error;
+      // return respond.fail(res, 400, 'Failed!', error);
+    }
+
+    try {
+      firstDivisionDays = firstDivisionDays.map(
+        (day: DayInterface, index: number) => {
+          const Match: CalendarMatchInterface = {
+            Fixture: secondDivisionFixtures[index]._id,
+            Competition: secondDivisionFixtures[index].LeagueCode,
+            MatchType: secondDivisionFixtures[index].Type,
+            Played: false,
+            Time: `${2}`,
+            Week: Math.ceil((index + 1) / secondDivisionMatchesPerWeek),
+          };
+          return {
+            Matches: [...day.Matches, Match],
+            isFree: false,
+            Calendar: calendar._id as string,
+            Year: calendar.YearString,
+          };
+        }
+      );
+    } catch (error) {
+      throw error;
+    }
+
+    let completeDays: DayInterface[] = [];
+
+    // TODO: look at the performance of this loop... thank you Jesus!
+    firstDivisionDays.forEach((day, i) => {
+      if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
+        const emptyDay: DayInterface = {
+          Matches: [],
+          isFree: true,
+          Calendar: calendar._id as string,
+          Year: calendar.YearString,
+        };
+        return completeDays.push(day, emptyDay);
+      }
+
+      completeDays.push(day);
+    });
+
+    /**
+     * New Days.
+     *
+     * - Create all 365 empty days first
+     * - Later change no. of days if leap year.
+     * - Then starting from Day 0, append matches of all Seasons into each day
+     *
+     */
+
+    const freeDays = new Array(20);
+    for (let i = 0; i < 20; i++) {
+      freeDays[i] = {
+        Matches: [],
+        isFree: true,
+        Calendar: calendar._id as string,
+        Year: calendar.YearString,
+      };
+    }
+
+    completeDays = [...completeDays, ...freeDays];
+
+    completeDays.map((day, i) => {
+      return { ...day, Day: (day.Day = i + 1) };
+    });
+
+    return completeDays;
+  };
+
+  const saveCalendar = (calendarDays: string[]) => {
+    const calendarID: string = _calendar._id as string;
+
+    updateCalendar({ _id: calendarID }, { Days: calendarDays })
+      .then((cal: any) => {
+        log('Calendar Updated successfully!');
+        // this can just go next tho :)
+        req.body.new_cal = cal;
+
+        return next();
+        // return respond.success(
+        //   res,
+        //   200,
+        //   'New Calendar created successfully!',
+        //   cal
+        // );
+      })
+      .catch((err: any) => {
+        log(`Error updating Calendar! => ${err}`);
+        console.error(err);
+        console.log('Error updating calendar!', err);
+        return respond.fail(res, 500, 'Error adding Days to Calendar!', err);
+      });
+    // TODO: check if you actually found the right calendar...
+  };
+
+  // Here create the Calendar Days in the db...
+  fetchCalendar()
+    .then(createDays)
+    .then(createMany)
+    .then((days: any) => {
+      // get ids...
+      log('Days created successfully!');
+      return days.map((day: any) => day._id);
+    })
+    .then(saveCalendar)
+    .catch((err: any) => {
+      console.error(err);
+      console.log('Failed to create Seasons and update Calendar!', err);
+      return respond.fail(res, 400, 'Failed to add Days to Calendar', err);
+    });
+}
+
+export function setupDaysInYear2(
   req: Request,
   res: Response,
   next: NextFunction

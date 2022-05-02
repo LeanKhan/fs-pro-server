@@ -14,6 +14,7 @@ export function incrementCounter(counterName: string) {
   );
 }
 
+// TODO: add a validator for all routes!
 export const getCurrentCounter: RequestHandler = (
   req: Request,
   res: Response,
