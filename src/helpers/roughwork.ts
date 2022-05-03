@@ -71,3 +71,60 @@
   { $unwind: '$player' }
 ])
  */
+
+ function arrange(matches_in_week, Fixture, Day) {
+      debugger;
+      if (matches_in_week > 0 && matches_in_week <= 3){
+      for (let a = 0;a < matches_in_week; a++){
+        console.log(`Putting Fixture ${Fixture} in Day ${Day}`);
+        Fixture++;
+      }
+
+      matches_in_week -= matches_in_week;
+    }
+
+    if (matches_in_week >= 5){
+      // Fixture += 2;
+      for (let b = 0;b < 5; b++){
+        console.log(`Putting Fixture ${Fixture} in Day ${Day}`);
+        Fixture++;
+      }
+
+      matches_in_week -= 5;
+    }
+
+    // finished arranging in current Day.
+    Day += 1;
+
+    if (Day % 2 == 0) {
+      Day += 1; // skip a day
+    }
+
+    console.log(`Skipping Day ${Day}...`);
+
+    console.log(`--- Now in Day ${Day} ---`);
+
+    if (matches_in_week != 0){
+      return arrange(matches_in_week, Fixture, Day);      
+    }
+
+    return {Fixture, Day};
+ }
+
+const MatchesInWeek = 7;
+const NumberOfWeeks = 3;
+
+function setupDays() {
+  let Day = 1;
+  let Fixture = 1;
+
+  let TotalFixtures = MatchesInWeek * NumberOfWeeks;
+  let TotalDays = 20;
+
+  while (Fixture <= TotalFixtures) {
+    let matches_in_week = MatchesInWeek;
+
+    ({Fixture, Day} = arrange(matches_in_week, Fixture, Day));
+
+  }
+}

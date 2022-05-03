@@ -5,7 +5,9 @@ export interface CalendarMatchInterface {
   Fixture: string;
   MatchType: string;
   Time: string;
+  FixtureIndex: number;
   Competition: string;
+  CompetitionId: string;
   Played: boolean;
   Week: number;
 }

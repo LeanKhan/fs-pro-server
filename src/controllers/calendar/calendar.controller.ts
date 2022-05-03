@@ -34,6 +34,9 @@ import { prolegate } from '../seasons/season.controller';
 
 /**
  * Create Calendar Year
+ *
+ * TODO: IF ANY PART OF CREATING A CALENDAR FAILS, DELETE ALL
+ * CREATED DOCUMENTS
  */
 export function createCalendarYear(req: Request, res: Response) {
   const now = new Date();
@@ -89,14 +92,9 @@ export async function createSeasonsInTheYear(
   const year: string = req.params.year.trim().toUpperCase();
 
   // create a season for all competitions that are available.
-  const competition_seasons = competitions.map(c => {
-    return create(
-      c.CompetitionCode,
-      c._id as string,
-      year
-    )
+  const competition_seasons = competitions.map((c) => {
+    return create(c.CompetitionCode, c._id as string, year);
   });
-
 
   Promise.all(competition_seasons)
     .then(() => {
@@ -107,7 +105,12 @@ export async function createSeasonsInTheYear(
       console.log('Could not create Seasons for the Year!');
       console.error(err);
 
-      return respond.fail(res, 400, 'Error creating Seasons for the Year', err.toString());
+      return respond.fail(
+        res,
+        400,
+        'Error creating Seasons for the Year',
+        err.toString()
+      );
     });
 }
 
@@ -320,15 +323,31 @@ export function setupDaysInYear2(
     return fetchOneById(req.params.id);
   };
 
+  const DAYS_IN_YEAR = 365;
+
   let _calendar: CalendarInterface;
+
+  /**
+   * 1.  Create 365 Days with empty Matches
+   * 2.  For each Season arrange Fixtures in Days
+   * 3. Return Days.
+   * */
 
   const createDays = async (calendar: CalendarInterface) => {
     _calendar = calendar;
 
+    const freeDays = new Array(DAYS_IN_YEAR);
+    for (let i = 0; i < DAYS_IN_YEAR; i++) {
+      freeDays[i] = {
+        Matches: [],
+        isFree: true,
+        Calendar: calendar._id as string,
+        Day: i + 1,
+        Year: calendar.YearString,
+      };
+    }
+
     const competitions: CompetitionInterface[] = await fetchAll();
-    const seasons: SeasonInterface[] = await fetchAllSeasons({
-      Year: _calendar.YearString,
-    });
 
     /**
      * TODO URGENT APRIL 26 2022
@@ -339,123 +358,139 @@ export function setupDaysInYear2(
 
     // TODO: all these CompetitionCode should not be case sensitive!
 
-    // get all competitions...
-    const firstDivisionLeague = competitions.find(
-      (c) => c.Division === 1 && c.Type === 'league'
-    ); // ideally, the first competition you pass is the first one...
+    // get all competitions... TODO: use Mongo to query
+    const AllLeagues = competitions
+      .filter((c) => c.Type === 'league')
+      .map((c) => c._id); // only get leagues
 
-    const secondDivisionLeague = competitions.find(
-      (c) => c.Division === 2 && c.Type === 'league'
-    ); // ideally, the first competition you pass is the first one...
+    const AllLeagueSeasonsThisYear: SeasonInterface[] = await fetchAllSeasons({
+      Year: _calendar.YearString,
+      Competition: { $in: AllLeagues },
+    });
 
-    const cup = competitions.find((c) => c.Type === 'cup'); // ideally, the first competition you pass is the first one...
+    return { days: freeDays, seasons: AllLeagueSeasonsThisYear };
+  };
 
-    const firstDivision: SeasonInterface = seasons.find(
-      (s: any) => s.CompetitionCode === firstDivisionLeague?.CompetitionCode
-    ) as SeasonInterface;
-    const secondDivision: SeasonInterface = seasons.find(
-      (s: any) => s.CompetitionCode === secondDivisionLeague?.CompetitionCode
-    ) as SeasonInterface;
+  const arrangeFixturesInDays = ({
+    days,
+    seasons,
+  }: {
+    days: DayInterface[];
+    seasons: SeasonInterface[];
+  }) => {
+    seasons.forEach((s: SeasonInterface, i: number) => {
+      const MatchesPerWeek = s.Fixtures.length / s.Standings.length;
+      const NumberOfWeeks = s.Standings.length;
 
-    // now create days...
-    const firstDivisionFixtures = firstDivision.Fixtures;
-    const secondDivisionFixtures = secondDivision.Fixtures;
+      setupDays(MatchesPerWeek, NumberOfWeeks);
 
-    const firstDivisionMatchesPerWeek =
-      firstDivisionFixtures.length / firstDivision.Standings.length;
-
-    const secondDivisionMatchesPerWeek =
-      secondDivisionFixtures.length / secondDivision.Standings.length;
-
-    let firstDivisionDays: DayInterface[] = [];
-
-    try {
-      firstDivisionDays = firstDivisionFixtures.map(
-        (fixture: Fixture, index: number) => {
-          const Match: CalendarMatchInterface[] = [
-            {
-              Fixture: fixture._id,
-              Competition: fixture.LeagueCode,
-              MatchType: fixture.Type,
-              Played: false,
-              Time: `${1}`,
-              Week: Math.ceil((index + 1) / firstDivisionMatchesPerWeek),
-            },
-          ];
-          return { Matches: Match, isFree: false };
-        }
-      );
-    } catch (error) {
-      throw error;
-      // return respond.fail(res, 400, 'Failed!', error);
-    }
-
-    try {
-      firstDivisionDays = firstDivisionDays.map(
-        (day: DayInterface, index: number) => {
-          const Match: CalendarMatchInterface = {
-            Fixture: secondDivisionFixtures[index]._id,
-            Competition: secondDivisionFixtures[index].LeagueCode,
-            MatchType: secondDivisionFixtures[index].Type,
-            Played: false,
-            Time: `${2}`,
-            Week: Math.ceil((index + 1) / secondDivisionMatchesPerWeek),
-          };
-          return {
-            Matches: [...day.Matches, Match],
-            isFree: false,
-            Calendar: calendar._id as string,
-            Year: calendar.YearString,
-          };
-        }
-      );
-    } catch (error) {
-      throw error;
-    }
-
-    let completeDays: DayInterface[] = [];
-
-    // TODO: look at the performance of this loop... thank you Jesus!
-    firstDivisionDays.forEach((day, i) => {
-      if ((i + 1) % 3 === 0 || (i + 1) % 4 === 0) {
-        const emptyDay: DayInterface = {
-          Matches: [],
-          isFree: true,
-          Calendar: calendar._id as string,
-          Year: calendar.YearString,
+      function createFixtureObject(
+        fx: Fixture,
+        compCode: any,
+        compId: any,
+        time: number,
+        fixture_index: number,
+        week: number
+      ) {
+        const Match: CalendarMatchInterface = {
+          // subtracting 1 because Fixture starts from 1;
+          Fixture: fx._id,
+          Competition: compCode,
+          CompetitionId: compId,
+          MatchType: fx.Type,
+          Played: false,
+          Time: time + '',
+          FixtureIndex: fixture_index,
+          Week: week,
         };
-        return completeDays.push(day, emptyDay);
+
+        return Match;
       }
 
-      completeDays.push(day);
+      function arrange(
+        matches_in_week: number,
+        Fixture: number,
+        Day: number
+      ): { Fixture: number; Day: number } {
+        // debugger;
+        if (matches_in_week > 0 && matches_in_week <= 3) {
+          // TODO: move to a function
+          for (let a = 0; a < matches_in_week; a++) {
+            console.log(`Putting Fixture ${Fixture} of ${s.CompetitionCode} in Day ${Day}`);
+            const m = createFixtureObject(
+              s.Fixtures[Fixture - 1],
+              s.CompetitionCode,
+              s.Competition,
+              2,
+              Fixture,
+              Math.ceil(Fixture / MatchesPerWeek)
+            );
+
+            // subtracting 1 because Day counter starts from 1 :)
+            days[Day - 1].Matches.push(m);
+
+            Fixture++;
+          }
+
+          matches_in_week -= matches_in_week;
+        }
+
+        if (matches_in_week >= 5) {
+          // Fixture += 2;
+          for (let b = 0; b < 5; b++) {
+            console.log(`Putting Fixture ${Fixture} of ${s.CompetitionCode} in Day ${Day}`);
+
+            const m = createFixtureObject(
+              s.Fixtures[Fixture - 1],
+              s.CompetitionCode,
+              s.Competition,
+              2,
+              Fixture,
+              Math.ceil(Fixture / MatchesPerWeek)
+            );
+
+            days[Day - 1].Matches.push(m);
+
+            Fixture++;
+          }
+
+          matches_in_week -= 5;
+        }
+
+        // finished arranging in current Day. Change to not free, then move
+        days[Day - 1].isFree = false;
+        Day += 1;
+        console.log(`--- Now in Day ${Day} ---`);
+
+        if (Day % 2 == 0) {
+          console.log(`Skipping Day ${Day}...`);
+          Day += 1; // skip a day
+        }
+
+        if (matches_in_week != 0) {
+          return arrange(matches_in_week, Fixture, Day);
+        }
+
+        return { Fixture, Day };
+      }
+
+      function setupDays(MatchesInWeek: number, NumberOfWeeks: number) {
+        let Day = 1;
+        let Fixture = 1;
+
+        const TotalFixtures = MatchesInWeek * NumberOfWeeks;
+        const TotalDays = DAYS_IN_YEAR;
+
+        while (Fixture <= TotalFixtures) {
+          const matches_in_week = MatchesInWeek;
+
+          ({ Fixture, Day } = arrange(matches_in_week, Fixture, Day));
+        }
+      }
     });
 
-    /**
-     * New Days.
-     *
-     * - Create all 365 empty days first
-     * - Later change no. of days if leap year.
-     * - Then starting from Day 0, append matches of all Seasons into each day
-     *
-     */
-
-    const freeDays = new Array(20);
-    for (let i = 0; i < 20; i++) {
-      freeDays[i] = {
-        Matches: [],
-        isFree: true,
-        Calendar: calendar._id as string,
-        Year: calendar.YearString,
-      };
-    }
-
-    completeDays = [...completeDays, ...freeDays];
-
-    completeDays.map((day, i) => {
-      return { ...day, Day: (day.Day = i + 1) };
-    });
-
-    return completeDays;
+    // at the end of this loop, all_days should be full of Days filled with Fixtures. Thank you Jesus!
+    return days;
   };
 
   const saveCalendar = (calendarDays: string[]) => {
@@ -487,17 +522,19 @@ export function setupDaysInYear2(
   // Here create the Calendar Days in the db...
   fetchCalendar()
     .then(createDays)
-    .then(createMany)
+    .then(arrangeFixturesInDays)
+    // .then(createMany)
     .then((days: any) => {
       // get ids...
       log('Days created successfully!');
-      return days.map((day: any) => day._id);
+      // return days.map((day: any) => day._id);
+      return respond.success(res, 200, 'Generated Days to Calendar!', days);
     })
-    .then(saveCalendar)
+    // .then(saveCalendar)
     .catch((err: any) => {
       console.error(err);
       console.log('Failed to create Seasons and update Calendar!', err);
-      return respond.fail(res, 400, 'Failed to add Days to Calendar', err);
+      return respond.fail(res, 400, 'Failed to add Days to Calendar', err.toString());
     });
 }
 

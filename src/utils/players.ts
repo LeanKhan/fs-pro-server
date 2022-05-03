@@ -2,7 +2,7 @@
 import { MatchSide } from '../classes/MatchSide';
 import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { ratingFactors, postitionFactors, ageFactors } from './player-factors';
-import { shuffleArray } from '../helpers/misc';
+import { shuffleArray, randomBetween, pickRandomFromArray } from '../helpers/misc';
 import {
   IPositions,
   IFieldPlayer,
@@ -11,7 +11,7 @@ import {
   Multipliers,
   AllMultipliers,
 } from '../interfaces/Player';
-import { Role } from '../controllers/players/player.model';
+import { Role, Roles } from '../controllers/players/player.model';
 
 /**
  * Get attackers and midfielders that are not with the ball
@@ -258,11 +258,6 @@ function getAgeMultiplier(pos: string, age: number): number {
   return multiplier / 100;
 }
 
-/** Get a random number between min and max */
-function randomBetween(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min) + min);
-}
-
 /**
 Sort from keeper down
 -Returns the players from GK-DEF-MID-ATT
@@ -463,6 +458,86 @@ export function newAttributeRatings(player: PlayerInterface, pnts: number) {
   return { attributes: player.Attributes, new_rating, new_value };
 }
 
+function generatePlayer({position, firstname, lastname, nationality}:
+  {position: string, firstname: string, lastname: string, nationality: string}) {
+  
+  const obj = {
+        FirstName: firstname,
+        LastName: lastname,
+        Nationality: '', // set
+        Age: 0, // random
+        Position: position,
+        Role: '', // random
+        Attributes: {
+          PreferredFoot: '', // random
+          Speed: randomBetween(20, 60),
+          Shooting: randomBetween(20, 60),
+          LongPass: randomBetween(20, 60),
+          ShortPass: randomBetween(20, 60),
+          Mental: randomBetween(20, 60),
+          Control: randomBetween(20, 60),
+          Tackling: randomBetween(20, 60),
+          Dribbling: randomBetween(20, 60),
+          Setpiece: randomBetween(20, 60),
+          Strength: randomBetween(20, 60),
+          Stamina: randomBetween(20, 60),
+          Vision: randomBetween(20, 60),
+          ShotPower: randomBetween(20, 60),
+          Aggression: randomBetween(20, 60),
+          Interception: randomBetween(20, 60),
+          Keeping: randomBetween(20, 60),
+          Marking: randomBetween(20, 60),
+          Agility: randomBetween(20, 60),
+          Positioning: randomBetween(20, 60),
+          Crossing: randomBetween(20, 60),
+          LongShot: randomBetween(20, 60),
+          AttackingMindset: false, // random
+          DefensiveMindset: false, // random
+        },
+        isSigned: false
+      };
+
+      // set nationality
+      switch(nationality) {
+        case 'kev':
+          obj.Nationality = '611fe72fb69949fd0152a092'
+        break;
+        case 'bellean':
+          obj.Nationality = '611fcd88b69949fd01529d6d'
+        break
+        default:
+        // default bellean :)
+          obj.Nationality = '611fcd88b69949fd01529d6d'        
+      }
+
+      // set Age
+      obj.Age = randomBetween(18, 30);
+
+      // set Position
+      obj.Role = pickRandomFromArray(Roles[obj.Position]);
+
+      // set Preferred Foot
+      obj.Attributes.PreferredFoot = pickRandomFromArray(['left', 'right']);
+
+      // set AttackingMindset DefensiveMindset
+      obj.Attributes.AttackingMindset = pickRandomFromArray([true, false]);
+      obj.Attributes.DefensiveMindset = pickRandomFromArray([true, false]);
+
+      // set Position specific attributes
+      attributesToIncrease[obj.Position].forEach(attr => {
+        obj.Attributes[attr] = 64;
+      });
+
+      // set Rating
+      obj.Rating = calculatePlayerRating(obj.Attributes, obj.Position, obj.Role);
+
+      // set Value
+      // you need Player's Rating to calculate their Value
+      obj.Value = calculatePlayerValue(obj.Position, obj.Rating, obj.Age);
+
+      return obj;
+}
+
 export {
   getATTMID,
   findFreeBlock,
@@ -471,4 +546,5 @@ export {
   getGK,
   calculatePlayerValue,
   sortFromKeeperDown,
+  generatePlayer
 };

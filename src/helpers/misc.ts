@@ -23,6 +23,11 @@ export function roundTo(number: number, decimalPlaces: number) {
   return Math.round((number + Number.EPSILON) * g) / g;
 }
 
+/** Get a random number between min and max */
+export function randomBetween(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 /** Capitalize te first letter of the text */
 export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -145,8 +150,8 @@ function swap(arr: unknown[], i: number, j: number) {
   arr[i] = arr[j];
   arr[j] = temp;
 }
+/** Returns random integer between 0 and max-1 inclusive. */
 function randInt(max: number) {
-  // returns random integer between 0 and max-1 inclusive.
   return Math.floor(Math.random() * max);
 }
 /**
@@ -183,4 +188,9 @@ export function titleCase(str) {
    }
    // Directly return the joined string
    return splitStr.join(' '); 
+}
+
+/** Select random element from array */
+export function pickRandomFromArray(array: any[]) {
+  return array[Math.floor(Math.random() * array.length)];
 }

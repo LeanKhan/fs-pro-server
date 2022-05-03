@@ -346,9 +346,3 @@ export function compileStandings(standings: SeasonInterface['Standings']) {
   });
   return sortStandings(sum);
 }
-
-/** promote or relegate */
-
-export function prolegate(standings: SeasonInterface['Standings']) {
-  // What kind of season is it?
-}
