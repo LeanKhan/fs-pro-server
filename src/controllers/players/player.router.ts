@@ -13,6 +13,7 @@ import {
   findOnePlayer,
 } from './player.service';
 import { PlayerInterface } from './player.model';
+import { generatePlayers } from './player.controller';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import {
   calculatePlayerRating,
@@ -195,32 +196,7 @@ router.put('/works/add-roles', (req, res) => {
     });
 });
 
-router.get('/generate-players', (req, res) => {
-  const { number, culture } = req.query;
-
-  if(!number || !culture) {
-    return respond.fail(res, 400, 'Provide the number of names and culture to generate');
-  }
-
-  runSpawn("player_names", ["generate", number, "f_l", culture])
-  .then((players: any) => {
-    // separate and capitalize first letter of every word.
-    // then remove empty or undefined names.
-      const names = players.split("\r\n")
-      .filter((x, i) => x || null)
-      .map(n =>
-        n.split("__")
-        .map(l => titleCase(l))
-        .join(" ")
-      );
-
-      return respond.success(res, 200, 'Player names generated', names);
-    })
-    .catch((err: any) => {
-      console.log(err);
-      return respond.fail(res, 400, 'Error generating Player names', err.toString());
-    });
-});
+router.get('/generate-players', generatePlayers);
 
 // router.post('/add-clubcodes', async (req, res) => {
 //   const all_clubs = await fetchClubs({}, 'ClubCode');

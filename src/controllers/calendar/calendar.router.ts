@@ -6,6 +6,7 @@ import {
   startYear,
   createCalendarYear,
   setupDaysInYear,
+  setupDaysInYear2,
   createSeasonsInTheYear,
   endYear,
 } from './calendar.controller';
@@ -125,6 +126,20 @@ router.post(
   '/:year/:id/setup-and-start',
   createSeasonsInTheYear,
   setupDaysInYear,
+  startYear
+);
+
+// FOR TESTING
+router.post(
+  '/:year/:id/setup-and-start-test',
+  createSeasonsInTheYear,
+  setupDaysInYear2,
+  startYear
+);
+
+router.post(
+  '/:year/:id/setup-days-and-start-test',
+  setupDaysInYear2,
   startYear
 );
 
