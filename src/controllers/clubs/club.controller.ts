@@ -200,20 +200,30 @@ const groupBy = function (data, key) {
  *
  */
 export async function createManyClubsFromCSV(req: Request, res: Response) {
-  const { competition } = req.query;
-
-  // if(!filename) {
-  //   return respond.fail(res, 400, 'Please provide a file name');
-  // }
-
-  if (!competition) {
-    return respond.fail(res, 400, 'Please provide a Competition IDd');
-  }
 
   let data: { data: any[]; rowCount: number } = [];
 
-  const saveClubsInCompetition = (club_ids: string[]) => {
-    return updateCompetition(competition, { $addToSet: { Clubs: {$each: club_ids} } });
+  // const saveClubsInCompetition = (competition_id: string, club_ids: string[]) => {
+  //   return updateCompetition(competition_id, { $addToSet: { Clubs: {$each: club_ids} } });
+  // };
+
+  // REFACTOR: turn into resuable function
+  const saveClubsInCompetition = (clubs: IClub[]) => {
+    const competition_clubs = groupBy(clubs, 'League');
+
+    const all_club_ids = {};
+
+    const promise_array = [];
+
+    for (const u of Object.keys(competition_clubs)) {
+      all_club_ids[u] = competition_clubs[u].map((i) => i._id);
+    }
+
+    for (const k of Object.keys(all_club_ids)) {
+      promise_array.push(updateCompetition(k, { $addToSet: { Clubs: {$each: all_club_ids[k]} } }));
+    }
+
+    return Promise.all(promise_array);
   };
 
   const saveClubsInUser = (clubs: IClub[]) => {
@@ -246,13 +256,15 @@ export async function createManyClubsFromCSV(req: Request, res: Response) {
       // get ids...
       club_ids = clubs.map((club: any) => club._id);
       created_clubs = clubs;
-      return clubs;
+      return  Promise.all[saveClubsInUser(clubs), saveClubsInCompetition(clubs)]
+      // return clubs;
     })
-    .then(saveClubsInUser)
+    // .then(saveClubsInUser)
     .then((c: any) => {
+      console.log('Updated Users and  Clubs => ', c);
       return club_ids;
     })
-    .then(saveClubsInCompetition)
+    // .then(saveClubsInCompetition)
     .then((comp: any) => {
 
       log('Clubs created successfully from upload');
