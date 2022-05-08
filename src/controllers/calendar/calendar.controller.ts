@@ -399,6 +399,8 @@ export function setupDaysInYear2(
           CompetitionId: compId,
           MatchType: fx.Type,
           Played: false,
+          // This Time field is almost useless. We cnan use the Fixture's array position to
+          // know the 'position in time' of this match. If we ever need to know.
           Time: time + '',
           FixtureIndex: fixture_index,
           Week: week,

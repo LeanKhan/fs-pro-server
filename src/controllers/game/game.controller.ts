@@ -273,3 +273,12 @@ export function restUpdateStandings(
    * Update the Players...
    */
 }
+
+
+export function simulateRest(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+
+};

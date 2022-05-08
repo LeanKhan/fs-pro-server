@@ -91,10 +91,11 @@ export const createNewPlayer = async (_player: PlayerInterface) => {
 export function toggleSigned(
   playerId: string,
   value: boolean,
-  clubCode: string | null
+  clubCode: string | null,
+  clubId: string | null
 ) {
   return DB.Models.Player.findByIdAndUpdate(playerId, {
-    $set: { isSigned: !value, ClubCode: clubCode },
+    $set: { isSigned: !value, ClubCode: clubCode, Club: clubId },
   })
     .lean()
     .exec();
@@ -301,3 +302,11 @@ export function allPlayerStats(
       { $sort: {'points': -1} }
     ]
  * */
+
+
+/**
+ * Create Many Players
+ */
+export function createMany(players: any[]) {
+  return DB.Models.Player.insertMany(players, { ordered: true });
+}

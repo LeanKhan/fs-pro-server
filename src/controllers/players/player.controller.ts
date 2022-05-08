@@ -1,6 +1,6 @@
 import respond from '../../helpers/responseHandler';
 import { NextFunction, Request, Response } from 'express';
-import { getPlayerStats, updateById, updatePlayers } from './player.service';
+import { getPlayerStats, updateById, updatePlayers, createMany } from './player.service';
 import { updateManagers } from '../managers/manager.service';
 import { newAttributeRatings, generatePlayer } from '../../utils/players';
 import { PlayerInterface, IPlayerAttributes } from '../../interfaces/Player';
@@ -135,10 +135,10 @@ export function generatePlayers(req: Request, res: Response, next: NextFunction)
         // .join(" ")
       );
 
-      let generated_players = names.map(p => generatePlayer({
-        position, 
-        firstname: p[0], 
-        lastname: p[1], 
+      const generated_players = names.map(p => generatePlayer({
+        position,
+        firstname: p[0],
+        lastname: p[1],
         nationality: culture
       }));
 
@@ -146,11 +146,12 @@ export function generatePlayers(req: Request, res: Response, next: NextFunction)
   }
 
 
-  // TODO: finish up by then saving to database 
+  // TODO: finish up by then saving to database
   runSpawn('player_names', ['generate', number, 'f_l', culture])
   .then(generatePlayerObjects)
+  .then(createMany)
   .then((generated_players: any[]) => {
-          return respond.success(res, 200, 'Players generated', generated_players);
+          return respond.success(res, 200, 'Players generated successfully!', generated_players);
   })
     .catch((err: any) => {
       console.log(err);
