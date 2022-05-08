@@ -460,13 +460,14 @@ export function newAttributeRatings(player: PlayerInterface, pnts: number) {
 
 function generatePlayer({position, firstname, lastname, nationality}:
   {position: string, firstname: string, lastname: string, nationality: string}) {
-  
+
   const obj = {
         FirstName: firstname,
         LastName: lastname,
         Nationality: '', // set
         Age: 0, // random
         Position: position,
+        Rating: 0,
         Role: '', // random
         Attributes: {
           PreferredFoot: '', // random
@@ -507,7 +508,7 @@ function generatePlayer({position, firstname, lastname, nationality}:
         break
         default:
         // default bellean :)
-          obj.Nationality = '611fcd88b69949fd01529d6d'        
+          obj.Nationality = '611fcd88b69949fd01529d6d'
       }
 
       // set Age

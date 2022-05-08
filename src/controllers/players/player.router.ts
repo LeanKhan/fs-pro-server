@@ -42,16 +42,38 @@ router.get('/all', (req, res) => {
     }
   } catch (err) {
     log(`Error parsing JSON => ${err}`);
+      return respond.fail(res, 400, 'Error fetching players: Parsing Options', err.toString());
   }
 
   fetchAll(options)
     .then((players: any) => {
-      respond.success(res, 200, 'Players fetched successfully', players);
+      return respond.success(res, 200, 'Players fetched successfully', players);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching players', err);
+      return respond.fail(res, 400, 'Error fetching players', err.toString());
     });
 });
+
+// router.get('/club', (req, res) => {
+//   let options = req.query.options || {};
+//   // This prevents the app from crashing if there's
+//   // an error parsing object :)
+//   try {
+//     if (req.query.options) {
+//       options = JSON.parse(req.query.options);
+//     }
+//   } catch (err) {
+//     log(`Error parsing JSON => ${err}`);
+//   }
+
+//   fetchAll(options)
+//     .then((players: any) => {
+//       respond.success(res, 200, 'Players fetched successfully', players);
+//     })
+//     .catch((err: any) => {
+//       respond.fail(res, 400, 'Error fetching players', err);
+//     });
+// });
 
 /**
  * Update a Player

@@ -30,7 +30,7 @@ Each fork represents work on a specific feature or task. Fork this repository to
 
 When working with many people on the same codebase, sometimes others make changes that affect your work. While great care has been taken to create a modular team workflow to keep this to a minimum, merge conflicts are inevitable. It would _suck_ to finish working on a task or feature, only to find that the codebase has evolved and you need to rework everything to conform to the new changes. This is managed in two ways:
 
-**_First_**, make sure your work is in line with our specifications. Understand the folder structure and stick to it. Study the tasks list on Pivotal Tracker and identify any tasks that your work may depend on or that relates to yours in some way. Contact the team leads or project managers if you need any clarification. Do your due dilligence to make sure you are on the same page with everyone else. This is your responsibility. Your submission may be rejected if it's non-compliant.  
+**_First_**, make sure your work is in line with our specifications. Understand the folder structure and stick to it. Study the tasks list on Pivotal Tracker and identify any tasks that your work may depend on or that relates to yours in some way. Contact the team leads or project managers if you need any clarification. Do your due dilligence to make sure you are on the same page with everyone else. This is your responsibility. Your submission may be rejected if it's non-compliant.
 **_Second_**, each team member needs to make sure that at every given time, their working directory is up-to-date with the latest changes from the upstream _develop_ branch. This is achieved with a two-fold process.
 
 #### Pulling Upstream
@@ -41,8 +41,8 @@ After setting up your fork on github and cloning it locally on your system, you'
     <pre>git remote add upstream git://github.com/TEAM-NAME/REPO-NAME.git</pre>
    PS: _You may get an error saying the `upstream` remote has already been configured. If so, then you are good to go._
 
-Now you're all set up.  
-**_The following steps must be run periodically to keep your work up-to-date! You can run these commands as often as every hour. You want to fetch any new changes as soon as possible. Each time you want to begin working, or take a break from your work, run these first._**  
+Now you're all set up.
+**_The following steps must be run periodically to keep your work up-to-date! You can run these commands as often as every hour. You want to fetch any new changes as soon as possible. Each time you want to begin working, or take a break from your work, run these first._**
 Be sure to [stash](https://dev.to/neshaz/how-to-git-stash-your-work-the-correct-way-cna)
 or commit all local changes first.
 
@@ -94,6 +94,16 @@ If you've created a new branch to work on rather than working directly on `devel
 **./server.ts** where the magic happens
 
 <!-- **test** – Mocha test files through Chai assertion library. - comming soon -->
+
+### Writing le code
+Use these labels in addition to TODO in your comments
+FIXME:	something is broken
+HACK/OPTIMIZE:	the code is suboptimal and should be refactored
+BUG:	there is a bug in the code
+CHECKME/REVIEW:	the code needs to be reviewed
+DOCME:	the code needs to be documented (either in codebase or external documentation)
+TESTME:	the specified code needs to be tested or that tests need to be written for that selection o
+from [https://goldin.io/blog/stop-using-todo](https://goldin.io/blog/stop-using-todo)
 
 ### VS CODE
 

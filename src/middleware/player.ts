@@ -20,13 +20,15 @@ export const updatePlayerSigning: RequestHandler = async (
     resp = await toggleSigned(
       req.body.data.playerId,
       req.body.data.isSigned,
+      null,
       null
     );
   } else {
     resp = await toggleSigned(
       req.body.data.playerId,
       req.body.data.isSigned,
-      req.body.data.clubCode
+      req.body.data.clubCode,
+      req.body.data.clubId
     );
   }
 
