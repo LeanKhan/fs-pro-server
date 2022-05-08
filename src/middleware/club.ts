@@ -12,6 +12,10 @@ import respond from '../helpers/responseHandler';
 import log from '../helpers/logger';
 import { IClub } from '../interfaces/Club';
 
+function getRatingValues(rating_obj) {
+  return rating_obj ? rating_obj.avg_rating : 0;
+}
+
 export const calculateClubRating: RequestHandler = (
   req: Request,
   res: Response
@@ -27,15 +31,11 @@ export const calculateClubRating: RequestHandler = (
         }, 0);
       }
 
-      const attClass =
-        (ratings.find((r) => r.position === 'ATT').avg_rating +
-          ratings.find((r) => r.position === 'MID').avg_rating) /
-        2;
+      const attClass = getRatingValues(ratings.find((r) => r.position === 'ATT')) +
+      getRatingValues(ratings.find((r) => r.position === 'MID')) / 2;
 
-      const defClass =
-        (ratings.find((r) => r.position === 'GK').avg_rating +
-          ratings.find((r) => r.position === 'DEF').avg_rating) /
-        2;
+      const defClass = getRatingValues(ratings.find((r) => r.position === 'GK')) +
+      getRatingValues(ratings.find((r) => r.position === 'DEF')) / 2;
 
       const avg_total_rating = total_rating ? total_rating / ratings.length : 0;
 
@@ -46,7 +46,7 @@ export const calculateClubRating: RequestHandler = (
       };
 
       ratings.forEach((rating, i) => {
-        data[`${rating.position}_Rating`] = rating.avg_rating;
+        data[`${rating.position}_Rating`] = getRatingValues(rating);
       });
 
       // Now update club...
