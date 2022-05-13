@@ -99,8 +99,9 @@ export default class DB {
       Award: new Award().model,
     };
 
-    set('useFindAndModify', false);
-    set('useCreateIndex', true);
+    // TODO: remove this later
+    set('strictQuery', false);
+    set('strict', false);
   }
 
   public static get Models() {

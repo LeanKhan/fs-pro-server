@@ -45,15 +45,16 @@ const store = new MongoStore(
   }
 );
 
+const cors_whitelist = [
+      'http://localhost:8080',
+      'http://192.168.208.6:8080',
+      // get host from env vars
+      'http://' + (process.env.REMOTE_HOST.trim() || 'localhost' ) + ':8080'
+      ];
+
 app.use(
   cors({
-    origin: [
-      'http://localhost:8080',
-      'http://192.168.43.163:8080',
-      'http://192.168.0.137:8080',
-      'http://192.168.0.111:8080',
-      'http://192.168.0.144:8080',
-    ],
+    origin: cors_whitelist,
     credentials: true,
   })
 );

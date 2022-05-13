@@ -177,6 +177,27 @@ export function addPlayerToClubMiddleware(
     });
 }
 
+export function addManyPlayersToClub(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  // tslint:disable-next-line: variable-name
+  const { playerIds, clubId } = req.body.data;
+
+  updateClub(clubId, {
+      $addToSet: { Players: {$each: playerIds} }
+    })
+    .then((club) => {
+      req.body.club = club;
+
+      next();
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching Club', err.toString());
+    });
+}
+
 export async function addLeagueToClub(
   req: Request,
   res: Response,

@@ -8,8 +8,15 @@ import { ManagerInterface } from './manager.model';
  * default behaviour is to send all players in the db
  */
 export function fetchAll(
-  query: Record<string, unknown> = {}
+  query: Record<string, unknown> = {},
+  populate?: string
 ): Promise<ManagerInterface[]> {
+  if (populate == 'Club') {
+    return DB.Models.Manager.find(query)
+    .populate('Club', 'Name ClubCode LeagueCode')
+    .populate('Nationality')
+    .lean().exec();
+  }
   return DB.Models.Manager.find(query).lean().exec();
 }
 

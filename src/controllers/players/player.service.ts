@@ -102,7 +102,7 @@ export function toggleSigned(
 }
 
 export function updatePlayers(query: any, update: any) {
-  return DB.Models.Player.updateMany(query, update);
+  return DB.Models.Player.updateMany(query, update, { multi: true });
 }
 
 export function getPlayerStats(calendar_id: string) {

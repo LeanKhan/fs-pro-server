@@ -218,6 +218,7 @@ export class Player {
           type: Number,
         },
         Form: { type: Number, default: 6 },
+        isReserve: { type: Boolean, default: false },
         Appearance: PlayerAppearanceSchema,
         TransferHistory: [PlayerTransferHistorySchema],
         /** Maybe this should be updated at the end of every season... */
