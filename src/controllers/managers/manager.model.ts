@@ -61,11 +61,13 @@ export class Manager {
           type: String,
         },
         Club: { type: Schema.Types.ObjectId, ref: 'Club' },
+        Nationality: { type: Schema.Types.ObjectId, ref: 'Place' },
         NationalTeam: {
           type: Boolean,
           default: false,
         },
-        type: Boolean,
+        Records: [],
+        isEmployed: {type: Boolean, default: false},
       },
       { timestamps: true }
     );

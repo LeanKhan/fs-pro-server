@@ -115,7 +115,8 @@ export class Match implements IMatch, MatchClass {
       // add to match actions...
       this.Actions.push({
         type: 'goal',
-        playerID: data.shooter.PlayerID,
+        // save player's actual ID from now on!
+        playerID: data.shooter._id,
         playerTeam: data.shooter.ClubCode!,
         timestamp: this.getCurrentTime,
       });
@@ -182,7 +183,7 @@ export class Match implements IMatch, MatchClass {
       // add to match actions...
       this.Actions.push({
         type: 'pass',
-        playerID: data.passer.PlayerID,
+        playerID: data.passer._id,
         playerTeam: data.passer.ClubCode!,
         timestamp: this.getCurrentTime,
       });
@@ -372,7 +373,7 @@ export class Match implements IMatch, MatchClass {
     const allPlayers = this.Home.StartingSquad.concat(this.Away.StartingSquad);
 
     return allPlayers.find((player) => {
-      return player.PlayerID === id;
+      return player._id === id;
     });
   }
 

@@ -8,8 +8,9 @@ import {
   updateClub,
   deleteByRemove,
 } from './club.service';
-import { updatePlayerSigning } from '../../middleware/player';
+import { updateManyPlayerSigning, updatePlayerSigning } from '../../middleware/player';
 import {
+  addManyPlayersToClub,
   addPlayerToClubMiddleware,
   calculateClubRating,
   updateAllClubsRating,
@@ -20,7 +21,6 @@ import {
   removeManagerFromClub,
 } from './club.controller';
 import { setupRoutes } from '../../helpers/queries';
-import { tmp_uploader, uploader } from '../../services/file/multer.config';
 
 const router = Router();
 
@@ -55,9 +55,7 @@ router.get('/fetch', (req, res) => {
     });
   }
 
-  const response = fetchClubs(query, select);
-
-  response
+  fetchClubs(query, select)
     .then((clubs) => {
       return respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
@@ -123,6 +121,16 @@ router.put(
   '/:id/add-player',
   updatePlayerSigning,
   addPlayerToClubMiddleware,
+  calculateClubRating
+);
+
+/** Add Players to Club
+ * - send a list of Player IDs!
+ */
+router.put(
+  '/:id/add-many-players',
+  updateManyPlayerSigning,
+  addManyPlayersToClub,
   calculateClubRating
 );
 

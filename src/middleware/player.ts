@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import {Types} from 'mongoose';
 
 import {
   Request,
@@ -8,7 +8,7 @@ import {
   RequestHandler,
 } from 'express';
 import respond from '../helpers/responseHandler';
-import { toggleSigned } from '../controllers/players/player.service';
+import { toggleSigned, updatePlayers } from '../controllers/players/player.service';
 
 export const updatePlayerSigning: RequestHandler = async (
   req: Request,
@@ -31,6 +31,34 @@ export const updatePlayerSigning: RequestHandler = async (
       req.body.data.clubId
     );
   }
+
+  if (!resp.error) {
+    next();
+  } else {
+    respond.fail(res, 400, 'Error adding player to club');
+  }
+};
+
+export const updateManyPlayerSigning: RequestHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  let resp;
+
+  const { playerIds, clubId, clubCode } = req.body.data;
+
+  const pIds = playerIds.map(p => Types.ObjectId(p));
+
+  const query = {'_id': { $in:  pIds}};
+  const update = {
+    $set: { isSigned: true, ClubCode: clubCode, Club: clubId },
+  };
+
+    resp = await updatePlayers(
+      query,
+      update
+    );
 
   if (!resp.error) {
     next();

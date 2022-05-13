@@ -15,7 +15,6 @@ export interface Fixture {
   LeagueCode: string;
   Season: string;
   Played: boolean;
-  MatchDate: string;
   PlayedAt: Date;
   Week: number;
   Home: string;
@@ -25,6 +24,8 @@ export interface Fixture {
   Stadium: string;
   Type: 'league' | 'cup' | 'tournament' | 'friendly';
   Status: 'friendly' | 'first-leg' | 'second-leg' | 'regular';
+  Tie: string;
+  Stage: string;
   ReverseFixture: string;
   Details: IMatchDetails;
   HomeSideDetails: IMatchSideDetails;
