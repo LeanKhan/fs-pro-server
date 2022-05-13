@@ -10,7 +10,8 @@ import { Season, SeasonInterface } from './season.model';
 export function fetchAll(
   query: Record<string, unknown> = {},
   populate: boolean | string = false,
-  select: boolean | string = false
+  select: boolean | string = false,
+  sort: {field: string, dir: number}
 ) {
   if (populate && select) {
     return DB.Models.Season.find(query)
@@ -22,6 +23,10 @@ export function fetchAll(
 
   if (populate) {
     return DB.Models.Season.find(query).populate(populate).lean().exec();
+  }
+
+  if(sort) {
+      return DB.Models.Season.find(query).sort(sort).lean().exec();
   }
 
   return DB.Models.Season.find(query).lean().exec();
