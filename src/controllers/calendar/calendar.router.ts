@@ -1,11 +1,12 @@
 import { Router, Request, Response } from 'express';
 import respond from '../../helpers/responseHandler';
-import { fetchOneById, fetchAll, deleteById } from './calendar.service';
+import { fetchOneById, fetchAll, deleteByRemove, deleteDayByRemove } from './calendar.service';
 import {
   getCurrentCalendar,
   startYear,
   createCalendarYear,
   setupDaysInYear,
+  setupDaysInYear2,
   createSeasonsInTheYear,
   endYear,
 } from './calendar.controller';
@@ -37,14 +38,26 @@ router.get('/calendars/:id', (req, res) => {
 
 /** Delete Calendar by id */
 router.delete('/calendars/:id', (req, res) => {
-  deleteById(req.params.id)
+  deleteByRemove(req.params.id)
     .then((calendar: any) => {
       respond.success(res, 200, 'Calendar deleted successfully :)', calendar);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error deleting Calendar', err);
+      respond.fail(res, 400, 'Error deleting Calendar', err.toString());
     });
 });
+
+router.delete('/days/:id', (req, res) => {
+  deleteDayByRemove(req.params.id)
+    .then((calendar: any) => {
+      respond.success(res, 200, 'Calendar Day deleted successfully :)', calendar);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error deleting Calendar Day', err.toString());
+    });
+});
+
+// TODO: add delte by code endpoint... or modify above
 
 /** Get all Calendars */
 router.get('/calendars', (req, res) => {
@@ -113,6 +126,20 @@ router.post(
   '/:year/:id/setup-and-start',
   createSeasonsInTheYear,
   setupDaysInYear,
+  startYear
+);
+
+// FOR TESTING
+router.post(
+  '/:year/:id/setup-and-start-test',
+  createSeasonsInTheYear,
+  setupDaysInYear2,
+  startYear
+);
+
+router.post(
+  '/:year/:id/setup-days-and-start-test',
+  setupDaysInYear2,
   startYear
 );
 

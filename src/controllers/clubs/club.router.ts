@@ -6,16 +6,21 @@ import {
   fetchSingleClubById,
   fetchClubs,
   updateClub,
-  deleteById,
+  deleteByRemove,
 } from './club.service';
-import { updatePlayerSigning } from '../../middleware/player';
+import { updateManyPlayerSigning, updatePlayerSigning } from '../../middleware/player';
 import {
+  addManyPlayersToClub,
   addPlayerToClubMiddleware,
   calculateClubRating,
   updateAllClubsRating,
 } from '../../middleware/club';
-import { addManagerToClub, removeManagerFromClub } from './club.controller';
-import { baseQuery, setupRoutes } from '../../helpers/queries';
+import {
+  addManagerToClub,
+  createManyClubsFromCSV,
+  removeManagerFromClub,
+} from './club.controller';
+import { setupRoutes } from '../../helpers/queries';
 
 const router = Router();
 
@@ -28,7 +33,7 @@ router.get('/all', (req, res) => {
       respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching Clubs', err);
+      respond.fail(res, 400, 'Error fetching Clubs', err.toString());
     });
 });
 
@@ -50,14 +55,12 @@ router.get('/fetch', (req, res) => {
     });
   }
 
-  const response = fetchClubs(query, select);
-
-  response
+  fetchClubs(query, select)
     .then((clubs) => {
       return respond.success(res, 200, 'Clubs fetched successfully', clubs);
     })
     .catch((err) => {
-      return respond.fail(res, 400, 'Error fetching Clubs', err);
+      return respond.fail(res, 400, 'Error fetching Clubs', err.toString());
     });
 });
 
@@ -81,20 +84,20 @@ router.post('/:id/update', (req, res) => {
       respond.success(res, 200, 'Club updated successfully', club);
     })
     .catch((err) => {
-      respond.fail(res, 400, 'Error updating Club', err);
+      respond.fail(res, 400, 'Error updating Club', err.toString());
     });
 });
 
+// TODO: add protection to prevent this from deleting without
+// confirmation.
 /** Delete Club by id */
 router.delete('/:id', (req, res) => {
-  const response = deleteById(req.params.id);
-
-  response
+  deleteByRemove(req.params.id)
     .then((data: any) => {
       respond.success(res, 200, 'Club deleted successfully', data);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error deleting Club', err);
+      respond.fail(res, 400, 'Error deleting Club', err.toString());
     });
 });
 
@@ -106,12 +109,9 @@ router.get('/:id', (req, res) => {
         respond.success(res, 200, 'Club fetched successfully', club);
       })
       .catch((err) => {
-
         respond.fail(res, 400, 'Error fetching Club', err.toString());
       });
   } catch (err) {
-
-
     respond.fail(res, 400, 'Error fetching Club', err.toString());
   }
 });
@@ -121,6 +121,16 @@ router.put(
   '/:id/add-player',
   updatePlayerSigning,
   addPlayerToClubMiddleware,
+  calculateClubRating
+);
+
+/** Add Players to Club
+ * - send a list of Player IDs!
+ */
+router.put(
+  '/:id/add-many-players',
+  updateManyPlayerSigning,
+  addManyPlayersToClub,
   calculateClubRating
 );
 

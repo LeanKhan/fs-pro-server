@@ -29,6 +29,8 @@ const alphabet = [
   's',
   't',
   'u',
+  'v',
+  'w',
   'x',
   'y',
   'z',
@@ -149,7 +151,7 @@ export function indexFromMonth(month: string): number {
 export function randomCode(length: number) {
   let code = '';
   for (let index = 0; index < length; index++) {
-    const i = Math.round(Math.random() * alphabet.length);
+    const i = Math.round(Math.random() * (alphabet.length - 1));
     code = code.concat(alphabet[i]);
   }
 
@@ -345,10 +347,4 @@ export function compileStandings(standings: SeasonInterface['Standings']) {
     );
   });
   return sortStandings(sum);
-}
-
-/** promote or relegate */
-
-export function prolegate(standings: SeasonInterface['Standings']) {
-  // What kind of season is it?
 }

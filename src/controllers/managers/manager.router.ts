@@ -3,6 +3,7 @@ import {
   fetchAll,
   fetchOneById,
   deleteById,
+  deleteByRemove,
   create,
   updateById,
 } from './manager.service';
@@ -17,18 +18,31 @@ const router = Router();
 
 /** FETCH ALL MANAGERS */
 router.get('/', (req, res) => {
-  let options = req.query.options || {};
+  let options = req.query.options;
   // This prevents the app from crashing if there's
   // an error parsing object :)
+
   try {
-    if (req.query.options) {
-      options = JSON.parse(req.query.options);
+    if (options) {
+      options = JSON.parse(options);
     }
   } catch (err) {
+  return  respond.fail(res, 400, 'Error fetching players', err.toString());
     log(`Error parsing JSON => ${err}`);
   }
 
-  fetchAll(options)
+  fetchAll(options, req.query.populate)
+    .then((managers) => {
+      respond.success(res, 200, 'Managers fetched successfully', managers);
+    })
+    .catch((err) => {
+      respond.fail(res, 400, 'Error fetching Managers', err.toString());
+    });
+});
+
+router.get('/unemployed', (req, res) => {
+
+  fetchAll({isEmployed: false}, 'Club')
     .then((managers) => {
       respond.success(res, 200, 'Managers fetched successfully', managers);
     })
@@ -45,7 +59,7 @@ router.get('/:id', (req, res) => {
   try {
     po = req.query.populate && JSON.parse(req.query.populate);
   } catch (err) {
-    console.error('Error fetching manager, ', +err);
+    console.error('Error fetching manager, ', err.toString());
     return respond.fail(
       res,
       400,
@@ -105,7 +119,7 @@ router.delete('/:id', (req, res) => {
   };
 
   const deleteManager = () => {
-    return deleteById(id);
+    return deleteByRemove(id);
   };
 
   // hey, link up!

@@ -32,6 +32,22 @@ export function fetchClubs(
 export function deleteById(id: string) {
   return DB.Models.Club.findByIdAndDelete(id).lean().exec();
 }
+/**
+ * Delete Club by Id using 'remove' method
+ *
+ * @param id Club Id
+ * @returns
+ */
+export async function deleteByRemove(id: string) {
+
+  const doc = await DB.Models.Club.findById(id);
+
+   if(!doc) {
+     throw new Error(`Club [${id}] does not exist`);
+   }
+
+   return doc.remove();
+  }
 
 /**
  * fecthSingleClubById
@@ -181,6 +197,13 @@ export function updateClubsById(clubIds: string[], data: any = {}) {
   })
     .lean()
     .exec();
+}
+
+/**
+ * Create Many Clubs
+ */
+export function createMany(clubs: any[]) {
+  return DB.Models.Club.insertMany(clubs, { ordered: true });
 }
 
 interface IClubsResponse {

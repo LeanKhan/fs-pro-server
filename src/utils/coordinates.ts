@@ -113,7 +113,7 @@ export default class Coordinates {
      */
 
     if (originPlayer) {
-      plyrs = plyrs.filter((p) => p.PlayerID !== originPlayer.PlayerID);
+      plyrs = plyrs.filter((p) => p._id !== originPlayer._id);
     }
 
     // Now select a random player from the first three options

@@ -1,0 +1,25 @@
+Name,ClubCode,AttackingClass,DefensiveClass,Address.Section,Address.City,Address.Country,Stadium.Name,Stadium.Capacity,Stadium.Location,User,League,LeagueCode
+Ceviva Chiefs FZ,CHI,,,Center City,Ceviva,611fe72fb69949fd0152a092,Temple Grounds,12000,"10, Social way, Center City",5ed65ccfa18c503ef00dcd63,62769903909bc816a0243407,KLV
+Ceviva Torrents,CTR,,,Mahogany,Ceviva,611fe72fb69949fd0152a092,National Stadium 2,12000,"1, Stadium Road, Mahogany",5ebe57d47a6c373794f823ef,62769926909bc816a0243409,KLS
+Red Knights LC,RED,,,Flower Plain Valley,Damwinth,611fe72fb69949fd0152a092,Plain Circu,12000,"7, Tank Street, Flower Plain Valley",5ed65ccfa18c503ef00dcd63,62769926909bc816a0243409,KLS
+Pace FZ,PAC,,,Queens,Damwinth,611fe72fb69949fd0152a092,Queens Sports Center,12000,"2121, Main Road, Queens",5ebe57d47a6c373794f823ef,62769903909bc816a0243407,KLV
+Feedhein Tridents FZ,TRI,,,Windev,Feedhein,611fe72fb69949fd0152a092,Trident Dome,12000,"2, Trident Dome Way, Windev",5ed65ccfa18c503ef00dcd63,62769903909bc816a0243407,KLV
+Feedhein United,FUN,,,Windev,Feedhein,611fe72fb69949fd0152a092,Feedhein City Stadium,12000,"1, Hanseen Parole Street, Windev",5ebe57d47a6c373794f823ef,62769926909bc816a0243409,KLS
+Jacwinth Tanks FZ,JAC,,,Red Wall Heights,Jacwinth,611fe72fb69949fd0152a092,Jacwinth Park,12000,"15th Passage, Red Wall Heights",5ed65ccfa18c503ef00dcd63,62769926909bc816a0243409,KLS
+Dominion United,DOU,,,Kings,Jacwinth,611fe72fb69949fd0152a092,Dominion Tower,12000,"12, Endurance, Kings",5ebe57d47a6c373794f823ef,62769903909bc816a0243407,KLV
+Kyte FZ,KFZ,,,Curten,Manitobva,611fe72fb69949fd0152a092,Token Larr Memrable Circu,12000,"23,  Curtain Roda 1, Curten",5ed65ccfa18c503ef00dcd63,62769903909bc816a0243407,KLV
+Green Blue FZ,GBL,,,Loyte'a,Manitobva,611fe72fb69949fd0152a092,Kasper Hall Stadium,12000,"300, Left Hook, Farsity Way, Loyte'a",5ebe57d47a6c373794f823ef,62769926909bc816a0243409,KLS
+FZ Sporto Midu,SPO,,,High Iron,Midu,611fe72fb69949fd0152a092,High Iron Stadie,12000,"5, Busy District, High Iron",5ed65ccfa18c503ef00dcd63,62769926909bc816a0243409,KLS
+Giants FZ,GFZ,,,Vivaanne-Grateful,Midu,611fe72fb69949fd0152a092,National High Table Stadium,12000,"1, Vivaanne-Grateful Interchange, Vivaanne",5ebe57d47a6c373794f823ef,62769903909bc816a0243407,KLV
+Poovent United,PUN,,,Archin,Poovent,611fe72fb69949fd0152a092,Archin City Stadie,12000,"1, Main Street, Archin Town",5ed65ccfa18c503ef00dcd63,62769903909bc816a0243407,KLV
+Dynamite LC,DYN,,,Pleasant,Poovent,611fe72fb69949fd0152a092,International Arena,12000,"212, Fortune Way, Pleasant",5ebe57d47a6c373794f823ef,62769926909bc816a0243409,KLS
+Porgregge Smiles,PGS,,,Ovengregge,Portgregge,611fe72fb69949fd0152a092,K-Star Park,12000,"9, Haliburton Highway, Exit 1, Ovengregge",5ebe57d47a6c373794f823ef,62769926909bc816a0243409,KLS
+Blaze City FZ,BFZ,,,Ovengregge,Potgregge,611fe72fb69949fd0152a092,The Estovan,12000,"1, Ovengregge",5ed65ccfa18c503ef00dcd63,62769903909bc816a0243407,KLV
+FZ Pregge,FZP,,,Pregge town,Pregge,611fe72fb69949fd0152a092,United Front Circu,12000,"23, Proud Street, Pregge Town",5ed65ccfa18c503ef00dcd63,62769903909bc816a0243407,KLV
+Boruzzia Pregge,BPG,,,Flourishing,Pregge,611fe72fb69949fd0152a092,Boruzzia Pregge Stadium,12000,"22, G-5 Roundabout, Flourishing",5ebe57d47a6c373794f823ef,62769926909bc816a0243409,KLS
+Sdev Sands,SDS,,,Tankovia Falls,Sdev,611fe72fb69949fd0152a092,Stadie Vrom Sands,12000,"1201, Tight, Corner Aerea, Tankovia Falls",5ed65ccfa18c503ef00dcd63,62769926909bc816a0243409,KLS
+Stallions FZ,SFZ,,,Drogon,Sdev,611fe72fb69949fd0152a092,The Stable Stadium,12000,"1, Soccer way, Drogon",5ebe57d47a6c373794f823ef,62769903909bc816a0243407,KLV
+Sunny City FZ,SUN,,,Exhibition ,Stonkev,611fe72fb69949fd0152a092,Sun Voobal Stadie,12000,"379, Granite Roda 1, Exhibition",5ed65ccfa18c503ef00dcd63,62769903909bc816a0243407,KLV
+Bats FZ,BAT,,,Exhibition ,Stonkev,611fe72fb69949fd0152a092,Stonkev Farsity Stadium,12000,"120-A, Passerby Square, Exhibition",5ebe57d47a6c373794f823ef,62769926909bc816a0243409,KLS
+Netts FZ,NET,,,Marble Hill,Storr,611fe72fb69949fd0152a092,Hill Dome Park,12000,"12, Egge Farmers way, Marble Hill",5ed65ccfa18c503ef00dcd63,62769926909bc816a0243409,KLS
+Storr Lokomotiv,LKM,,,Surplus Supply,Storr,611fe72fb69949fd0152a092,Hyacinth Stadium,12000,"31-B, General Avenue, Surplus Supply",5ebe57d47a6c373794f823ef,62769903909bc816a0243407,KLV

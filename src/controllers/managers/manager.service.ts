@@ -8,8 +8,15 @@ import { ManagerInterface } from './manager.model';
  * default behaviour is to send all players in the db
  */
 export function fetchAll(
-  query: Record<string, unknown> = {}
+  query: Record<string, unknown> = {},
+  populate?: string
 ): Promise<ManagerInterface[]> {
+  if (populate == 'Club') {
+    return DB.Models.Manager.find(query)
+    .populate('Club', 'Name ClubCode LeagueCode')
+    .populate('Nationality')
+    .lean().exec();
+  }
   return DB.Models.Manager.find(query).lean().exec();
 }
 
@@ -70,8 +77,19 @@ export function deleteById(id: string) {
   return DB.Models.Manager.findByIdAndDelete(id).lean().exec();
 }
 
-/** Update Many Managers */
+/** DeleteByRemove */
+export async function deleteByRemove(id: string) {
 
+  const doc = await DB.Models.Manager.findById(id);
+
+   if(!doc) {
+     throw new Error(`Manager [${id}] does not exist`);
+   }
+
+   return doc.remove();
+  }
+
+/** Update Many Managers */
 export function updateManagers(query: any, update: any) {
   return DB.Models.Manager.updateMany(query, update);
 }

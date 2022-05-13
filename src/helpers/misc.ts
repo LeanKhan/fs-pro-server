@@ -23,6 +23,11 @@ export function roundTo(number: number, decimalPlaces: number) {
   return Math.round((number + Number.EPSILON) * g) / g;
 }
 
+/** Get a random number between min and max */
+export function randomBetween(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min) + min);
+}
+
 /** Capitalize te first letter of the text */
 export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
@@ -147,6 +152,8 @@ function swap(arr: unknown[], i: number, j: number) {
 }
 function randInt(max: number) {
   // returns random integer between 0 and max-1 inclusive.
+/** Returns random integer between 0 and max-1 inclusive. */
+function randInt(max: number) {
   return Math.floor(Math.random() * max);
 }
 /**
@@ -167,4 +174,25 @@ export function shuffleArray(arr: unknown[]) {
   }
 
   return a;
+}
+
+/**
+ * Capitalize first letter of every word.
+ * 
+ * from => https://stackoverflow.com/a/32589289/10382407
+ * */
+export function titleCase(str) {
+   var splitStr = str.toLowerCase().split(' ');
+   for (var i = 0; i < splitStr.length; i++) {
+       // You do not need to check if i is larger than splitStr length, as your for does that for you
+       // Assign it back to the array
+       splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+   }
+   // Directly return the joined string
+   return splitStr.join(' '); 
+}
+
+/** Select random element from array */
+export function pickRandomFromArray(array: any[]) {
+  return array[Math.floor(Math.random() * array.length)];
 }

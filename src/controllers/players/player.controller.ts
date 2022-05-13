@@ -1,9 +1,11 @@
 import respond from '../../helpers/responseHandler';
 import { NextFunction, Request, Response } from 'express';
-import { getPlayerStats, updateById, updatePlayers } from './player.service';
+import { getPlayerStats, updateById, updatePlayers, createMany } from './player.service';
 import { updateManagers } from '../managers/manager.service';
-import { newAttributeRatings } from '../../utils/players';
+import { newAttributeRatings, generatePlayer } from '../../utils/players';
 import { PlayerInterface, IPlayerAttributes } from '../../interfaces/Player';
+import { runSpawn } from '../../utils/scripts';
+import { titleCase } from '../../helpers/misc';
 
 export function updatePlayersDetails(
   req: Request,
@@ -114,4 +116,46 @@ export function updatePlayersDetails(
       console.log('Error updating Player values and ending year! => ', err);
       return respond.fail(res, 400, 'Error updating Player values', err);
     });
+}
+
+/** Generate Players */
+export function generatePlayers(req: Request, res: Response, next: NextFunction) {
+  const { number, culture, position } = req.query;
+
+  if(!number || !culture || !position) {
+    return respond.fail(res, 400, 'Provide the number of names, culture, position to generate Players');
+  }
+
+  const generatePlayerObjects = (player_names: string) => {
+    const names = player_names.split("\r\n")
+      .filter((x, i) => x || null)
+      .map(n =>
+        n.split('__')
+        .map(l => titleCase(l))
+        // .join(" ")
+      );
+
+      const generated_players = names.map(p => generatePlayer({
+        position,
+        firstname: p[0],
+        lastname: p[1],
+        nationality: culture
+      }));
+
+      return generated_players;
+  }
+
+
+  // TODO: finish up by then saving to database
+  runSpawn('player_names', ['generate', number, 'f_l', culture])
+  .then(generatePlayerObjects)
+  .then(createMany)
+  .then((generated_players: any[]) => {
+          return respond.success(res, 200, 'Players generated successfully!', generated_players);
+  })
+    .catch((err: any) => {
+      console.log(err);
+      return respond.fail(res, 400, 'Error generating Players', err.toString());
+    });
+
 }

@@ -7,19 +7,23 @@ import {
   fetchOneById,
   updateById,
   deletePlayer,
+  deleteByRemove,
   updatePlayers,
   getSpecificPlayerStats,
   findOnePlayer,
 } from './player.service';
 import { PlayerInterface } from './player.model';
+import { generatePlayers } from './player.controller';
 import { incrementCounter, getCurrentCounter } from '../../utils/counter';
 import {
   calculatePlayerRating,
   calculatePlayerValue,
 } from '../../utils/players';
 import { fetchAppearance } from '../../utils/appearance';
+import { runSpawn } from '../../utils/scripts';
 import log from '../../helpers/logger';
 import { baseQuery, setupRoutes } from '../../helpers/queries';
+import { titleCase } from '../../helpers/misc';
 import { Types } from 'mongoose';
 import { fetchAllClubs, fetchClubs } from '../clubs/club.service';
 
@@ -38,16 +42,38 @@ router.get('/all', (req, res) => {
     }
   } catch (err) {
     log(`Error parsing JSON => ${err}`);
+      return respond.fail(res, 400, 'Error fetching players: Parsing Options', err.toString());
   }
 
   fetchAll(options)
     .then((players: any) => {
-      respond.success(res, 200, 'Players fetched successfully', players);
+      return respond.success(res, 200, 'Players fetched successfully', players);
     })
     .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching players', err);
+      return respond.fail(res, 400, 'Error fetching players', err.toString());
     });
 });
+
+// router.get('/club', (req, res) => {
+//   let options = req.query.options || {};
+//   // This prevents the app from crashing if there's
+//   // an error parsing object :)
+//   try {
+//     if (req.query.options) {
+//       options = JSON.parse(req.query.options);
+//     }
+//   } catch (err) {
+//     log(`Error parsing JSON => ${err}`);
+//   }
+
+//   fetchAll(options)
+//     .then((players: any) => {
+//       respond.success(res, 200, 'Players fetched successfully', players);
+//     })
+//     .catch((err: any) => {
+//       respond.fail(res, 400, 'Error fetching players', err);
+//     });
+// });
 
 /**
  * Update a Player
@@ -62,19 +88,6 @@ router.post('/:id/update', (req, res) => {
     })
     .catch((err: any) => {
       respond.fail(res, 400, 'Error updating Player', err);
-    });
-});
-
-/** Delete Player by id */
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-
-  deletePlayer(id)
-    .then((player: any) => {
-      respond.success(res, 200, 'Player deleted successfully', player);
-    })
-    .catch((err: any) => {
-      respond.fail(res, 400, 'Error deleting Player', err);
     });
 });
 
@@ -193,22 +206,6 @@ router.get('/stats', async (req: Request, res: Response) => {
     });
 });
 
-/**
- * fetch one Player
- */
-
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-
-  fetchOneById(id)
-    .then((player: any) => {
-      respond.success(res, 200, 'Player fetched successfully', player);
-    })
-    .catch((err: any) => {
-      respond.fail(res, 400, 'Error fetching Player', err);
-    });
-});
-
 router.put('/works/add-roles', (req, res) => {
   const { id } = req.params;
 
@@ -220,6 +217,8 @@ router.put('/works/add-roles', (req, res) => {
       respond.fail(res, 400, 'Error fetching Player', err);
     });
 });
+
+router.get('/generate-players', generatePlayers);
 
 // router.post('/add-clubcodes', async (req, res) => {
 //   const all_clubs = await fetchClubs({}, 'ClubCode');
@@ -236,6 +235,35 @@ router.put('/works/add-roles', (req, res) => {
 //       respond.fail(res, 400, 'Error updating Players', err);
 //     });
 // });
+
+/**
+ * fetch one Player
+ */
+
+router.get('/:id', (req, res) => {
+  const { id } = req.params;
+
+  fetchOneById(id)
+    .then((player: any) => {
+      respond.success(res, 200, 'Player fetched successfully', player);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error fetching Player', err);
+    });
+});
+
+/** Delete Player by id */
+router.delete('/:id', (req, res) => {
+  const { id } = req.params;
+
+  deleteByRemove(id)
+    .then((player: any) => {
+      respond.success(res, 200, 'Player deleted successfully', player);
+    })
+    .catch((err: any) => {
+      respond.fail(res, 400, 'Error deleting Player => ', err.toString());
+    });
+});
 
 setupRoutes(router, 'Player');
 

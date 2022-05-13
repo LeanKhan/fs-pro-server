@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Schema, Document, model, Model } from 'mongoose';
 import { PlayerInterface } from '../../interfaces/Player';
 import { IUser } from '../user/user.model';
 // import { Player } from '../models/player.model'; // Uncomment this after testing!
+import DB from '../../db';
 
 declare interface IClub extends Document {
   Name: string;
@@ -116,7 +118,8 @@ export class Club {
         },
         Address: {
           Section: { type: String },
-          City: { type: Schema.Types.ObjectId, ref: 'Place' },
+          // TODO: Save City as ObjectID instead of String
+          City: { type: String },
           Country: {
             type: Schema.Types.ObjectId,
             ref: 'Place',
@@ -145,6 +148,40 @@ export class Club {
     };
 
     ClubSchema.pre('find', populate).pre('findOne', populate);
+
+    ClubSchema.post('remove', async function (doc, next) {
+      await DB.Models.Competition.updateOne(
+        { Clubs: this._id },
+        { $pull: { Clubs: this._id } },
+        { multi: true }
+      ) //if reference exists in multiple documents
+        .exec();
+
+      await DB.Models.User.updateOne(
+        { Clubs: this._id },
+        { $pull: { Clubs: this._id } },
+        { multi: true }
+      ) //if reference exists in multiple documents
+        .exec();
+
+      await DB.Models.Manager.updateOne(
+        { Club: this._id },
+        { $unset: { Club: 1 } },
+        { multi: true }
+      ) //if reference exists in multiple documents
+        .exec();
+
+      await DB.Models.Player.updateOne(
+        { Club: this._id },
+        { $unset: { Club: 1, ClubCode: 1 }, $set: { isSigned: false } },
+        { multi: true }
+      ) //if reference exists in multiple documents
+        .exec();
+
+      await DB.Models.ClubMatch.deleteMany({ Club: this._id });
+
+      next();
+    });
 
     this._model = model<IClub>('Club', ClubSchema, 'Clubs');
   }

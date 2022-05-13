@@ -1,4 +1,5 @@
 import { Schema, Document, model, Model } from 'mongoose';
+import DB from '../../db';
 import {
   IMatchDetails,
   IMatchEvent,
@@ -14,7 +15,6 @@ export interface Fixture {
   LeagueCode: string;
   Season: string;
   Played: boolean;
-  MatchDate: string;
   PlayedAt: Date;
   Week: number;
   Home: string;
@@ -24,6 +24,8 @@ export interface Fixture {
   Stadium: string;
   Type: 'league' | 'cup' | 'tournament' | 'friendly';
   Status: 'friendly' | 'first-leg' | 'second-leg' | 'regular';
+  Tie: string;
+  Stage: string;
   ReverseFixture: string;
   Details: IMatchDetails;
   HomeSideDetails: IMatchSideDetails;
@@ -136,6 +138,16 @@ export class Fixture {
       },
       { timestamps: true }
     );
+
+    FixtureSchema.post('remove', async function(next) {
+      await DB.Models.Season.updateOne(
+          { Fixtures : this._id},
+          { $pull: { Fixtures: this._id } },
+          { multi: true })  //if reference exists in multiple documents
+      .exec();
+
+      next();
+  });
 
     this._model = model<IFixture>('Fixture', FixtureSchema, 'Fixtures');
   }

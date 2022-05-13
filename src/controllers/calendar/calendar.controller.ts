@@ -34,6 +34,9 @@ import { prolegate } from '../seasons/season.controller';
 
 /**
  * Create Calendar Year
+ *
+ * TODO: IF ANY PART OF CREATING A CALENDAR FAILS, DELETE ALL
+ * CREATED DOCUMENTS
  */
 export function createCalendarYear(req: Request, res: Response) {
   const now = new Date();
@@ -88,28 +91,26 @@ export async function createSeasonsInTheYear(
   const competitions: CompetitionInterface[] = await fetchAll();
   const year: string = req.params.year.trim().toUpperCase();
 
-  Promise.all([
-    create(
-      competitions[0].CompetitionCode,
-      competitions[0]._id as string,
-      year
-    ),
-    create(
-      competitions[1].CompetitionCode,
-      competitions[1]._id as string,
-      year
-    ),
-  ])
+  // create a season for all competitions that are available.
+  const competition_seasons = competitions.map((c) => {
+    return create(c.CompetitionCode, c._id as string, year);
+  });
+
+  Promise.all(competition_seasons)
     .then(() => {
-      console.log('Seasons created Successfully!');
+      console.log('Seasons for the Year created Successfully!');
       return next();
     })
-
     .catch((err) => {
-      console.log('Could not create season!');
+      console.log('Could not create Seasons for the Year!');
       console.error(err);
 
-      return respond.fail(res, 404, 'Error creating Seasons', err);
+      return respond.fail(
+        res,
+        400,
+        'Error creating Seasons for the Year',
+        err.toString()
+      );
     });
 }
 
@@ -140,6 +141,13 @@ export function setupDaysInYear(
     const seasons: SeasonInterface[] = await fetchAllSeasons({
       Year: _calendar.YearString,
     });
+
+    /**
+     * TODO URGENT APRIL 26 2022
+     * 1. Create all the days in the year.
+     * 2. For each 'league' competition, add all matches to the days.
+     * 3. You can add multiple matches of the same league to a day.
+     */
 
     // TODO: all these CompetitionCode should not be case sensitive!
 
@@ -172,8 +180,6 @@ export function setupDaysInYear(
       secondDivisionFixtures.length / secondDivision.Standings.length;
 
     let firstDivisionDays: DayInterface[] = [];
-
-    // Use the number of matches in the season to get the one that
 
     try {
       firstDivisionDays = firstDivisionFixtures.map(
@@ -236,6 +242,15 @@ export function setupDaysInYear(
       completeDays.push(day);
     });
 
+    /**
+     * New Days.
+     *
+     * - Create all 365 empty days first
+     * - Later change no. of days if leap year.
+     * - Then starting from Day 0, append matches of all Seasons into each day
+     *
+     */
+
     const freeDays = new Array(20);
     for (let i = 0; i < 20; i++) {
       freeDays[i] = {
@@ -295,6 +310,236 @@ export function setupDaysInYear(
       console.error(err);
       console.log('Failed to create Seasons and update Calendar!', err);
       return respond.fail(res, 400, 'Failed to add Days to Calendar', err);
+    });
+}
+
+export function setupDaysInYear2(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const fetchCalendar = () => {
+    // this is the Calendar ID!
+    return fetchOneById(req.params.id);
+  };
+
+  const DAYS_IN_YEAR = 365;
+
+  let _calendar: CalendarInterface;
+
+  /**
+   * 1.  Create 365 Days with empty Matches
+   * 2.  For each Season arrange Fixtures in Days
+   * 3. Return Days.
+   * */
+
+  const createDays = async (calendar: CalendarInterface) => {
+    _calendar = calendar;
+
+    const freeDays = new Array(DAYS_IN_YEAR);
+    for (let i = 0; i < DAYS_IN_YEAR; i++) {
+      freeDays[i] = {
+        Matches: [],
+        isFree: true,
+        Calendar: calendar._id as string,
+        Day: i + 1,
+        Year: calendar.YearString,
+      };
+    }
+
+    const competitions: CompetitionInterface[] = await fetchAll();
+
+    /**
+     * TODO URGENT APRIL 26 2022
+     * 1. Create all the days in the year.
+     * 2. For each 'league' competition, add all matches to the days.
+     * 3. You can add multiple matches of the same league to a day.
+     */
+
+    // TODO: all these CompetitionCode should not be case sensitive!
+
+    // get all competitions... TODO: use Mongo to query
+    const AllLeagues = competitions
+      .filter((c) => c.Type === 'league')
+      .map((c) => c._id); // only get leagues
+
+// Get all Seasons in this new year that
+// belong to a League and sort by their Competition Code.
+// Thank you Jesus!
+    const AllLeagueSeasonsThisYear: SeasonInterface[] = await fetchAllSeasons({
+      Year: _calendar.YearString,
+      Competition: { $in: AllLeagues },
+    }, false, false, {"CompetitionCode": 1});
+
+    return { days: freeDays, seasons: AllLeagueSeasonsThisYear };
+  };
+
+  const arrangeFixturesInDays = ({
+    days,
+    seasons,
+  }: {
+    days: DayInterface[];
+    seasons: SeasonInterface[];
+  }) => {
+    seasons.forEach((s: SeasonInterface, i: number) => {
+      const MatchesPerWeek = s.Fixtures.length / s.Standings.length;
+      const NumberOfWeeks = s.Standings.length;
+
+      setupDays(MatchesPerWeek, NumberOfWeeks);
+
+      function createFixtureObject(
+        fx: Fixture,
+        compCode: any,
+        compId: any,
+        time: number,
+        fixture_index: number,
+        week: number
+      ) {
+        const Match: CalendarMatchInterface = {
+          // subtracting 1 because Fixture starts from 1;
+          Fixture: fx._id,
+          Competition: compCode,
+          CompetitionId: compId,
+          MatchType: fx.Type,
+          Played: false,
+          // This Time field is almost useless. We cnan use the Fixture's array position to
+          // know the 'position in time' of this match. If we ever need to know.
+          Time: time + '',
+          FixtureIndex: fixture_index,
+          Week: week,      
+        };
+
+        return Match;
+      }
+
+      function arrange(
+        matches_in_week: number,
+        Fixture: number,
+        Day: number
+      ): { Fixture: number; Day: number } {
+        // debugger;
+        if (matches_in_week > 0 && matches_in_week <= 3) {
+          // TODO: move to a function
+          for (let a = 0; a < matches_in_week; a++) {
+            console.log(`Putting Fixture ${Fixture} of ${s.CompetitionCode} in Day ${Day}`);
+            const m = createFixtureObject(
+              s.Fixtures[Fixture - 1],
+              s.CompetitionCode,
+              s.Competition,
+              2,
+              Fixture,
+              Math.ceil(Fixture / MatchesPerWeek)
+            );
+
+            // subtracting 1 because Day counter starts from 1 :)
+            days[Day - 1].Matches.push(m);
+
+            Fixture++;
+          }
+
+          matches_in_week -= matches_in_week;
+        }
+
+        if (matches_in_week >= 5) {
+          // Fixture += 2;
+          for (let b = 0; b < 5; b++) {
+            console.log(`Putting Fixture ${Fixture} of ${s.CompetitionCode} in Day ${Day}`);
+
+            const m = createFixtureObject(
+              s.Fixtures[Fixture - 1],
+              s.CompetitionCode,
+              s.Competition,
+              2,
+              Fixture,
+              Math.ceil(Fixture / MatchesPerWeek)
+            );
+
+            days[Day - 1].Matches.push(m);
+
+            Fixture++;
+          }
+
+          matches_in_week -= 5;
+        }
+
+        // finished arranging in current Day. Change to not free, then move
+        days[Day - 1].isFree = false;
+        Day += 1;
+        console.log(`--- Now in Day ${Day} ---`);
+
+        if (Day % 2 == 0) {
+          console.log(`Skipping Day ${Day}...`);
+          Day += 1; // skip a day
+        }
+
+        if (matches_in_week != 0) {
+          return arrange(matches_in_week, Fixture, Day);
+        }
+
+        return { Fixture, Day };
+      }
+
+      function setupDays(MatchesInWeek: number, NumberOfWeeks: number) {
+        let Day = 1;
+        let Fixture = 1;
+
+        const TotalFixtures = MatchesInWeek * NumberOfWeeks;
+        const TotalDays = DAYS_IN_YEAR;
+
+        while (Fixture <= TotalFixtures) {
+          const matches_in_week = MatchesInWeek;
+
+          ({ Fixture, Day } = arrange(matches_in_week, Fixture, Day));
+        }
+      }
+    });
+
+    // at the end of this loop, all_days should be full of Days filled with Fixtures. Thank you Jesus!
+    return days;
+  };
+
+  const saveCalendar = (calendarDays: string[]) => {
+    const calendarID: string = _calendar._id as string;
+
+    updateCalendar({ _id: calendarID }, { Days: calendarDays })
+      .then((cal: any) => {
+        log('Calendar Updated successfully: Days added!');
+        // this can just go next tho :)
+        req.body.new_cal = cal;
+
+        return next();
+        // return respond.success(
+        //   res,
+        //   200,
+        //   'New Calendar created successfully!',
+        //   cal
+        // );
+      })
+      .catch((err: any) => {
+        log(`Error updating Calendar! => ${err}`);
+        console.error(err);
+        console.log('Error updating calendar!', err);
+        return respond.fail(res, 500, 'Error adding Days to Calendar!', err);
+      });
+    // TODO: check if you actually found the right calendar...
+  };
+
+  // Here create the Calendar Days in the db...
+  fetchCalendar()
+    .then(createDays)
+    .then(arrangeFixturesInDays)
+    .then(createMany)
+    .then((days: any) => {
+      // get ids...
+      log('Days created successfully!');
+      return days.map((day: any) => day._id);
+      // return respond.success(res, 200, 'Generated Days to Calendar!', days);
+    })
+    .then(saveCalendar)
+    .catch((err: any) => {
+      console.error(err);
+      console.log('Failed to create Seasons and update Calendar!', err);
+      return respond.fail(res, 400, 'Failed to add Days to Calendar', err.toString());
     });
 }
 
@@ -394,7 +639,7 @@ export function startYear(req: Request, res: Response) {
       return respond.success(
         res,
         200,
-        'Calendar Year started successfully!',
+        'Calendar Year Created, Setup and Started successfully!',
         response
       );
     })

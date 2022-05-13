@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import multer from 'multer';
 import path from 'path';
 import { Request, Response, NextFunction } from 'express';
@@ -21,13 +22,11 @@ export function uploader(request: Request, res: Response, next: NextFunction) {
     destination: (req, file, cb) => {
       cb(
         null,
-        path.join(
-          __dirname,
-          `../../../assets/img${request.query.filepath}`
-        )
+        path.join(__dirname, `../../../assets/img${request.query.filepath}`)
       );
     },
     filename: (req, file, cb) => {
+      // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
       cb(null, request.query.filename + path.extname(file.originalname));
     },
   });
@@ -38,18 +37,46 @@ export function uploader(request: Request, res: Response, next: NextFunction) {
 
   upload(request, res, (err) => {
     if (!err) {
-      next();
+     return next();
     }
 
-console.log('Error uploading file!')
+    console.log('Error uploading file!');
     console.error(err);
     return res.status(400).send(err);
+  });
+}
 
+export function tmp_uploader(
+  request: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null,
+        path.join(__dirname, `../../../tmp/uploads`)
+      );
+    },
+    filename: (req, file, cb) => {
+      cb(null, file.originalname.split('.')[0] + path.extname(file.originalname));
+    },
+  });
+
+  const upload = multer({
+    storage,
+  }).single('file');
+
+  upload(request, res, (err) => {
+    if (!err) {
+      return next();
+    }
+
+    console.log('Error uploading file! => ', err);
+    return res.status(400).send(err);
   });
 }
 
 //     "dev": "set NODE_ENV=dev && ts-node-dev --trace --respawn --transpileOnly ./src/server.ts",
-
 
 // export const uploaderMiddlware = (
 //   req: Request,

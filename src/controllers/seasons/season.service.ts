@@ -10,7 +10,8 @@ import { Season, SeasonInterface } from './season.model';
 export function fetchAll(
   query: Record<string, unknown> = {},
   populate: boolean | string = false,
-  select: boolean | string = false
+  select: boolean | string = false,
+  sort: {field: string, dir: number}
 ) {
   if (populate && select) {
     return DB.Models.Season.find(query)
@@ -22,6 +23,10 @@ export function fetchAll(
 
   if (populate) {
     return DB.Models.Season.find(query).populate(populate).lean().exec();
+  }
+
+  if(sort) {
+      return DB.Models.Season.find(query).sort(sort).lean().exec();
   }
 
   return DB.Models.Season.find(query).lean().exec();
@@ -131,4 +136,19 @@ export function createNew(data: any) {
 
 export function deleteById(id: string) {
   return DB.Models.Season.findByIdAndDelete(id).lean().exec();
+}
+
+// Find way to make this reusable.
+export async function deleteByRemove(id: string) {
+/**
+  * Delete the Season
+  */
+
+ const doc = await DB.Models.Season.findById(id);
+
+ if(!doc) {
+   throw new Error(`Season ${id} does not exist`);
+ }
+
+ return doc.remove();
 }

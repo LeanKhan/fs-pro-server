@@ -1,5 +1,6 @@
 import { Schema, Document, model, Model } from 'mongoose';
 import { IPlayerAttributes } from '../../interfaces/Player';
+import DB from '../../db';
 
 export interface PlayerInterface {
   /** Name of the Player! */
@@ -217,6 +218,7 @@ export class Player {
           type: Number,
         },
         Form: { type: Number, default: 6 },
+        isReserve: { type: Boolean, default: false },
         Appearance: PlayerAppearanceSchema,
         TransferHistory: [PlayerTransferHistorySchema],
         /** Maybe this should be updated at the end of every season... */
@@ -238,6 +240,20 @@ export class Player {
       this.populate('Nationality');
       next();
     };
+
+
+    PlayerSchema.post('remove', async function(doc, next) {
+
+      await DB.Models.Club.updateOne(
+        { Players : this._id},
+        { $pull: { Players: this._id } },
+        { multi: true })  //if reference exists in multiple documents
+        .exec();
+
+        await DB.Models.PlayerMatch.deleteMany({ Player: this._id });
+
+        next();
+    });
 
     PlayerSchema.pre('find', populate).pre('findOne', populate);
 

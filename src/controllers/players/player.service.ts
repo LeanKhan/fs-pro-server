@@ -49,6 +49,20 @@ export function deletePlayer(id: string) {
   return DB.Models.Player.findByIdAndDelete(id).lean().exec();
 }
 
+export async function deleteByRemove(id: string) {
+  /**
+  * Delete the Player
+  */
+
+  const doc = await DB.Models.Player.findById(id);
+
+  if(!doc) {
+    throw new Error(`Player ${id} does not exist`);
+  }
+
+  return doc.remove();
+}
+
 /**
  * Create new player broooooo
  *
@@ -77,17 +91,18 @@ export const createNewPlayer = async (_player: PlayerInterface) => {
 export function toggleSigned(
   playerId: string,
   value: boolean,
-  clubCode: string | null
+  clubCode: string | null,
+  clubId: string | null
 ) {
   return DB.Models.Player.findByIdAndUpdate(playerId, {
-    $set: { isSigned: !value, ClubCode: clubCode },
+    $set: { isSigned: !value, ClubCode: clubCode, Club: clubId },
   })
     .lean()
     .exec();
 }
 
 export function updatePlayers(query: any, update: any) {
-  return DB.Models.Player.updateMany(query, update);
+  return DB.Models.Player.updateMany(query, update, { multi: true });
 }
 
 export function getPlayerStats(calendar_id: string) {
@@ -234,7 +249,7 @@ export function allPlayerStats(
           form: { $avg: '$Form' },
           player: { "$first": "$player" },
           fixture: { "$first": "$fixture" },
-         count: { $sum: 1 } 
+         count: { $sum: 1 }
         }
       },
     ],
@@ -245,7 +260,7 @@ export function allPlayerStats(
 }
 
 /**
- * 
+ *
  * [
       {
         $lookup: {
@@ -280,10 +295,18 @@ export function allPlayerStats(
           form: { $avg: '$Form' },
           player: { "$first": "$player" },
           fixture: { "$first": "$fixture" },
-         count: { $sum: 1 } 
+         count: { $sum: 1 }
         }
       },
-    
-      { $sort: {'points': -1} } 
-    ] 
+
+      { $sort: {'points': -1} }
+    ]
  * */
+
+
+/**
+ * Create Many Players
+ */
+export function createMany(players: any[]) {
+  return DB.Models.Player.insertMany(players, { ordered: true });
+}
