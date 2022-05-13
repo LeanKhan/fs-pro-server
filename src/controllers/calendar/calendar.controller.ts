@@ -363,10 +363,13 @@ export function setupDaysInYear2(
       .filter((c) => c.Type === 'league')
       .map((c) => c._id); // only get leagues
 
+// Get all Seasons in this new year that
+// belong to a League and sort by their Competition Code.
+// Thank you Jesus!
     const AllLeagueSeasonsThisYear: SeasonInterface[] = await fetchAllSeasons({
       Year: _calendar.YearString,
       Competition: { $in: AllLeagues },
-    });
+    }, false, false, {"CompetitionCode": 1});
 
     return { days: freeDays, seasons: AllLeagueSeasonsThisYear };
   };
@@ -403,7 +406,7 @@ export function setupDaysInYear2(
           // know the 'position in time' of this match. If we ever need to know.
           Time: time + '',
           FixtureIndex: fixture_index,
-          Week: week,
+          Week: week,      
         };
 
         return Match;
@@ -500,7 +503,7 @@ export function setupDaysInYear2(
 
     updateCalendar({ _id: calendarID }, { Days: calendarDays })
       .then((cal: any) => {
-        log('Calendar Updated successfully!');
+        log('Calendar Updated successfully: Days added!');
         // this can just go next tho :)
         req.body.new_cal = cal;
 
@@ -525,14 +528,14 @@ export function setupDaysInYear2(
   fetchCalendar()
     .then(createDays)
     .then(arrangeFixturesInDays)
-    // .then(createMany)
+    .then(createMany)
     .then((days: any) => {
       // get ids...
       log('Days created successfully!');
-      // return days.map((day: any) => day._id);
-      return respond.success(res, 200, 'Generated Days to Calendar!', days);
+      return days.map((day: any) => day._id);
+      // return respond.success(res, 200, 'Generated Days to Calendar!', days);
     })
-    // .then(saveCalendar)
+    .then(saveCalendar)
     .catch((err: any) => {
       console.error(err);
       console.log('Failed to create Seasons and update Calendar!', err);
@@ -636,7 +639,7 @@ export function startYear(req: Request, res: Response) {
       return respond.success(
         res,
         200,
-        'Calendar Year started successfully!',
+        'Calendar Year Created, Setup and Started successfully!',
         response
       );
     })

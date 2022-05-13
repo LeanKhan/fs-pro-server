@@ -33,6 +33,8 @@ const CalendarMatchSchema: Schema = new Schema({
   MatchType: String,
   Time: String,
   Competition: String,
+  FixtureIndex: Number,
+  CompetitionId: { type: Schema.Types.ObjectId, ref: 'Competition' },
   Played: Boolean,
   Week: Number,
 });
