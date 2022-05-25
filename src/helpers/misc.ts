@@ -150,8 +150,7 @@ function swap(arr: unknown[], i: number, j: number) {
   arr[i] = arr[j];
   arr[j] = temp;
 }
-function randInt(max: number) {
-  // returns random integer between 0 and max-1 inclusive.
+
 /** Returns random integer between 0 and max-1 inclusive. */
 function randInt(max: number) {
   return Math.floor(Math.random() * max);

@@ -16,11 +16,21 @@ const router = Router();
 
 /** Get all Competitions */
 router.get('/all', (req: Request, res: Response) => {
-  const response = fetchAll();
 
-  response
+  let {query, select} = req.query;
+
+  if(query){
+    try {
+      query = JSON.parse(query);
+    } catch (err) {
+    // can't parse JSON
+    query = '';
+    }
+  }
+
+  fetchAll(query, select)
     .then((competitions) => {
-      respond.success(
+      return respond.success(
         res,
         200,
         'Competitions fetched successfully',
@@ -28,7 +38,7 @@ router.get('/all', (req: Request, res: Response) => {
       );
     })
     .catch((err) => {
-      respond.fail(res, 400, 'Error fetching Competitions', err);
+      return respond.fail(res, 400, 'Error fetching Competitions', err);
     });
 });
 

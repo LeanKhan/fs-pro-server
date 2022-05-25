@@ -3,8 +3,11 @@ import { CompetitionInterface, CompetitionModel } from './competition.model';
 /**
  * fetchAll Competitions
  */
-export function fetchAll() {
-  return DB.Models.Competition.find({}).lean().exec();
+export function fetchAll(query = {}, select = '') {
+  if(select){
+  return DB.Models.Competition.find(query).select(select).lean().exec();    
+  }
+  return DB.Models.Competition.find(query).lean().exec();
 }
 
 /**

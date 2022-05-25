@@ -32,7 +32,18 @@ const router = Router();
 /** Get all Seasons */
 router.get('/', (req: Request, res: Response) => {
   // TODO: review all these your service then, async/awaits. Thank you Jesus!
-  fetchAll()
+  let {query, select, populate, sort} = req.query;
+
+  if(query){
+    try {
+      query = JSON.parse(query);
+    } catch (err) {
+    // can't parse JSON
+    query = '';
+    }
+  }
+
+  fetchAll(query, populate, select, sort)
     .then((seasons: any) => {
       return respond.success(res, 200, 'Seasons fetched successfully', seasons);
     })
