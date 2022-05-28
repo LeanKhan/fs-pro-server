@@ -1,7 +1,8 @@
-import { ballMove } from '../utils/events';
+import { ballMove, matchEvents } from '../utils/events';
 import CO from '../utils/coordinates';
 import { IBlock, ICoordinate } from '../state/ImmutableState/FieldGrid';
 import log from '../helpers/logger';
+import { generateRandomNDigits } from '../helpers/misc';
 
 class BallClass {
   public static instances: number;
@@ -14,31 +15,51 @@ export default class Ball implements IBall, BallClass {
   public static instances = 0;
   public Color: string;
   public Position: IBlock;
+  public id: string;
+  public Match_id: string;
   // private Observers: IFieldPlayer[] = [];
   private ballMove = ballMove;
   private readonly _created: Date;
 
-  constructor(color: string, pos: IBlock) {
+  constructor(color: string, pos: IBlock, match_id: string) {
     this.Color = color;
     this.Position = pos;
     this._created = new Date();
+    this.id = '' + generateRandomNDigits(5);
+    this.Match_id = match_id;
     Ball.instances++;
   }
 
   public move(pos: ICoordinate) {
-    log(`oldPos ${JSON.stringify({ x: this.Position.x, y: this.Position.y })}`);
+    // console.log('Position => ', this.Position, 'pos => ', pos);
+    log(`old Coordinates ${JSON.stringify({ x: this.Position.x, y: this.Position.y })}`);
 
-    log(`sent pos ${JSON.stringify({ x: pos.x, y: pos.y })}`);
+    log(`sent coordinates ${JSON.stringify({ x: pos.x, y: pos.y })}`);
 
-    const newPos = { x: this.Position.x + pos.x, y: this.Position.y + pos.y };
-
-    log(`newPos ${JSON.stringify(newPos)}`);
+    const newCoordinates = { x: this.Position.x + pos.x, y: this.Position.y + pos.y };
 
     // this.Position.x += pos.x;
     // this.Position.y += pos.y;
     // this.Position.key = 'P' + XYToIndex(this.Position.x, this.Position.y, 12);
 
-    this.Position = CO.co.coordinateToBlock(newPos);
+    let newPosition = CO.co.coordinateToBlock(newCoordinates);
+    // if Position is undefined, the Block does not exist.
+    // i.e the ball is out!
+
+    if (!newPosition) {
+      // meaning this ball would have gone out by the flanks
+      // e.g original position is 8, 5 and the movement coords is 0, -6
+      // the new position would be 8, -1 which is out.
+      const isGoingOutAtFlanks = this.Position.y + pos.y < 0 || this.Position.y + pos.y > this.Position.Field.mapHeigth - 1;
+      const isGoingOutAtEnds = this.Position.x + pos.x < 0 || this.Position.x + pos.x > this.Position.Field.mapWidth - 1;
+
+    matchEvents.emit(`${this.Match_id}-ball-out`, {
+        where: this.Position,
+        towards: isGoingOutAtEnds ? 'ends' : isGoingOutAtFlanks ? 'flanks' : 'idk'
+      });
+    } else {
+      this.Position = newPosition;
+    }
 
     log(
       `New Ball position ${JSON.stringify({
@@ -49,7 +70,7 @@ export default class Ball implements IBall, BallClass {
     );
 
     // this.notifyObservers();
-    this.ballMove.emit('ball-moved', this.Position);
+    this.ballMove.emit(`${this.id}-ball-moved`, this.Position);
   }
 }
 
@@ -83,5 +104,7 @@ export interface IBall {
   Color: string;
   Position: IBlock;
   created: Date;
+  // unique ball id
+  id: string;
   move(pos: ICoordinate): void;
 }

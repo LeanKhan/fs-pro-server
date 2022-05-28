@@ -17,6 +17,16 @@ export default class Field {
     this.mapHeight = yBlocks;
   }
 
+  /** Check if this block is at the flanks (sides) of the field */
+  public checkIfFlank(x: number, y: number, xBlocks: number, yBlocks: number) {
+    return y == yBlocks - 1 || y == 0;
+  }
+
+  /** Check if this block is at the Head or Tail of the Field */
+  public checkIfEnds(x: number, y: number, xBlocks: number, yBlocks: number) {
+    return x == xBlocks - 1 || x == 0;
+  }
+
   /**
    * Creates a playing field with all the things...
    * @param xBlocks The number on the x-axis
@@ -24,6 +34,7 @@ export default class Field {
    */
   private createGrid = (xBlocks: number, yBlocks: number) => {
     let blockNumber = 0;
+    // make Block a class...
     const blocks: IBlock[] = [];
     for (let y = 0; y < yBlocks; y++) {
       for (let x = 0; x < xBlocks; x++) {
@@ -32,6 +43,9 @@ export default class Field {
           y,
           occupant: null,
           key: `P${blockNumber}`,
+          isFlank: this.checkIfFlank(x, y, xBlocks, yBlocks),
+          isEnds: this.checkIfEnds(x, y, xBlocks, yBlocks),
+          Field: this
         });
         // After each push increment the counter
         blockNumber++;
@@ -50,4 +64,7 @@ export interface ICoordinate {
 export interface IBlock extends ICoordinate {
   key: string;
   occupant: IFieldPlayer | null;
+  isFlank: boolean;
+  isEnds: boolean;
+  Field: Field;
 }

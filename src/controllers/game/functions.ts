@@ -6,7 +6,7 @@ import {
 import { ClubStandings } from '../seasons/season.model';
 import { findOneAndUpdate as updateSeason } from '../seasons/season.service';
 import { findOneAndUpdate } from '../fixtures/fixture.service';
-import { findOneAndUpdate as updateDay } from '../days/day.service';
+import { findOneAndUpdate as updateDay, findOne } from '../days/day.service';
 import { Types } from 'mongoose';
 import { CalendarMatchInterface, DayInterface } from '../days/day.model';
 import log from '../../helpers/logger';
@@ -61,7 +61,7 @@ export async function updateFixture(
   //  { _id: fixture_id, Played: false }, TODO - Change back to this!
   //  Find that particular fixture that has not been played of course...
 
-  const savePlayerStats = async (club: IMatchSideDetails) => {
+  const savePlayerAndClubStats = async (club: IMatchSideDetails) => {
     // thank you Jesus!
 
     club.PlayerStats = club.PlayerStats.map((p: any) => ({
@@ -81,8 +81,8 @@ export async function updateFixture(
   };
 
   const [homeMatchDetailsID, awayMatchDetailsID] = await Promise.all([
-    savePlayerStats(HomeSideDetails),
-    savePlayerStats(AwaySideDetails),
+    savePlayerAndClubStats(HomeSideDetails),
+    savePlayerAndClubStats(AwaySideDetails),
   ]);
 
   return {

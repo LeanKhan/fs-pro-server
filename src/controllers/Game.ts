@@ -19,9 +19,6 @@ import log from '../helpers/logger';
 
 // const gameLoop = 90;
 
-// const homePost: IBlock = co.coordinateToBlock({ x: 0, y: 5 });
-// const awayPost: IBlock = co.coordinateToBlock({ x: 14, y: 5 });
-
 abstract class GameClass {
   public static instances: number;
 }
@@ -29,16 +26,18 @@ abstract class GameClass {
 // tslint:disable-next-line: max-classes-per-file
 export default class Game implements GameClass {
   public static instances = 0;
-  public homePost: IBlock = CO.co.coordinateToBlock({ x: 0, y: 5 });
-  public awayPost: IBlock = CO.co.coordinateToBlock({ x: 14, y: 5 });
+  public homePost: IBlock;
+  public awayPost: IBlock;
   public Referee: Referee;
   public AS?: MatchSide;
   public DS?: MatchSide;
   public ActivePlayerAS?: IFieldPlayer;
   public ActivePlayerDS?: IFieldPlayer;
-  private Match: Match;
+  public Match: Match;
+  public MatchBall: Ball;
+  public MatchSettings: any;
+  public Co: Coordinates;
   private Clubs: IClub[];
-  private MatchBall: Ball;
   private PlayingField: IBlock[];
   private MatchActions: Actions;
 
@@ -48,8 +47,18 @@ export default class Game implements GameClass {
     ball: { color: string; cb: IBlock },
     ref: { fname: string; lname: string; level: string },
     centerBlock: any,
-    playingField: Field['PlayingField']
+    playingField: Field['PlayingField'],
+    Co: Coordinates
   ) {
+
+    this.Co = Co;
+
+    this.homePost = this.Co.coordinateToBlock({ x: 0, y: 5 });
+    this.awayPost = this.Co.coordinateToBlock({ x: 14, y: 5 })
+
+    // save match config and all
+    this.MatchSettings = {};
+
     // Get the club that is meant to be home
     const homeIndex = clubs.findIndex(
       (club) => club._id?.toString() === sides.home
@@ -73,7 +82,7 @@ export default class Game implements GameClass {
     // this.homePost = hp;
     // this.awayPost = ap;
 
-    this.MatchBall = new Ball('#ffffff', centerBlock);
+    this.MatchBall = new Ball('#ffffff', centerBlock, this.Match.id);
 
     this.PlayingField = playingField;
 
@@ -81,12 +90,14 @@ export default class Game implements GameClass {
 
     // let ball = new Ball('#ffffff', centerBlock);
 
-    this.Referee = new Referee('Anjus', 'Banjus', 'normal', this.MatchBall);
+    this.Referee = new Referee('Anjus', 'Banjus', 'normal', this.MatchBall, this.Match);
 
     this.MatchActions = new Actions(this.Referee, [
       this.Match.Home,
       this.Match.Away,
-    ]);
+    ],
+    this.Match
+    );
 
     /* ---------- COUNT CLASS INSTANCES ----------- */
     Game.instances++;
@@ -106,17 +117,50 @@ export default class Game implements GameClass {
     this.Match.Away.setPlayers();
   }
 
+  /** Initial Club Formations */
   public setClubFormations(homeFormation: string, awayFormation: string) {
+
+    this.MatchSettings.homeFormation = homeFormation;
+    this.MatchSettings.awayFormation = awayFormation;
+
     this.Match.Home.setFormation(
-      homeFormation,
+      this.MatchSettings.homeFormation,
       this.MatchBall,
       this.PlayingField
     );
 
     this.Match.Away.setFormation(
-      awayFormation,
+      this.MatchSettings.awayFormation,
       this.MatchBall,
       this.PlayingField
+    );
+  }
+
+  /** Swap Club Formations at half time... */
+  public swapClubFormations() {
+    // copy value
+    let awayF = this.MatchSettings.awayFormation;
+    let homeF = this.MatchSettings.homeFormation;
+
+    this.MatchSettings.homeFormation = awayF;
+    this.MatchSettings.awayFormation = homeF;
+
+    this.Match.Home.changeFormation(
+      this.MatchSettings.homeFormation,
+      this.PlayingField,
+      // new scoring side
+      this.homePost,
+      // new keeping side
+      this.awayPost
+    );
+
+    this.Match.Away.changeFormation(
+      this.MatchSettings.awayFormation,
+      this.PlayingField,
+      // new scoring side
+      this.awayPost,
+      // new keeping side
+      this.homePost
     );
   }
 
@@ -144,7 +188,7 @@ export default class Game implements GameClass {
 
       // Set the activePlayer in the defending team to be the player closest to
       // the ball
-      this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
+      this.ActivePlayerDS = this.Co.findClosestFieldPlayer(
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
@@ -176,7 +220,7 @@ export default class Game implements GameClass {
 
       // Set the activePlayer in the defending team to be the player closest to
       // the ball
-      this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
+      this.ActivePlayerDS = this.Co.findClosestFieldPlayer(
         this.MatchBall.Position,
         this.DS.StartingSquad
       );
@@ -200,7 +244,7 @@ export default class Game implements GameClass {
   }
 
   public moveTowardsBall() {
-    this.ActivePlayerAS = CO.co.findClosestFieldPlayer(
+    this.ActivePlayerAS = this.Co.findClosestFieldPlayer(
       this.MatchBall.Position,
       this.Match.Home.StartingSquad
     );
@@ -211,7 +255,7 @@ export default class Game implements GameClass {
       this.MatchBall.Position
     );
 
-    this.ActivePlayerDS = CO.co.findClosestFieldPlayer(
+    this.ActivePlayerDS = this.Co.findClosestFieldPlayer(
       this.MatchBall.Position,
       this.Match.Away.StartingSquad
     );
@@ -222,18 +266,24 @@ export default class Game implements GameClass {
       this.MatchBall.Position
     );
 
-    this.matchComments();
+    // this.matchComments();
   }
 
   public matchComments() {
-    log(
+    const _log = console.log;
+
+    if(!this.ActivePlayerDS || !this.ActivePlayerAS){
+      return _log('NO ACTIVE PLAYERS');
+    }
+
+    _log(
       `Ball is at ${JSON.stringify({
         x: this.MatchBall.Position.x,
         y: this.MatchBall.Position.y,
         key: this.MatchBall.Position.key,
       })}`
     );
-    log(`
+    _log(`
       ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
       this.ActivePlayerAS!.LastName
     } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
@@ -252,30 +302,36 @@ export default class Game implements GameClass {
   }
 
   public startHalf() {
-    createMatchEvent('Match Kick-Off', 'match');
+    createMatchEvent(this.Match.id, 'Match Kick-Off', 'match');
     log('Half is starting!');
     return this.gamePlay();
   }
 
   private async gamePlay() {
+    // Anything you want to do to change the game, do it before 'gameLoop' is called :)
+    // thank you Jesus!
     await this.gameLoop();
-    matchEvents.emit('half-end');
-    createMatchEvent('First Half Over', 'match');
-    matchEvents.emit('reset-formations');
+    matchEvents.emit(`${this.Match.id}-half-end`);
+    createMatchEvent(this.Match.id, 'First Half Over', 'match');
     log('------------------ Second Half Start ------------------');
+    this.swapClubFormations();
+    matchEvents.emit(`${this.Match.id}-reset-formations`);
     await this.gameLoop(90, 180);
-    matchEvents.emit('half-end');
-    createMatchEvent('Match Over', 'match');
+    matchEvents.emit(`${this.Match.id}-half-end`);
+    createMatchEvent(this.Match.id, 'Match Over', 'match');
     log('------------------ Match Over --------------------');
     return this.getMatch();
   }
 
   private gameLoop(timestart = 0, timeend = 90) {
     // TODO: work on this, use it more and betterly
+    this.matchComments();
     return new Promise((resolve, reject) => {
       for (let i = timestart; i < timeend; i++) {
-        log(`------------Loop Position ${i + 1}---------`);
-        this.setPlayingSides();
+        console.log(`------------Loop Position ${i + 1}---------`);
+        const playingSides = this.setPlayingSides();
+
+         // matchEvents.emit(`${this.Match.id}-setting-playing-sides`, playingSides);
 
         // TODO: do error handling here, so throw any error that may arise from here.
         // thank you Jesus!
@@ -293,9 +349,12 @@ export default class Game implements GameClass {
             this.DS,
             this.ActivePlayerDS as IFieldPlayer
           );
-          this.setPlayingSides();
+          const playingSides = this.setPlayingSides();
+          // matchEvents.emit(`${this.Match.id}-setting-playing-sides`, playingSides);
           this.Match.recordPossession(this.AS);
         }
+
+        this.matchComments();
       }
       return resolve(true);
     });

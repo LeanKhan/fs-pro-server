@@ -38,4 +38,8 @@ router.use('/places', places);
 
 router.use('/awards', awards);
 
+router.get('/random-test', (req, res) => {
+	res.send({o: req.originalUrl, p: req.path, h: req.header('Host'), oo: req.header('Origin'), s: req.socket.localPort});	
+})
+
 export default router;

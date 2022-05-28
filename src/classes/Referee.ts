@@ -31,8 +31,12 @@ export default class Referee {
     this.MatchBall = ball;
     this.Match = m;
 
-    matchEvents.on('reset-ball-position', () => {
+    matchEvents.on(`${this.Match.id}-reset-ball-position`, () => {
       this.handleMatchRestart();
+    });
+
+    matchEvents.on(`${this.Match.id}-ball-out`, (outData) => {
+      this.handleBallOut(outData);
     });
   }
 
@@ -63,7 +67,7 @@ export default class Referee {
         break;
     }
     if (chance >= level) {
-      matchEvents.emit('game halt', {
+      matchEvents.emit(`${this.Match.id}-game-halt`, {
         reason: 'yellow card',
         subject,
         object,
@@ -71,7 +75,7 @@ export default class Referee {
         interruption: true,
       } as IFoul);
     } else if (chance < level) {
-      matchEvents.emit('game halt', {
+      matchEvents.emit(`${this.Match.id}-game-halt`, {
         reason: 'red card',
         subject,
         object,
@@ -79,7 +83,7 @@ export default class Referee {
         interruption: true,
       } as IFoul);
     } else {
-      matchEvents.emit('game halt', {
+      matchEvents.emit(`${this.Match.id}-game-halt`, {
         reason: 'foul',
         subject,
         object,
@@ -220,18 +224,78 @@ export default class Referee {
   }
 
   public handleShot(data: IShot, matchActions: Actions) {
+
+ // Keeper to his StartingPosition
+    const defendingSide = matchActions.getPlayingSides
+      .defendingSide as MatchSide;
+
+    const keeper = playerFunc.getGK(
+      defendingSide.StartingSquad
+    ) as IFieldPlayer;
+
+    keeper.move(
+      CO.co.calculateDifference(
+        keeper.StartingPosition,
+        keeper.BlockPosition
+      )
+    );
+
     switch (data.result) {
       case 'goal':
         // Emit goal event
-        matchEvents.emit('goal!', data);
+        matchEvents.emit(`${this.Match.id}-goal!`, data);
 
-        // Keeper to his StartingPosition
-        const defendingSide = matchActions.getPlayingSides
-          .defendingSide as MatchSide;
+        // Move ball to keeper position
+        keeper.Ball.move(
+          CO.co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
+        );
+        // log('resume gameplay :)')
+        // Move players to starting position
 
-        const keeper = playerFunc.getGK(
-          defendingSide.StartingSquad
-        ) as IFieldPlayer;
+        createMatchEvent(
+          this.Match.id,
+          `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] scored`,
+          'goal',
+          data.shooter._id,
+          data.shooter.ClubCode
+        );
+
+        matchEvents.emit(`${this.Match.id}-reset-formations`);
+
+        // matchEvents.emit(`${this.Match.id}-set-playing-sides`);
+        break;
+      case 'miss':
+        log('missed shot');
+        // matchEvents.emit(`${this.Match.id}-set-playing-sides`);
+
+        keeper.move(
+          CO.co.calculateDifference(
+            keeper.StartingPosition,
+            keeper.BlockPosition
+          )
+        );
+
+        // Move ball to keeper position
+        // keeper.Ball.move(
+        //   CO.co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
+        // );
+
+        createMatchEvent(
+          this.Match.id,
+          `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] missed a shot`,
+          'miss',
+          data.shooter._id,
+          data.shooter.ClubCode
+        );
+        // console.log('Player shot -> ', data.shooter);
+        // console.log('Keeper when ball out -> ', keeper);
+
+        // NOTE: This is already handled in the Actions class
+        // matchEvents.emit(`${this.Match.id}-reset-formations`);
+        matchEvents.emit(`${this.Match.id}-missed-shot`, data);
+        break;
+      case 'save':
+        log('shot saved');
 
         keeper.move(
           CO.co.calculateDifference(
@@ -244,46 +308,38 @@ export default class Referee {
         keeper.Ball.move(
           CO.co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
         );
-        // log('resume gameplay :)')
-        // Move players to starting position
 
-        // Move players to starting position...
+        // console.log('Player shot -> ', data.shooter);
+        // console.log('Keeper caught -> ', keeper);
 
         createMatchEvent(
-          `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] scored`,
-          'goal',
-          data.shooter.PlayerID,
-          data.shooter.ClubCode
-        );
-
-        matchEvents.emit('reset-formations');
-
-        // matchEvents.emit('set-playing-sides');
-        break;
-      case 'miss':
-        log('missed shot');
-        // matchEvents.emit('set-playing-sides');
-        createMatchEvent(
-          `${data.shooter.FirstName} ${data.shooter.LastName} [${data.shooter.ClubCode}] missed a shot`,
-          'miss',
-          data.shooter.PlayerID,
-          data.shooter.ClubCode
-        );
-        matchEvents.emit('missed-shot', data);
-        break;
-      case 'save':
-        log('shot saved');
-        createMatchEvent(
+          this.Match.id,
           `${data.keeper.FirstName} ${data.keeper.LastName} [${data.keeper.ClubCode}] saved a shot from ${data.shooter.FirstName} ${data.shooter.LastName}`,
           'save',
-          data.keeper.PlayerID,
+          data.keeper._id,
           data.keeper.ClubCode
         );
-        matchEvents.emit('saved-shot', data);
+        matchEvents.emit(`${this.Match.id}-saved-shot`, data);
+        // reset formations here also...
         break;
       default:
         break;
     }
+  }
+
+  public handleBallOut(outData: any) {
+    /**
+     * If the Ball is taken outside the boundary box...
+     * - Find the nearest free block and move the nearest opposition player to that position
+     * - move the ball to that position also
+     * - continue the match...
+     *  */
+
+     // TODO: FINISH!
+     console.log('<<< BALL OUT >>>', outData);
+     console.log('Free blocks -> ', CO.co.getBlocksAround(outData.where, 3));
+     // NOTE: THIS IS VERY TEMPORARY!
+      matchEvents.emit(`${this.Match.id}-reset-formations`);
   }
 
   public handleMatchRestart() {
@@ -295,6 +351,8 @@ export default class Referee {
         this.MatchBall.Position
       )
     );
+
+
   }
 }
 

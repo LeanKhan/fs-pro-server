@@ -22,10 +22,10 @@ export default class FieldPlayer
   public Points = 0;
   public Substitute: boolean;
   public BlockPosition: IBlock;
-  public StartingPosition: IBlock;
   public BallPosition: ICoordinate;
   public WithBall: boolean;
   public Ball: Ball;
+  private StartingPosition: IBlock;
   // public Team: MatchSide;
 
   /**
@@ -58,7 +58,9 @@ export default class FieldPlayer
       this.BlockPosition.y === this.BallPosition.y
         ? true
         : false;
-    ballMove.on('ball-moved', (p) => {
+
+    // make this event unique!
+    ballMove.on(`${this.Ball.id}-ball-moved`, (p) => {
       this.updateBallPosition(p);
     });
 
@@ -79,7 +81,9 @@ export default class FieldPlayer
 
   public updateBallPosition(pos: IBlock) {
     // log(`New Position x,y,key => ${pos.x}, ${pos.y}, ${pos.key}`);
-    this.Ball.Position = pos;
+    // this.Ball.Position = pos;
+    this.BallPosition = pos;
+    // UPDATE: The ball updates it's position by itself :)
     this.checkWithBall();
   }
 
@@ -111,13 +115,13 @@ export default class FieldPlayer
     if (this.WithBall) {
       this.Ball.move(pos);
     }
-    // log(
-    //   `${this.FirstName} ${this.LastName} [${
-    //     this.ClubCode
-    //   }] moved  ${JSON.stringify(pos)} steps.
-    //   And is at {x: ${this.BlockPosition.x}, y: ${this.BlockPosition.y}}
-    //   `
-    // );
+    log(
+      `${this.FirstName} ${this.LastName} [${
+        this.ClubCode
+      }] moved  ${JSON.stringify(pos)} steps.
+      And is at {x: ${this.BlockPosition.x}, y: ${this.BlockPosition.y}}
+      `
+    );
     this.checkWithBall();
   }
 
@@ -127,6 +131,10 @@ export default class FieldPlayer
 
   public start() {
     this.isStarting = true;
+  }
+
+  public changeStartingPosition(block: IBlock){
+    this.StartingPosition = block;
   }
 
   /**

@@ -48,7 +48,8 @@ export default class App {
         { color: '#ffffff', cb: centerBlock },
         { fname: 'Anjus', lname: 'Banjus', level: 'normal' },
         centerBlock,
-        this.Coordinates.Field.PlayingField
+        this.Coordinates.Field.PlayingField,
+        this.Coordinates
       );
 
       this.Game.refAssignMatch();
@@ -92,10 +93,10 @@ export default class App {
   }
 
   public listenForGameEvents() {
-    matchEvents.on('set-playing-sides', () => {
+    matchEvents.on(`${this.Game.Match.id}-set-playing-sides`, () => {
       const playingSides = this.Game!.setPlayingSides();
 
-      matchEvents.emit('setting-playing-sides', playingSides);
+      matchEvents.emit(`${this.Game!.Match.id}-setting-playing-sides`, playingSides);
     });
   }
 }
