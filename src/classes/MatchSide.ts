@@ -83,7 +83,58 @@ export class MatchSide extends Club {
 
       currentFormation.splice(foundIndex, 1);
 
+      // console.log(`${p.ClubCode} ${p.LastName} [${p.Position}] initial position => `, startingBlock);
+
       return new FieldPlayer(p, true, startingBlock, ball);
+    });
+  }
+
+  public changeFormation(formation: string, fieldPlay: IBlock[], scoringSide: IBlock, keepingSide: IBlock) {
+
+    this.ScoringSide = scoringSide;
+    this.KeepingSide = keepingSide;
+
+    this.Formation = formations[formation];
+
+    log('Formation =>', formations);
+
+    const currentFormation = [...formations[formation]];
+
+    // console.log('Current Formation for =>', this.ClubCode, currentFormation);
+
+    // Sort them here...
+    this.StartingSquad = sortFromKeeperDown(this.StartingSquad);
+
+    // just change each startingswaud player to the new block position
+
+    this.StartingSquad.forEach((player: FieldPlayer, i) => {
+      // const startingBlock = fieldPlay[this.Formation[i]];
+      // Find the first starting block that is for this player's position
+      // const startingBlock = fieldPlay.find(())
+
+      const { block: newStartingBlock, index: foundIndex } = this.getBlock(
+        fieldPlay,
+        player,
+        currentFormation
+      );
+
+      // Sort players by position! Thank you Jesus!
+
+      // log(
+      //   `currentFormation & player =>
+      //   ${currentFormation.length},
+      //   ${p.Position}`
+      // ); REVERT?
+
+      // log(`index => ${foundIndex}`); REVERT?
+
+      currentFormation.splice(foundIndex, 1);
+
+      // console.log(`${player.ClubCode} ${player.LastName} [${player.Position}] [${player.BlockPosition.key}] new position => `, newStartingBlock);
+
+      player.changePosition(newStartingBlock);
+      player.changeStartingPosition(newStartingBlock);
+      // return new FieldPlayer(p, true, startingBlock, ball);
     });
   }
 

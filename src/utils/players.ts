@@ -49,9 +49,9 @@ function getATTMIDNoFilter(team: MatchSide) {
  * Find a random free block in a 3 block radius
  * @param player
  */
-function findRandomFreeBlock(player: IFieldPlayer): IBlock {
+function findRandomFreeBlock(player: IFieldPlayer, radius: number = 3): IBlock {
   // Get blocks around player
-  let circumference = player.getBlocksAround(3);
+  let circumference = player.getBlocksAround(radius);
 
   // Filter the undefined or occupied ones
   circumference = circumference.filter((block: IBlock) => {

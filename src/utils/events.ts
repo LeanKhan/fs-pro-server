@@ -18,12 +18,13 @@ matchEvents.setMaxListeners(24);
  */
 
 function createMatchEvent(
+  match_id: string,
   message: IMatchEvent['message'],
   type: IMatchEvent['type'],
   playerID?: IMatchEvent['playerID'],
   playerTeamID?: IMatchEvent['playerTeamID']
 ) {
-  matchEvents.emit('event', {
+  matchEvents.emit(match_id + '-event', {
     message,
     type,
     playerID,

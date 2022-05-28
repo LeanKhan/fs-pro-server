@@ -5,6 +5,8 @@ import { IBlock } from '../state/ImmutableState/FieldGrid';
 import { IFieldPlayer, IPlayerStats } from '../interfaces/Player';
 import { IShot, IPass, GamePoints, ITackle, IDribble } from './Referee';
 import log from '../helpers/logger';
+import { generateRandomNDigits } from '../helpers/misc';
+
 import { PlayerMatchDetailsInterface } from '../controllers/player-match/player-match.model';
 
 /**
@@ -17,6 +19,7 @@ abstract class MatchClass {
 // tslint:disable-next-line: max-classes-per-file
 export class Match implements IMatch, MatchClass {
   public static instances = 0;
+  public id: string;
   public Home: MatchSide;
   public Away: MatchSide;
   public CenterBlock: IBlock;
@@ -42,6 +45,8 @@ export class Match implements IMatch, MatchClass {
     homePost: IBlock,
     centerBlock: IBlock
   ) {
+
+    this.id = '' + generateRandomNDigits(5);
     this.Home = new MatchSide(home, awayPost, homePost);
     this.Away = new MatchSide(away, homePost, awayPost);
     this.Teams = [this.Home, this.Away];
@@ -80,7 +85,7 @@ export class Match implements IMatch, MatchClass {
       },
     } as IMatchDetails;
 
-    matchEvents.on('shot', (data: IShot) => {
+    matchEvents.on(`${this.id}-shot`, (data: IShot) => {
       // const teamIndex = this.Teams!.findIndex(
       //   (t) => t.ClubCode === data.shooter.ClubCode
       // );
@@ -109,7 +114,7 @@ export class Match implements IMatch, MatchClass {
       }
     });
 
-    matchEvents.on('goal!', (data: IShot) => {
+    matchEvents.on(`${this.id}-goal!`, (data: IShot) => {
       log('GOAAAALLL!!!');
 
       // add to match actions...
@@ -159,23 +164,23 @@ export class Match implements IMatch, MatchClass {
       this.Details.Goals++;
     });
 
-    matchEvents.on('event', (data: IMatchEvent) => {
+    matchEvents.on(`${this.id}-event`, (data: IMatchEvent) => {
       data.time = this.getCurrentTime.toString();
       this.Events.push(data);
     });
 
-    matchEvents.on('saved-shot', (data: IShot) => {
+    matchEvents.on(`${this.id}-saved-shot`, (data: IShot) => {
       data.keeper.GameStats.Saves++;
       data.keeper.increasePoints(GamePoints.Save);
       log('Shot was saved yo');
     });
 
-    matchEvents.on('missed-shot', (data: IShot) => {
+    matchEvents.on(`${this.id}-missed-shot`, (data: IShot) => {
       data.shooter.increasePoints(-GamePoints.Goal / 2);
       log('Missed shot though :(');
     });
 
-    matchEvents.on('pass-made', (data: IPass) => {
+    matchEvents.on(`${this.id}-pass-made`, (data: IPass) => {
       this.Details.TotalPasses++;
       data.passer.GameStats.Passes++;
       data.passer.increasePoints(GamePoints.Pass);
@@ -188,6 +193,15 @@ export class Match implements IMatch, MatchClass {
         timestamp: this.getCurrentTime,
       });
 
+      createMatchEvent(
+      this.id,
+      `${data.passer.FirstName} ${data.passer.LastName} [${data.passer.ClubCode}]
+       passed to ${data.receiver.FirstName} ${data.receiver.LastName} [${data.receiver.ClubCode}]`,
+      'pass',
+      data.passer._id,
+      data.passer.ClubCode
+        );
+
       // // give receiver some passes
       data.receiver.increasePoints(-GamePoints.Pass / 2);
       this.Home.ClubCode === data.passer.ClubCode
@@ -196,13 +210,13 @@ export class Match implements IMatch, MatchClass {
       log(`Pass from ${data.passer.LastName} to ${data.receiver.LastName}`);
     });
 
-    matchEvents.on('pass intercepted', (data) => {
+    matchEvents.on(`${this.id}-pass-intercepted`, (data) => {
       log(
         `Attempted Pass from ${data.passer} intercepted by ${data.interceptor}`
       );
     });
 
-    matchEvents.on('dribble', (data: IDribble) => {
+    matchEvents.on(`${this.id}-dribble`, (data: IDribble) => {
       data.dribbler.GameStats.Dribbles++;
       data.dribbler.increasePoints(GamePoints.Dribble);
 
@@ -213,7 +227,7 @@ export class Match implements IMatch, MatchClass {
       ${data.dribbled.FirstName} ${data.dribbled.LastName} [${data.dribbled.ClubCode}] successfully`);
     });
 
-    matchEvents.on('tackle', (data: ITackle) => {
+    matchEvents.on(`${this.id}-tackle`, (data: ITackle) => {
       // Increase points for somebori
 
       if (data.success) {
@@ -251,31 +265,31 @@ export class Match implements IMatch, MatchClass {
       }
     });
 
-    matchEvents.on('reset-formations', () => {
+    matchEvents.on(`${this.id}-reset-formations`, () => {
       log('********Resetting formations *********');
       this.resetClubFormations();
-      matchEvents.emit('reset-ball-position');
+      matchEvents.emit(`${this.id}-reset-ball-position`);
     });
 
-    matchEvents.on('half-end', () => {
+    matchEvents.on(`${this.id}-half-end`, () => {
       log('First half over!');
       log(
         `Match Result => [${this.Home.ClubCode}] ${this.Details.HomeTeamScore} : ${this.Details.AwayTeamScore} [${this.Away.ClubCode}]`
       );
 
-      createMatchEvent('Half Over', 'match');
+      createMatchEvent(this.id, 'Half Over', 'match');
 
       // log(this.Events, 'table'); TODO - UNCOMMENT O
 
       log(`Home Team => ${this.Home.ClubCode}`);
       this.Home.StartingSquad.forEach((p) => {
-        log(`[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`);
+        log(`[${p.FirstName} ${p.LastName}] - ${this.Home.ClubCode} ${p.Position}`);
         log(p.GameStats, 'table'); // TODO -UNCOMMENT O
       });
 
       log(`Away Team => ${this.Away.ClubCode}`);
       this.Away.StartingSquad.forEach((p) => {
-        log(`[${p.FirstName} ${p.LastName}] - ${p.PlayerID} ${p.Position}`);
+        log(`[${p.FirstName} ${p.LastName}] - ${this.Away.ClubCode} ${p.Position}`);
         log(p.GameStats, 'table'); // TODO - UNCOMMENT O
       });
 
@@ -286,7 +300,7 @@ export class Match implements IMatch, MatchClass {
   }
 
   public castEvent(data: IMatchEvent) {
-    matchEvents.emit('event', data);
+    matchEvents.emit(`${this.id}-event`, data);
   }
 
   /** Create match report */
@@ -451,6 +465,8 @@ export interface IMatchDetails {
 }
 
 export interface IMatch {
+  /** Unique ID*/
+  id: string;
   Home: MatchSide;
   Away: MatchSide;
   Details: IMatchDetails;

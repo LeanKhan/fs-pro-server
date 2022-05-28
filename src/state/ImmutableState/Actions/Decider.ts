@@ -65,7 +65,8 @@ export class Decider {
           this.strategy = this.keeperPass(
             player,
             attackingSide,
-            player.Attributes.Keeping
+            80
+            // player.Attributes.Keeping
           );
         }
         break;
@@ -588,7 +589,7 @@ export class Decider {
     attackingSide: MatchSide,
     chance: number
   ): IStrategy {
-    let strategy: IStrategy = { type: 'pass', detail: 'short' };
+    let strategy: IStrategy = { type: 'pass', detail: 'long' };
 
     if (this.passability(player, attackingSide, 3, false)) {
       if (

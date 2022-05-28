@@ -353,4 +353,74 @@ export default class Coordinates {
   public atExtremeBlock(pos: ICoordinate) {
     return pos.x === 0 || pos.x === 14 || pos.y === 0 || pos.y === 10;
   }
+
+public getBlocksAround(Block: IBlock, radius: number): any[] {
+    // Get the blocks around for each side.
+    const blocks: any[] = [];
+    for (let side = 1; side <= 4; side++) {
+      // const block = this.BlockPosition.y - 1 < 0 ? undefined : coordinateToBlock({
+      //   x: this.BlockPosition.x,
+      //   y: this.BlockPosition.y - 1,
+      // });
+      switch (side) {
+        case 1:
+          // Top side
+          for (let r = 1; r <= radius; r++) {
+            const block =
+              Block.y - r < 0
+                ? undefined
+                : this.coordinateToBlock({
+                    x: Block.x,
+                    y: Block.y - r,
+                  });
+            blocks.push(block);
+          }
+          break;
+
+        case 2:
+          // Left side
+          for (let r = 1; r <= radius; r++) {
+            const block =
+              Block.x - r < 0
+                ? undefined
+                : this.coordinateToBlock({
+                    x: Block.x - r,
+                    y: Block.y,
+                  });
+            blocks.push(block);
+          }
+          break;
+        case 3:
+          // Right side
+          for (let r = 1; r <= radius; r++) {
+            const block =
+              Block.x + r > 14
+                ? undefined
+                : this.coordinateToBlock({
+                    x: Block.x + r,
+                    y: Block.y,
+                  });
+            blocks.push(block);
+          }
+          break;
+        case 4:
+          // Bottom side
+          for (let r = 1; r <= radius; r++) {
+            const block =
+              Block.y + r > 10
+                ? undefined
+                : this.coordinateToBlock({
+                    x: Block.x,
+                    y: Block.y + r,
+                  });
+            blocks.push(block);
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+    return blocks;
+  }
 }

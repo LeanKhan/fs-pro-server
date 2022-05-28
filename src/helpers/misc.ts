@@ -33,6 +33,11 @@ export function capitalize(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+/** From https://stackoverflow.com/a/62943089 */
+export function generateRandomNDigits(n: number): number {
+  return Math.floor(Math.random() * (9 * (Math.pow(10, n)))) + (Math.pow(10, n));
+}
+
 export function baseFetch(options: BaseFetchInt) {
   return {
     one: () => {
