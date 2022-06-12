@@ -142,9 +142,10 @@ export class Decider {
               this.strategy = this.whatKindaPass(player, attackingSide);
             }
           } else {
-            if (this.chanceToShoot(player, attackingSide, 30, 3)) {
+            // reduced threshold from 3 -> 2.
+            if (this.chanceToShoot(player, attackingSide, 30, 2)) {
               this.strategy = { type: 'shoot', detail: 'normal' };
-            } else if (this.chanceToShoot(player, attackingSide, 40, 4)) {
+            } else if (this.chanceToShoot(player, attackingSide, 40, 3)) {
               // If not close to the post, what can he do? Move forward!
               this.strategy = { type: 'shoot', detail: 'long' };
             } else if (this.isClosestToPost(player, attackingSide)) {

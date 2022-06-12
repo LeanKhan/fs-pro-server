@@ -1,9 +1,9 @@
 import { createLogger, format, transports } from 'winston';
 const { timestamp, prettyPrint, json } = format;
 
-// const stop = process.env.STOP_LOGGING?.trim();
+const show_logs = process.env.LOGGING?.trim() == 'true';
 // TODO: make this in the environment variables
-const stop = true;
+// const stop = true;
 // console.log(stop);
 
 const logger = createLogger({
@@ -19,7 +19,7 @@ const logger = createLogger({
 });
 
 export default function log(message: string | any, type: any = 'log') {
-  if (!stop) {
+  if (show_logs) {
     switch (type) {
       case 'log':
         console.log(message);

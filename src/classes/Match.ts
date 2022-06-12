@@ -212,8 +212,33 @@ export class Match implements IMatch, MatchClass {
 
     matchEvents.on(`${this.id}-pass-intercepted`, (data) => {
       log(
-        `Attempted Pass from ${data.passer} intercepted by ${data.interceptor}`
+        `Attempted Pass from ${data.passer.FirstName} ${data.passer.LastName} [${data.passer.ClubCode}]
+          intercepted by 
+        ${data.interceptor.FirstName} ${data.interceptor.LastName} [${data.interceptor.ClubCode}]`
       );
+
+      data.interceptor.GameStats.Interceptions++;
+      data.interceptor.increasePoints(GamePoints.Interception);
+
+      // reduce passer's points :p
+      data.passer.increasePoints(-GamePoints.Interception);
+
+      createMatchEvent(
+      this.id,
+      `${data.interceptor.FirstName} ${data.interceptor.LastName} [${data.interceptor.ClubCode}]
+       intercepted pass from ${data.passer.FirstName} ${data.passer.LastName} [${data.passer.ClubCode}]`,
+      'interception',
+      data.interceptor._id,
+      data.interceptor.ClubCode
+        );
+
+      this.Actions.push({
+        type: 'interception',
+        playerID: data.interceptor._id,
+        playerTeam: data.interceptor.ClubCode!,
+        timestamp: this.getCurrentTime,
+      });
+
     });
 
     matchEvents.on(`${this.id}-dribble`, (data: IDribble) => {

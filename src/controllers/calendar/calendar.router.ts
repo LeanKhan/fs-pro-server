@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { Types } from 'mongoose';
 import respond from '../../helpers/responseHandler';
 import { fetchOneById, fetchAll, deleteByRemove, deleteDayByRemove } from './calendar.service';
 import {
@@ -10,7 +11,7 @@ import {
   createSeasonsInTheYear,
   endYear,
 } from './calendar.controller';
-import { fetchMany } from '../days/day.service';
+import { fetchMany, findOne as findDay } from '../days/day.service';
 import { updatePlayersDetails } from '../players/player.controller';
 import { updateAllClubsRating } from '../../middleware/club';
 import { setupRoutes } from '../../helpers/queries';
@@ -106,6 +107,31 @@ router.get('/:year/days', (req: Request, res: Response) => {
       console.log(err);
       console.error(err);
       return respond.fail(res, 400, 'Error fetching days in calendar', err);
+    });
+});
+
+/** Get Days of Fixture */
+router.get('/day-of-fixture/:fixture', (req: Request, res: Response) => {
+
+  const fixture_id = req.params.fixture;
+
+  if(!fixture_id) {
+        return respond.fail(res, 400, 'No fixture sent');
+  }
+
+  findDay(
+    { 'Matches.Fixture': Types.ObjectId(fixture_id) },
+    true
+  ).then((day: any) => {
+      return respond.success(
+        res,
+        200,
+        'Day of Fixture fetched successfully!',
+        day
+      );
+    })
+    .catch((err: any) => {
+      return respond.fail(res, 400, 'Error fetching Day of Fixture', err);
     });
 });
 

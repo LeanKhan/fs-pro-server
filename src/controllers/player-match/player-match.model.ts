@@ -17,6 +17,7 @@ export interface PlayerMatchDetailsInterface {
   CleanSheets: number;
   Points: number;
   Dribbles: number;
+  Interceptions: number;
   Form?: number;
   [key: string]: any;
 }
@@ -41,6 +42,7 @@ declare interface IPlayerMatchDetails extends Document {
   CleanSheets: number;
   Points: number;
   Dribbles: number;
+  Interceptions: number;
   Form: number;
 }
 
@@ -95,6 +97,10 @@ export class PlayerMatchDetails {
           default: 0,
         },
         Dribbles: {
+          type: Number,
+          default: 0,
+        },
+        Interceptions: {
           type: Number,
           default: 0,
         },

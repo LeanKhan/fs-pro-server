@@ -277,9 +277,10 @@ export class Actions {
           )
         );
         matchEvents.emit(`${this.match.id}-pass-intercepted`, {
-          passer: player.LastName,
-          interceptor: interceptor.LastName,
-        });
+          passer: player,
+          interceptor: interceptor,
+          intercepted: true
+        } as IPass);
 
         situation = { status: true, reason: 'pass intercepted' };
       }
@@ -629,6 +630,7 @@ export class Actions {
 
       const landingBlock = freeBlocksAroundScoringSide[randomIndex];
 
+      // when a player misses a shot, they 'shoot' somewhere else.
       player.shoot(
         CO.co.calculateDifference(landingBlock, player.BlockPosition)
       );

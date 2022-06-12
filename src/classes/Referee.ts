@@ -305,9 +305,10 @@ export default class Referee {
         );
 
         // Move ball to keeper position
-        keeper.Ball.move(
-          CO.co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
-        );
+        // Missing a shot is already handled by Actions
+        // keeper.Ball.move(
+        //   CO.co.calculateDifference(keeper.BlockPosition, keeper.Ball.Position)
+        // );
 
         // console.log('Player shot -> ', data.shooter);
         // console.log('Keeper caught -> ', keeper);
@@ -338,6 +339,9 @@ export default class Referee {
      // TODO: FINISH!
      console.log('<<< BALL OUT >>>', outData);
      console.log('Free blocks -> ', CO.co.getBlocksAround(outData.where, 3));
+     /** 
+      * Find the opposing team and give them the ball...
+      * */
      // NOTE: THIS IS VERY TEMPORARY!
       matchEvents.emit(`${this.Match.id}-reset-formations`);
   }
@@ -417,4 +421,5 @@ export const GamePoints = {
   Tackle: 0.25,
   Dribble: 0.5,
   Assist: 0.5,
+  Interception: 0.25
 };
