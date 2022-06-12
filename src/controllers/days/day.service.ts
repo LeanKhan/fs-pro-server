@@ -84,7 +84,11 @@ export function findOne(
   populate: string | Record<string, unknown> | boolean
 ): Promise<DayInterface> {
   if (populate) {
-    return DB.Models.Day.findOne(query).populate(populate).lean().exec();
+    return DB.Models.Day.findOne(query).populate({
+        path: 'Matches.Fixture',
+        model: 'Fixture',
+      })
+    .lean().exec();
   }
 
   return DB.Models.Day.findOne(query).lean().exec();

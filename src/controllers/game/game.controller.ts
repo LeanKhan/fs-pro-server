@@ -46,7 +46,7 @@ async function play(fixture_id: string) {
 
   // UNCOMMENT O => Check if Fixture is played already
   // if (!fixture.Played) {
-  //   throw new Error({msg: 'Fixture not found', data: {
+  //   throw new Error({msg: 'Fixture already played!', data: {
   //     match: fixture_id,
   //     matchErrorResponseCode: 1
   //   }});
@@ -160,7 +160,7 @@ async function play(fixture_id: string) {
       log('GAME ENDED from App');
 
 
-      //       console.log(`The Match instances ${Match.instances}`);
+      // console.log(`The Match instances ${Match.instances}`);
       // console.log(`The Game instances ${Game.instances}`);
       // console.log(CurrentMatch.App.Game);
       // console.log(`The Ball instances ${Ball.instances}`);
@@ -269,13 +269,22 @@ export async function restPlayGameNew(
   next: NextFunction
 ) {
   const fixture_id = req.params.fixture;
+  const send_other_results = req.query.send_other_results == "true";
+  const simulate_rest  = req.query.simulate_rest == "true";
+  // Play the 'main' fixture
   play(fixture_id)
     .then(async (d) => {
+
+      const results = {
+        main: d,
+        others: []
+      };
+
       // for the other matches
       // TODO: THIS IS TEMPORARY.
       // I want to try to put these api stuff in a function and just call it, once.
 
-      if (req.query.simulate_rest) {
+      if (simulate_rest) {
         // call siumlate sequence...
         const matchDay = await findDay(
           { 'Matches.Fixture': Types.ObjectId(fixture_id) },
@@ -283,71 +292,45 @@ export async function restPlayGameNew(
         );
 
         if (!matchDay || matchDay.isFree) {
-          // error!
+          return responseHandler.fail(
+              res,
+              400,
+              'Match Day not found!'
+            );
         }
 
-        // change back to filter not played
-        const matches_not_played = matchDay.Matches.filter((m) => m.Played);
+        const matches_not_played = matchDay.Matches.filter((m) => !m.Played);
         const fixtures_not_played = matches_not_played.map((m) => m.Fixture);
-
-        // const simulation_requests = fixtures_not_played.map(f => {
-        //   return axios.get(``)
-        // })
-        
-
-        const results = {
-          main: d,
-          others: []
-        }
 
         try {
 
-        const fixtures_not_played_endpoints = fixtures_not_played
-        .map(f => `http://${req.header('Host')}/api/game/kickoff/${f}`);
+        // const fixtures_not_played_endpoints = fixtures_not_played
+        // .map(f => `http://${req.header('Host')}/api/game/kickoff/${f}`);
 
-        for (let index = 0; index < fixtures_not_played_endpoints.length; index++){
-          let r = await axios.get(fixtures_not_played_endpoints[index]);
-          console.log('ONE by one => ', index)
-          results.others.push(r.data.payload);
+        // NOTE: doing this in a foreach would not be synchronous (one by one)
+        for (let index = 0; index < fixtures_not_played.length; index++){
+          // let r = await axios.get(fixtures_not_played_endpoints[index]);
+          console.log('Fixture - >', index + 1);
+          let r = await play(fixtures_not_played[index].toString());
+          let result;
+          if(r.data && r.data.payload) {
+            result = r.data.payload;
+          } else {
+            result = r;
+          };
+          results.others.push(result);
         }
 
-        // fixtures_not_played_endpoints.forEach(async (e) => {
-        //   let r = await axios.get(e);
-        //   // console.log(r.data);
-        //   results.others.push(r.data.payload);
-        // });
-
-      //   Promise.all(fixtures_not_played_endpoints.map((endpoint) => axios.get(endpoint)))
-      //   .then((data) => {
-      //     // console.log(data);
-      //     results.others = data.map(d => d.data.payload);
-
-      //      return responseHandler.success(
-      //         res,
-      //         200,
-      //         '[New] Match(es) Played successfully! Thank you Jesus!',
-      //         results
-      //       );
-      //   })
-      //   .catch(error => {
-      //       console.error('Error Playing Match(es) with new endpoint => ');
-      // return responseHandler.fail(
-      //   res,
-      //   400,
-      //   '[New] Error Playing Match(es) and updating Standings! ',
-      //   { msg: error.toString(), error, fixture_id, matchErrorResponseCode: 2 }
-      // );
-      //   })
-
         // console.log(results);
-           return responseHandler.success(
-              res,
-              200,
-              '[New] Match(es) Played successfully! Thank you Jesus!',
-              results
-            );
+           // return responseHandler.success(
+           //    res,
+           //    200,
+           //    '[New] Match(es) Played successfully! Thank you Jesus!',
+           //    results
+           //  );
 
       } catch (error) {
+        console.log(error);
          return responseHandler.fail(
         res,
         400,
@@ -355,33 +338,13 @@ export async function restPlayGameNew(
         { msg: error.toString(), error, fixture_id, matchErrorResponseCode: 2 }
       );
       }
-
-        // return Promise.all(fixtures_not_played.map(f => play(f)))
-        // .then(results => {
-        //   console.log(results);
-        //    return responseHandler.success(
-        //       res,
-        //       200,
-        //       '[New] Match(es) Played successfully! Thank you Jesus!',
-        //       { main: d, others: results }
-        //     );
-        // })
-    //     .catch((error) => {
-    //   console.error('Error Playing Match(es) with new endpoint => ', error);
-    //   return responseHandler.fail(
-    //     res,
-    //     400,
-    //     '[New] Error Playing Match(es) and updating Standings! ',
-    //     { msg: error.toString(), error, fixture_id, matchErrorResponseCode: 2 }
-    //   );
-    // });
       }
 
       return responseHandler.success(
         res,
         200,
         '[New] Match Played successfully! Thank you Jesus!',
-        { main: d, others: [] }
+        send_other_results ? results : results.main
       );
     })
     .catch((error) => {
