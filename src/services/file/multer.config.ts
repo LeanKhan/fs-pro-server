@@ -58,7 +58,7 @@ export function tmp_uploader(
       );
     },
     filename: (req, file, cb) => {
-      cb(null, file.originalname.split('.')[0] + path.extname(file.originalname));
+        cb(null, file.originalname.split('.')[0] + path.extname(file.originalname));
     },
   });
 

@@ -49,6 +49,9 @@ export class User {
           type: String,
           default: 'default-avatar.png',
         },
+        Alerts: {
+          type: Object
+        },
         Clubs: [{ type: Schema.Types.ObjectId, ref: 'Club' }],
         isAdmin: {
           type: Boolean,

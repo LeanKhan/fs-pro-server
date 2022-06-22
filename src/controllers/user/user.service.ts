@@ -61,6 +61,10 @@ export function updateUser(id: string, data: any) {
   return DB.Models.User.findByIdAndUpdate(id, data, { new: true });
 }
 
+export function updateManyUsers(query: any, update: any) {
+  return DB.Models.User.updateMany(query, update, { multi: true });
+}
+
 /**
  * Create New User
  *

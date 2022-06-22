@@ -339,7 +339,7 @@ export default class Referee {
      // TODO: FINISH!
      console.log('<<< BALL OUT >>>', outData);
      console.log('Free blocks -> ', CO.co.getBlocksAround(outData.where, 3));
-     /** 
+     /**
       * Find the opposing team and give them the ball...
       * */
      // NOTE: THIS IS VERY TEMPORARY!
@@ -348,6 +348,7 @@ export default class Referee {
 
   public handleMatchRestart() {
     // move ball to centerBlock
+    console.log('Handling Match Restart! ', this.Match.CenterBlock.key);
     this.MatchBall.move(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       CO.co.calculateDifference(
