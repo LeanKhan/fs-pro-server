@@ -52,6 +52,16 @@ router.get('/', (req: Request, res: Response) => {
     });
 });
 
+router.get('/:id/is-finished', (req, res) => {
+  // find a fixture with the seasonCode who's Played == true and isFinalMatch == true
+
+  if(!req.params.id) {
+    return respond.fail(res, 400, 'Season ID not sent');
+  }
+
+
+});
+
 /** Create new Season */
 router.post('/', getCurrentCounter, createSeason, addSeasonToCompetition);
 
@@ -139,7 +149,7 @@ router.get('/:id', (req: Request, res: Response) => {
 
   console.log(p)
 
-  fetchOneById(id, false, populate)
+  fetchOneById(id, false, p)
     .then((season: any) => {
       if (!season.Title)
         return respond.success(res, 404, 'Season not found!', season);
@@ -149,7 +159,7 @@ router.get('/:id', (req: Request, res: Response) => {
       return respond.success(res, 200, 'Season fetched successfully', season);
     })
     .catch((err: any) => {
-      return respond.fail(res, 400, 'Error fetching Season', err);
+      return respond.fail(res, 400, 'Error fetching Season', err.toString());
     });
 });
 

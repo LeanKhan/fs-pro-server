@@ -55,7 +55,11 @@ export function fetchOneById(
     return DB.Models.Season.findById(id).select(select).lean().exec();
   }
 
-  return DB.Models.Season.findById(id).populate(populate).lean().exec();
+  if (populate) {
+    return DB.Models.Season.findById(id).populate(populate).lean().exec();
+  }
+
+  return DB.Models.Season.findById(id).lean().exec();
 }
 
 /**

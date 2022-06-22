@@ -300,6 +300,7 @@ export async function restPlayGameNew(
         }
 
         const matches_not_played = matchDay.Matches.filter((m) => !m.Played);
+        // Don't play last matches!
         const fixtures_not_played = matches_not_played.map((m) => m.Fixture);
 
         try {
