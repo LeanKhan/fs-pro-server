@@ -148,23 +148,23 @@ router.post('/new', createCalendarYear);
  * - Next, Start the Calendar and go and play matches! :) Thank you Jesus
  * This endpoint, setups Year and Activates it ! Thank you Jesus!
  */
-router.post(
-  '/:year/:id/setup-and-start',
-  createSeasonsInTheYear,
-  setupDaysInYear,
-  startYear
-);
+// router.post(
+//   '/:year/:id/setup-and-start',
+//   createSeasonsInTheYear,
+//   setupDaysInYear,
+//   startYear
+// );
 
 // FOR TESTING
 router.post(
-  '/:year/:id/setup-and-start-test',
+  '/:year/:id/setup-and-start',
   createSeasonsInTheYear,
   setupDaysInYear2,
   startYear
 );
 
 router.post(
-  '/:year/:id/setup-days-and-start-test',
+  '/:year/:id/setup-days-and-start',
   setupDaysInYear2,
   startYear
 );
