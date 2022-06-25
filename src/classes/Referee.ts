@@ -338,7 +338,7 @@ export default class Referee {
 
      // TODO: FINISH!
      console.log('<<< BALL OUT >>>', outData);
-     console.log('Free blocks -> ', CO.co.getBlocksAround(outData.where, 3));
+    //  console.log('Free blocks -> ', CO.co.getBlocksAround(outData.where, 3));
      /**
       * Find the opposing team and give them the ball...
       * */

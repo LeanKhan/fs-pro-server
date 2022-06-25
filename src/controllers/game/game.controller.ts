@@ -311,7 +311,6 @@ export async function restPlayGameNew(
         // NOTE: doing this in a foreach would not be synchronous (one by one)
         for (let index = 0; index < fixtures_not_played.length; index++){
           // let r = await axios.get(fixtures_not_played_endpoints[index]);
-          console.log('Fixture - >', index + 1);
           let r = await play(fixtures_not_played[index].toString());
           let result;
           if(r.data && r.data.payload) {
@@ -470,9 +469,9 @@ export async function restPlayGame(
         req.body.AwaySideDetails = ASD;
         req.body.season_id = fixture.Season;
 
-        console.log(`The Match instances ${Match.instances}`);
-        console.log(`The Ball instances ${Ball.instances}`);
-        console.log(`The FieldPlayer instances ${FieldPlayer.instances}`);
+        // console.log(`The Match instances ${Match.instances}`);
+        // console.log(`The Ball instances ${Ball.instances}`);
+        // console.log(`The FieldPlayer instances ${FieldPlayer.instances}`);
       } catch (error) {
         console.error('Error updating fixture! :( => \n', error);
 

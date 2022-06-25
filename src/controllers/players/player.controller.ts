@@ -22,11 +22,6 @@ export function updatePlayersDetails(
   const updPlayers = (ar: any[]) => {
     const pt = ar.map((_) => updPlayer(_));
 
-    console.log('ar', ar.length);
-
-    console.log('ar[0]', ar[0]);
-
-
     // TODO: Mehn, I don't know how we will do this! Sha for now let's do all PromiseAll
     // Promise.all() has a 2 million limit lol. So we have to do this in batches o
     // while (array.length > 0) {

@@ -138,16 +138,12 @@ router.get('/:id', (req: Request, res: Response) => {
 
   const {populate} = req.query;
   let p;
-  console.log(populate);
-
   try {
     p = JSON.parse(populate);
   } catch(e) {
     console.error(e);
     console.log('Could not parse Season populate')
   }
-
-  console.log(p)
 
   fetchOneById(id, false, p)
     .then((season: any) => {
