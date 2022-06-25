@@ -276,29 +276,29 @@ export default class Game implements GameClass {
       return _log('NO ACTIVE PLAYERS');
     }
 
-    _log(
-      `Ball is at ${JSON.stringify({
-        x: this.MatchBall.Position.x,
-        y: this.MatchBall.Position.y,
-        key: this.MatchBall.Position.key,
-      })}`
-    );
-    _log(`
-      ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
-      this.ActivePlayerAS!.LastName
-    } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
-      x: this.ActivePlayerAS!.BlockPosition.x,
-      y: this.ActivePlayerAS!.BlockPosition.y,
-      key: this.ActivePlayerAS!.BlockPosition.key,
-    })}
-      ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
-      this.ActivePlayerDS?.LastName
-    } of [${this.ActivePlayerDS?.ClubCode}] at ${JSON.stringify({
-      x: this.ActivePlayerDS!.BlockPosition.x,
-      y: this.ActivePlayerDS!.BlockPosition.y,
-      key: this.ActivePlayerDS!.BlockPosition.key,
-    })}
-      `);
+    // _log(
+    //   `Ball is at ${JSON.stringify({
+    //     x: this.MatchBall.Position.x,
+    //     y: this.MatchBall.Position.y,
+    //     key: this.MatchBall.Position.key,
+    //   })}`
+    // );
+    // _log(`
+    //   ActivePlayerAS is ${this.ActivePlayerAS!.FirstName} ${
+    //   this.ActivePlayerAS!.LastName
+    // } of [${this.ActivePlayerAS!.ClubCode}] at ${JSON.stringify({
+    //   x: this.ActivePlayerAS!.BlockPosition.x,
+    //   y: this.ActivePlayerAS!.BlockPosition.y,
+    //   key: this.ActivePlayerAS!.BlockPosition.key,
+    // })}
+    //   ActivePlayerDS is ${this.ActivePlayerDS!.FirstName} ${
+    //   this.ActivePlayerDS?.LastName
+    // } of [${this.ActivePlayerDS?.ClubCode}] at ${JSON.stringify({
+    //   x: this.ActivePlayerDS!.BlockPosition.x,
+    //   y: this.ActivePlayerDS!.BlockPosition.y,
+    //   key: this.ActivePlayerDS!.BlockPosition.key,
+    // })}
+    //   `);
   }
 
   public startHalf() {
@@ -328,7 +328,7 @@ export default class Game implements GameClass {
     this.matchComments();
     return new Promise((resolve, reject) => {
       for (let i = timestart; i < timeend; i++) {
-        console.log(`------------Loop Position ${i + 1}---------`);
+        // console.log(`------------Loop Position ${i + 1}---------`);
         const playingSides = this.setPlayingSides();
 
          // matchEvents.emit(`${this.Match.id}-setting-playing-sides`, playingSides);
