@@ -25,10 +25,16 @@ export function findOne(query: Record<string, any>) {
  * Fetch a specific competition by its id
  * @param {string} id
  */
-export function fetchOneById(id: string) {
+export function fetchOneById(id: string, populate = true) {
+
+  if(populate){
   return DB.Models.Competition.findById(id)
     .populate('Clubs')
     .populate('Seasons')
+    .lean();
+  }
+
+  return DB.Models.Competition.findById(id)
     .lean();
 }
 

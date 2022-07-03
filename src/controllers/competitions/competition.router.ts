@@ -44,7 +44,8 @@ router.get('/all', (req: Request, res: Response) => {
 
 /** Get Competition by id */
 router.get('/:id', (req: Request, res: Response) => {
-  const response = fetchOneById(req.params.id);
+  const { populate } = req.query;
+  const response = fetchOneById(req.params.id, populate != 'false');
 
   response
     .then((competition) => {
