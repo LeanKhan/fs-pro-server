@@ -15,6 +15,8 @@ export interface CompetitionInterface {
   Division: 1 | 2 | 3 | 0;
   NumberOfTeams: number;
   NumberOfWeeks: number;
+  TeamsRelegated?: number;
+  TeamsPromoted?: number;
   Clubs: ClubInterface[] | string[];
   Seasons: [];
 }
@@ -30,6 +32,8 @@ declare interface ICompetition extends Document {
   Cup: boolean;
   NumberOfTeams: number;
   NumberOfWeeks: number;
+  TeamsRelegated?: number;
+  TeamsPromoted?: number;
   Clubs: [];
   Seasons: [];
 }
@@ -51,6 +55,8 @@ export class Competition {
         CompetitionID: { type: String, unique: true },
         NumberOfTeams: Number,
         NumberOfWeeks: Number,
+        TeamsPromoted: Number,
+        TeamsRelegated: Number,
         Country: {
           type: Schema.Types.ObjectId,
           ref: 'Place',

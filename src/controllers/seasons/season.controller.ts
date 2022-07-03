@@ -137,13 +137,15 @@ export async function finishSeason(
       const prolegated: any =
         cmp.Division == 1 && cmp.League
           ? {
-              Relegated: [
-                standings[standings.length - 2].ClubID,
-                standings[standings.length - 1].ClubID,
-              ],
+              Relegated: standings
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                .slice(standings.length - cmp.TeamsRelegated!)
+                .map((s) => s.ClubID),
             }
           : {
-              Promoted: [standings[0].ClubID, standings[1].ClubID],
+              Promoted: standings
+                .slice(0, cmp.TeamsPromoted)
+                .map((s) => s.ClubID),
             };
 
       req.body.seasonChampions = standings[0].ClubID;
@@ -244,7 +246,7 @@ export async function prolegate(season_id: string) {
       case 'down':
         diff = 1;
         // adding becasue the lower leagues have higher division numbers i.e
-        // League 1 is higehr than League 2
+        // League 1 is higher than League 2
         console.log('Relegating Club...', club_id);
     }
 
@@ -270,6 +272,8 @@ export async function prolegate(season_id: string) {
         $push: {
           Records: {
             title: 'League Movement',
+            // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+            data: `From (${old_comp.Name}) ${old_comp._id} to (${new_comp.Name}) ${new_comp._id}`,
             content: record_msg,
             date: new Date(),
           },
