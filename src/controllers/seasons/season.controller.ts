@@ -250,9 +250,11 @@ export async function prolegate(season_id: string) {
         console.log('Relegating Club...', club_id);
     }
 
-    // find the new Competition that is higher thnan current comp.
+    // find the new Competition that is higher than current comp but
+    // in the same country.
     const new_comp: CompetitionInterface = await findOne({
       Division: old_comp.Division + diff,
+      Country: old_comp.Country
     });
 
     const record_msg = `Got ${type == 'up' ? 'Promoted' : 'Relegated'} to ${

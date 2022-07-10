@@ -9,6 +9,7 @@ export interface CompetitionInterface {
   Name: string;
   CompetitionID: string;
   CompetitionCode: string;
+  Country: string;
   League: boolean;
   Tournament: boolean;
   Cup: boolean;
@@ -26,6 +27,7 @@ declare interface ICompetition extends Document {
   Name: string;
   CompetitionID: string;
   CompetitionCode: string;
+  Country: string;
   League: boolean;
   Tournament: boolean;
   Division: 1 | 2 | 3 | 0;
