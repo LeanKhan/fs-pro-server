@@ -54,7 +54,7 @@
     "mongoose": "^6.3.3",
     "mongoose-autopopulate": "^0.14.0",
     "multer": "^1.4.2",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.5.0",
     "winston": "^3.7.2"
   }
 }
