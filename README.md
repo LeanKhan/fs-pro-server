@@ -1,3 +1,5 @@
+# MOVED TO [FSPRO](https://github.com/LeanKhan/fs-pro) REPO
+
 ## FS PRO Game Server!
 
 FSPro server is a game engine thing for a football fantasy game.
@@ -63,7 +65,7 @@ So that you have assets/img/... don't forget to move the img folder inside the z
 
 This folder has the game logo and club logos. Of course, you can use your own club logos.
 
-The folder: https://drive.google.com/file/d/1ZohZLDTaT9owSKY_OWA7Y5UgBqvghR0q/view?usp=sharing
+The folder: [FSPro Assets](https://drive.google.com/file/d/11AyWVmjn4uA0ImA1a3L_7KSR8NPHmlFb/view?usp=sharing)
 
 ### License
 
